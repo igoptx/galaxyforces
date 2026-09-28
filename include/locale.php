@@ -61,6 +61,9 @@ function locale($name, $language='')
 	global $Config, $Lang, $ROOT;
 	$Prev = $Lang;
 	if (!$language) $language = $Config['Language'];
+	// Carrega primeiro o inglês e depois o idioma pedido por cima: uma chave que
+	// falte na tradução aparece em inglês em vez de ficar vazia.
+	if ($language != 'en') @include("{$ROOT}locale/en/$name.php");
 	if (file_exists("{$ROOT}locale/$language/$name.php")) @include("{$ROOT}locale/$language/$name.php");
 	else @include("{$ROOT}locale/{$Config['DefaultLanguage']}/$name.php");
 	return $Prev;

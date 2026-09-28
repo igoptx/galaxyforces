@@ -241,8 +241,7 @@ else {
 	<td><?php echo $Lang['Language']; ?>:</td>
 	<td>
 		<select name="language">
-		<option value="en"<?php echo ($Config['Language'] == 'en' ? ' selected="selected"' : ''); ?>><?php echo $Lang['English']; ?> (en)</option>
-		<option value="pl"<?php echo ($Config['Language'] == 'pl' ? ' selected="selected"' : ''); ?>><?php echo $Lang['Polish']; ?> (pl)</option>
+		<?php foreach (locales() as $code => $label) echo "\t\t<option value=\"$code\"".($Config['Language'] == $code ? ' selected="selected"' : '').">$label ($code)</option>\n"; ?>
 		</select>
 	</td>
 	</tr>

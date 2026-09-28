@@ -197,8 +197,7 @@ elseif (($action != 'changepassword') && ($action != 'validate') && ($action != 
 	<td><?php echo $Lang['Language']; ?>:</td>
 	<td>
 		<select name="language">
-		<option value="en"<?php echo ($User['language'] == 'en' ? ' selected="selected"' : ''); ?>><?php echo $Lang['English']; ?> (en)</option>
-		<option value="pl"<?php echo ($User['language'] == 'pl' ? ' selected="selected"' : ''); ?>><?php echo $Lang['Polish']; ?> (pl)</option>
+		<?php foreach (locales() as $code => $label) echo "\t\t<option value=\"$code\"".($User['language'] == $code ? ' selected="selected"' : '').">$label ($code)</option>\n"; ?>
 		</select>
 	</td>
 	</tr>
