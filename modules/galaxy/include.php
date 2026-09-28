@@ -1585,7 +1585,7 @@ function engine($stardate = 0, $name = '', $steps = null)
 
 		countrates($Colony, $Planet, $Units);
 
-		$chk = '';
+		$chk = array();
 
 		// ===================================================================
 		// M A I N   L O O P
