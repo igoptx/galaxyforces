@@ -21,7 +21,7 @@ $Config['DefaultLanguage'] = 'en';
 #$Config['LoginTime'] = 20 * 60;
 $Config['AuthPage'] = "control.php";
 $Config['Refresh'] = 0;	// 15 * 60;
-$Config['Title'] = 'Galaxy Forces Project';
+$Config['Title'] = getenv('GALAXY_TITLE') ? getenv('GALAXY_TITLE') : 'Galaxy Forces Project';
 $Config['Generator'] = 'Galaxy Website Engine';
 $Config['Author'] = 'zoltarx';
 $Config['Description'] = 'Galaxy Forces Project';
@@ -47,11 +47,11 @@ $Config['MaxLogSize'] = 16777216; // 16M
 
 $Database['layer'] = 'mysql';
 $Database['type']='mysql';
-$Database['host']='localhost';
-$Database['user']='galaxy';
-$Database['password']='';
-$Database['name']='galaxy_053';
-$Database['prefix']='galaxy_';
+$Database['host']=getenv('DB_HOST') ? getenv('DB_HOST') : 'localhost';
+$Database['user']=getenv('DB_USER') ? getenv('DB_USER') : 'galaxy';
+$Database['password']=getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : '';
+$Database['name']=getenv('DB_NAME') ? getenv('DB_NAME') : 'galaxy_053';
+$Database['prefix']=getenv('DB_PREFIX') ? getenv('DB_PREFIX') : 'galaxy_';
 $Database['persistent']=false;
 $Database['charset']='UTF-8';
 
@@ -86,7 +86,7 @@ $Modules[]='tracker';
 
 $Config["module.bug.section"] = "bottom";
 
-$Config['module.galaxy.thicklength'] = 300;
+$Config['module.galaxy.thicklength'] = getenv('GALAXY_TICK') ? (int)getenv('GALAXY_TICK') : 300; // segundos por ciclo
 
 #$Config['module.tracker.ga'] = 'UA-XXXXX-X';
 #$Config['module.tracker.ga-async'] = true;

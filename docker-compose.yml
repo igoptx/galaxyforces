@@ -1,0 +1,89 @@
+# Dois universos independentes (Milky Way e Andromeda), cada um com a sua base
+# de dados e logs, servidos pelo mesmo código atrás de um proxy nginx.
+#
+#   http://milkyway.localhost:8088   (também http://localhost:8088)
+#   http://andromeda.localhost:8088
+#
+# Para acrescentar um universo: um serviço web-<nome>, uma entrada em
+# GALAXY_UNIVERSES, um server block em docker/nginx/universes.conf, e recriar
+# o volume da base de dados (docker compose down -v).
+
+x-web: &web
+  build: .
+  depends_on:
+    db:
+      condition: service_healthy
+  restart: unless-stopped
+
+x-db-env: &db-env
+  DB_HOST: db
+  DB_USER: ${MYSQL_USER:-galaxy}
+  DB_PASSWORD: ${MYSQL_PASSWORD:-galaxy}
+
+services:
+  proxy:
+    image: nginx:alpine
+    ports:
+      - "${GALAXY_PORT:-8088}:80"
+    volumes:
+      - ./docker/nginx/universes.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/nginx/proxy.inc:/etc/nginx/conf.d/proxy.inc:ro
+    depends_on:
+      - web-milkyway
+      - web-andromeda
+    restart: unless-stopped
+
+  web-milkyway:
+    <<: *web
+    environment:
+      <<: *db-env
+      DB_NAME: galaxy_milkyway
+      GALAXY_TITLE: Galaxy Forces - Milky Way
+      GALAXY_TICK: ${MILKYWAY_TICK:-300}
+    volumes:
+      - .:/var/www/html
+      - ./docker/php/galaxy.ini:/usr/local/etc/php/conf.d/galaxy.ini:ro
+      - log-milkyway:/var/www/html/log
+
+  web-andromeda:
+    <<: *web
+    environment:
+      <<: *db-env
+      DB_NAME: galaxy_andromeda
+      GALAXY_TITLE: Galaxy Forces - Andromeda
+      GALAXY_TICK: ${ANDROMEDA_TICK:-60}
+    volumes:
+      - .:/var/www/html
+      - ./docker/php/galaxy.ini:/usr/local/etc/php/conf.d/galaxy.ini:ro
+      - log-andromeda:/var/www/html/log
+
+  db:
+    image: mysql:5.7
+    platform: linux/amd64
+    command: --sql-mode="" --character-set-server=utf8 --collation-server=utf8_general_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_USER: ${MYSQL_USER:-galaxy}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-galaxy}
+      # nome:mapa:galáxias:planeta_inicial
+      GALAXY_UNIVERSES: >-
+        milkyway:world.sql:universe.sql:mulahay
+        andromeda:world-andromeda.sql:universe-andromeda.sql:horus
+      GALAXY_ADMIN_LOGIN: ${GALAXY_ADMIN_LOGIN:-admin}
+      GALAXY_ADMIN_PASSWORD: ${GALAXY_ADMIN_PASSWORD:-admin}
+      GALAXY_ADMIN_EMAIL: ${GALAXY_ADMIN_EMAIL:-admin@localhost}
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./sql:/galaxy-sql:ro
+      - ./docker/mysql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-root}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+
+volumes:
+  db-data:
+  log-milkyway:
+  log-andromeda:
