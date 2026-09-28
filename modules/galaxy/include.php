@@ -46,10 +46,6 @@ foreach (array(
 	$State['registry']=$$name=isset($Config[$key="module.galaxy.$name"])
 	? $Config[$key] 
 	: $value;
-	
-$begining = 1092088800;
-$thicklength = 300;
-$starday = 12;
 
 $maximumsteps=10;
 

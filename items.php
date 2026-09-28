@@ -27,7 +27,7 @@ if (!$User['usergroup'] || $action == 'give' && $User['usergroup'] != $Config['A
 if ($action == 'give' && ($id = (int)getvar('id')) && $name) {
 	$db->query("SELECT * FROM {$prefix}items WHERE `id`='$id';");
 	if ($item = $db->fetchrow()) {
-		if ($count = abs(getvar('count')) $item['count'] = $count;
+		if ($count = abs(getvar('count'))) $item['count'] = $count;
 		addequipment($item, $name);
 		tablebegin();
 		echo "<br /><b>" . $Lang['items'][$item['name']]['name'] . "</b> ${Lang['given2']} <a href=\"whois.php?name=$name\">$name</a><br /><br />";

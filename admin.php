@@ -213,7 +213,7 @@ elseif ($action) {
 				$db->query("UPDATE `${prefix}clanmessages` SET `to`='$newname' WHERE `to`='$name';");
 				$db->query("UPDATE `${prefix}clanmessages` SET `from`='$newname' WHERE `from`='$name';");
 
-				$db->query("INSERT INTO `galaxy_chat` (`timestamp`, `author`, `message`) VALUES (".date('YmdHis').", '<font class=\"robot\">system</font>', '<font class=\"capacity\">Zmieniono nazwe uzytkownika $name na $newname</font>');");
+				$db->query("INSERT INTO `${prefix}chat` (`timestamp`, `author`, `message`) VALUES (".date('YmdHis').", '<font class=\"robot\">system</font>', '<font class=\"capacity\">Zmieniono nazwe uzytkownika $name na $newname</font>');");
 				echolog("Zmieniono nazwe uzytkownika $name na $newname przez $login");
 			}
 		break;
@@ -234,7 +234,7 @@ elseif ($action) {
 				$db->query("UPDATE `${prefix}attacks` SET `target`='$newname' WHERE `target`='$name';");
 				$db->query("UPDATE `${prefix}colonies` SET `name`='$newname' WHERE `name`='$name';");
 
-				$db->query("INSERT INTO `galaxy_chat` (`timestamp`, `author`, `message`) VALUES (".date('YmdHis').", '<font class=\"robot\">system</font>', '<font class=\"capacity\">Zmieniono nazwe koloni $name na $newname</font>');");
+				$db->query("INSERT INTO `${prefix}chat` (`timestamp`, `author`, `message`) VALUES (".date('YmdHis').", '<font class=\"robot\">system</font>', '<font class=\"capacity\">Zmieniono nazwe koloni $name na $newname</font>');");
 				echolog("Zmieniono nazwe koloni $name na $newname przez $login");
 			}
 		break;

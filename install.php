@@ -71,7 +71,8 @@ function readsql($filename)
 		flock($f, LOCK_SH);
 		while (! feof($f)) {
 			$s = trim(fgets($f, 32768));
-			if (strpos($s, 'CREATE TABLE') !== FALSE || strpos($s, 'INSERT INTO') !== FALSE) {
+			// INSERT IGNORE INTO também (a maior parte do world.sql usa-o)
+			if (preg_match('/^(CREATE TABLE|INSERT (IGNORE )?INTO)/i', $s)) {
 				$b = TRUE;
 				$t = '';
 			}
@@ -214,6 +215,9 @@ if ($action == 'install' && $mode == 'install') {
 		
 		$replace[] = "INSERT INTO `$source_prefix";
 		$with[] = "INSERT INTO `$destination_prefix";
+
+		$replace[] = "INSERT IGNORE INTO `$source_prefix";
+		$with[] = "INSERT IGNORE INTO `$destination_prefix";
 		
 		if ($createtables && ($sql = readsql('sql/install.sql'))) {
 			foreach ($sql as $query) {
@@ -227,7 +231,7 @@ if ($action == 'install' && $mode == 'install') {
 			if (!$db->query("INSERT INTO {$destination_prefix}users (id,active,login,password,usergroup,email,registered) VALUES (0,1,'$initialuser','".md5($initialpassword)."','wheel','$email','".date("Y-m-d")."');")) error($Lang['Error4']);
 		}
 
-		if ($createworld && ($sql = readsql('sql/world.sql'))) {
+		if ($createworld && ($sql = array_merge((array)readsql('sql/world.sql'), (array)readsql('sql/universe.sql')))) {
 			foreach ($sql as $query) {
 				$query = str_replace($replace, $with, $query);
 				if (! $db->query($query)) {
