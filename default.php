@@ -18,6 +18,16 @@ if ($Config['Language'] == 'pl') {
 	$Lang['rzulw'] = 'Wielka Rzulwica';
 	$Lang['irc'] = 'kanał komunikacyjny';
 }
+elseif ($Config['Language'] == 'pt') {
+	$Lang['user'] = 'jogador';
+	$Lang['pass'] = 'palavra-passe';
+	$Lang['enta'] = 'entrar';
+	$Lang['forum'] = 'ir para o fórum';
+	$Lang['enter'] = 'Galaxy Forces';
+	$Lang['sse'] = 'Solar System Edition';
+	$Lang['rzulw'] = 'Wielka Rzulwica';
+	$Lang['irc'] = 'canal de comunicação';
+}
 else {
 	$Lang['user'] = 'user';
 	$Lang['pass'] = 'pass';

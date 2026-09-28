@@ -1,0 +1,36 @@
+<?php
+
+$Lang['MenuLinks']='ligações';
+$Lang['MenuDocumentation']='documentação';
+$Lang['MenuDownload']='transferir';
+$Lang['MenuLicence']='licença';
+$Lang['MenuWelcome']='bem-vindo';
+$Lang['MenuLogin']='entrar';
+$Lang['MenuRegister']='registar';
+$Lang['MenuNews']='notícias';
+$Lang['MenuForum']='fórum';
+$Lang['MenuContact']='contacto';
+$Lang['MenuControl']='controlo';
+$Lang['MenuMessages']='mensagens';
+$Lang['MenuColony']='colónia';
+$Lang['MenuStructures']='estruturas';
+$Lang['MenuExplore']='explorar';
+$Lang['MenuBuild']='construir';
+$Lang['MenuProduction']='produção';
+$Lang['MenuAttack']='exército';
+$Lang['MenuResearch']='investigação';
+$Lang['MenuUnits']='unidades';
+$Lang['MenuGalaxyMap']='universo';
+$Lang['MenuWhois']='quem é';
+$Lang['MenuHighScores']='classificação';
+$Lang['MenuProfile']='perfil';
+$Lang['MenuLogout']='sair';
+$Lang['MenuPropaganda']='propaganda';
+$Lang['MenuClan']='clã';
+$Lang['MenuEquipment']='equipamento';
+$Lang['MenuAdministration']='administração';
+$Lang['MenuHeadquarters']='qg';
+$Lang['MenuAds']='anúncios';
+$Lang['MenuRegulations']='regulamento';
+$Lang['MenuTutorial']='tutorial';
+$Lang['MenuIRC']='canal irc';

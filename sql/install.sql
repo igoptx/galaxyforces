@@ -727,6 +727,25 @@ VALUES
 ('pl','Twoja postać może zyskać nowe zdolności/atrybuty, nie zobaczysz ich jednak dopóki nie zdobędziesz przynajmniej jednego punktu w danej zdolności. Kiedy już postać uzyska nową zdolność, będzie można przeznaczyć na nią punkty zdolności SP')
 ;
 
+-- Dicas em português (pt-PT)
+INSERT INTO `galaxy_tips` (`locale`, `tip`) VALUES
+('pt','Todos, incluindo o próprio jogador, podem ajudar a melhorar este jogo com novas ideias'),
+('pt','Se a sua colónia se basear em tecnologia humana, precisa de pessoas para trabalhar. Pode contratá-las nos campos de mercenários existentes em alguns planetas, mas lembre-se de que o custo da contratação depende da sua reputação'),
+('pt','A sua colónia precisa de energia. É boa ideia começar por construir alguns geradores eólicos ou baterias solares; estes edifícios fornecem energia consoante os parâmetros do planeta onde a sua colónia se encontra'),
+('pt','O mais importante ao criar a sua colónia é encontrar fontes de recursos: urânio, metal, etc. Para as encontrar, precisa de explorar o seu planeta ou o espaço'),
+('pt','Além de construir, precisa de produzir unidades. Existem vários tipos, por exemplo robôs que trabalham para si ou caças que combatem :-) Precisa de construir uma fábrica para produzir o que quer que seja. Quantas mais fábricas tiver, mais produções pode ter em simultâneo'),
+('pt','A construção de estruturas é mais rápida se a sua colónia tiver uma grande quantidade de robôs. Para produzir robôs mais depressa, tem de construir mais fábricas'),
+('pt','Para encontrar mais fontes de recursos, precisa de explorar o seu planeta ou o espaço. Outra forma de obter recursos para a sua colónia é trabalhar nas minas ou em Thoria'),
+('pt','A sua colónia e o seu herói são duas coisas diferentes. Pode viajar pelo universo e continuar a controlar a sua colónia, que se encontra no planeta que escolheu'),
+('pt','Se tiver dúvidas, pode utilizar o chat. Normalmente está cheio de frases estranhas, mas, se perguntar, é muito provável que alguém lhe responda'),
+('pt','O fórum é o primeiro sítio que deve visitar para começar a jogar o nosso jogo'),
+('pt','A sua pontuação dá-lhe uma posição mais alta na classificação, mas lembre-se de que, quanto mais pontos tiver, mais fortes serão os jogadores que podem atacar a sua colónia!'),
+('pt','Enviar cientistas em expedições aumenta a probabilidade de encontrar fontes de recursos valiosas'),
+('pt','Se não cuidar da comida para a sua população, as pessoas podem morrer e a sua reputação vai descer'),
+('pt','Verifique sempre os balanços da sua colónia. É uma informação muito valiosa'),
+('pt','Os atributos do seu herói podem ser consultados na secção "quem é", à qual pode aceder clicando no seu nome de utilizador'),
+('pt','O seu herói pode ganhar novas capacidades durante o jogo. Não as verá enquanto não obtiver pelo menos um ponto nelas. Quando já o tiver, poderá distribuir pontos de competência por essas capacidades');
+
 -- --------------------------------------------------------
 
 --

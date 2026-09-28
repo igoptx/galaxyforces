@@ -87,3 +87,7 @@ $Lang['ColonyName']='Nazwa koloni';
 $Lang['NewColonyName']='Nowa nazwa koloni';
 $Lang['AdminConfirmPassword']='Haslo potwierdzajace';
 $Lang['ErrorAdminConfirm']='Bledne lub brak hasla potwierdzajacego (GALAXY_ADMIN_CONFIRM). Nic nie zostalo usuniete.';
+$Lang['ClanList']='Lista klanów';
+$Lang['SendMail']='Wysłanie maila';
+$Lang['InactiveAccounts']='Nieaktywne konta (miesiące)';
+$Lang['Show']='Pokaż';

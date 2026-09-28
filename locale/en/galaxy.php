@@ -6,6 +6,7 @@
 
 $Lang['Polish']='Polish';
 $Lang['English']='English';
+$Lang['Portuguese']='Portuguese';
 $Lang['Capacity']='Capacity';
 $Lang['Quarters']='Quarters';
 $Lang['GiveItems']='Give items';

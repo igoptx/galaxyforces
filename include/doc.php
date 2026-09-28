@@ -74,6 +74,7 @@ if (! defined('__DOC_PHP__')) {
 				switch ($lang) {
 					case 'en': $language = $Lang['English']; break;
 					case 'pl': $language = $Lang['Polish']; break;
+					case 'pt': $language = $Lang['Portuguese']; break;
 					default: $language = '';
 				}
 			}
