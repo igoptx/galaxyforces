@@ -1214,10 +1214,10 @@ else {
 	if ($User['usergroup'] == 'wheel') echo style_linkbox('admin.php?view=user', $Lang['ChangeName']);
 	if ($User['usergroup'] == 'wheel') echo style_linkbox('admin.php?view=colony', $Lang['ChangeColony']);
 	if ($User['usergroup'] == 'wheel') echo style_linkbox('admin.php?view=delete', $Lang['DeleteUser']);
-	if ($User['usergroup'] == 'wheel') echo style_linkbox('admin.php?view=clanlist', "Lista klanow");
-	if ($User['usergroup'] == 'wheel') echo style_linkbox('admin.php?view=compose', "Wyslanie maila");
+	if ($User['usergroup'] == 'wheel') echo style_linkbox('admin.php?view=clanlist', $Lang['ClanList']);
+	if ($User['usergroup'] == 'wheel') echo style_linkbox('admin.php?view=compose', $Lang['SendMail']);
 	if ($User['usergroup'] == 'wheel')
-	echo "<br>Niekatywne konta (2 > miesiecy): <form name='form2' action='admin.php?view=oldseen' method='POST'><input type='text' name='activity' value='5'/>&nbsp;&nbsp;<a href='javascript:document.form2.submit();'>Pokaz</a></form><br>";
+	echo "<br>{$Lang['InactiveAccounts']}: <form name='form2' action='admin.php?view=oldseen' method='POST'><input type='text' name='activity' value='5'/>&nbsp;&nbsp;<a href='javascript:document.form2.submit();'>{$Lang['Show']}</a></form><br>";
 
 	echo BR;
 

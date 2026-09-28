@@ -76,3 +76,7 @@ $Lang['ChangeColony']='Zmiana nazwy kolonii u¿ytkownika';
 $Lang['DeleteUser']='Usuniêcie u¿ytkownika';
 $Lang['AdminConfirmPassword']='Confirmation password';
 $Lang['ErrorAdminConfirm']='Wrong or missing confirmation password (GALAXY_ADMIN_CONFIRM). Nothing was deleted.';
+$Lang['ClanList']='Clan list';
+$Lang['SendMail']='Send e-mail';
+$Lang['InactiveAccounts']='Inactive accounts (months)';
+$Lang['Show']='Show';
