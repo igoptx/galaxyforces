@@ -21,7 +21,7 @@ global $Config, $logged, $action, $login, $db, $prefix, $Lang, $secret, $languag
 global $Cost, $Player, $Group, $Equipment, $Exploration, $Buildings, $Structures, $Builds, $Units, $Colony, $Planet, $Galaxy, $Var, $Productions, $ProductionsAvailable, $Attackers, $Defenders;
 global $begining, $thicklength, $stardate, $starday, $playernature, $errors, $winner;
 global $soldierstraincost, $colonistshirecost, $scientistshirecost, $planetexplorecost, $galaxyexplorecost, $colonistexplorecost, $scientistsexplorecost, $soldiersexplorecost, $foodexplorecost, $vesselsexplorecost, $foundpercentage, $amiminlevel, $tronminreputation;
-global $defaultgalaxy, $playerspeed, $planet;
+global $defaultgalaxy, $playerspeed, $planet, $maximumsteps;
 global $valid_resources;
 
 locale('galaxy', $language = $Config['Language']);
