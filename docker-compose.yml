@@ -19,6 +19,8 @@ x-db-env: &db-env
   DB_HOST: db
   DB_USER: ${MYSQL_USER:-galaxy}
   DB_PASSWORD: ${MYSQL_PASSWORD:-galaxy}
+  # password para confirmar apagar contas/clãs no painel de admin; vazio desativa
+  GALAXY_ADMIN_CONFIRM: ${GALAXY_ADMIN_CONFIRM:-}
 
 services:
   proxy:

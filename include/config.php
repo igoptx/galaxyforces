@@ -31,6 +31,7 @@ $Config['Disclaimer'] = '&copy; <a href="http://en.wikipedia.org/wiki/Copyleft">
 $Config['Administrator']='';
 $Config['Bugs'] = 'bugs@localhost?Subject=Bug%20report';
 $Config['Robot'] = 'robot@localhost';
+$Config['AdminConfirm'] = getenv('GALAXY_ADMIN_CONFIRM') ? getenv('GALAXY_ADMIN_CONFIRM') : ''; // confirma apagar contas/clãs; vazio desativa
 $Config['AccessControl'] = FALSE;
 $Config['Policy'] = 'accept';	// [ accept | deny ]
 $Config['AllowIP'] = array('127.0.0.1', '10.0.0.1');

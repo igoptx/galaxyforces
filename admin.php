@@ -40,6 +40,15 @@ $name = getvar('name');
 $to = getvar('to');
 $seen = getvar('seen');
 $pass = getvar('pass');
+
+// Confirmação das ações que apagam dados (contas antigas, clãs). Compara com
+// $Config['AdminConfirm'] (GALAXY_ADMIN_CONFIRM); vazio desativa estas aÃ§Ãµes.
+function adminconfirmed($pass)
+{
+	global $Config;
+	$secret = (string)@$Config['AdminConfirm'];
+	return $secret !== '' && is_string($pass) && hash_equals($secret, $pass);
+}
 $activity = getvar('activity');
 $view = getvar('view');
 $category = getvar('category');
@@ -283,7 +292,7 @@ elseif ($action) {
 // <- changename.php
 
 		case 'deleteold':
-	if (($pass == $Database['Password']) || (($pass == 'alfabeta') && ($login == 'abadonna')))
+	if (adminconfirmed($pass))
 	{
 		$sql = '';
 		for ($i = 0; $i < count((array)(@$_POST['checkbox'])); $i++) 
@@ -355,7 +364,7 @@ elseif ($action) {
 	}
 	else
 	{
-		$errors .= "<font class=\"h3\">NIE WPISANO HASLA DO BAZY DANYCH!!</font>";
+		$errors .= "<font class=\"h3\">{$Lang['ErrorAdminConfirm']}</font>";
 	}
 		break;
 
@@ -388,7 +397,8 @@ elseif ($action) {
 // ===========================================================================
 
 		case 'deleteclan':
-			if ( $pass == $Database['Password'] || (($login == 'abadonna') && ($pass == 'alfabeta')))
+			if (!adminconfirmed($pass)) $errors .= "<font class=\"h3\">{$Lang['ErrorAdminConfirm']}</font>";
+			else
 			{
 				$sql = '';
 
@@ -1021,7 +1031,7 @@ if (confirm('{$Lang['AreYouSure?']}')) form.submit();\n\t}\n\t//-->\n\t</script>
 
 echo "\t<br /><a href=\"{$_SERVER['REQUEST_URI']}&checkall=1\" onclick=\"setcheckboxes('form', 'checkbox[]', true); return false;\">{$Lang['SelectAll']}</a> &nbsp;/&nbsp; <a href=\"{$_SERVER['REQUEST_URI']}&checkall=0\" onclick=\"setcheckboxes('form', 'checkbox[]', false); return false;\">{$Lang['UnselectAll']}</a><br />\n";
 echo "\t<br /><a class=\"delete\" href=\"javascript:deleteselected()\">{$Lang['DeleteSelected']}&nbsp;&gt;&gt;</a><br />\n
-Wpisz haslo do bazy: <input type='password' name='pass' value=''/>";
+{$Lang['AdminConfirmPassword']}: <input type='password' name='pass' value=''/>";
 ?>
 		</form>
 		</table>
@@ -1167,7 +1177,7 @@ elseif (($view == 'clanlist') && ($User['usergroup'] == 'wheel')) {
 	}
 	echo "\t<script>\n\t<!--\n\tfunction deleteselected()\n\t{\n\t\t
 	if (confirm('{$Lang['AreYouSure?']}')) form.submit();\n\t}\n\t//-->\n\t</script>\n";
-	echo "</table><br>Wpisz haslo do bazy: <input type='password' name='pass' value=''/>&nbsp;&nbsp;<a class=\"delete\" href=\"javascript:deleteselected()\">{$Lang['DeleteSelected']}&nbsp;&gt;&gt;</a><br /></form>";
+	echo "</table><br>{$Lang['AdminConfirmPassword']}: <input type='password' name='pass' value=''/>&nbsp;&nbsp;<a class=\"delete\" href=\"javascript:deleteselected()\">{$Lang['DeleteSelected']}&nbsp;&gt;&gt;</a><br /></form>";
 	tableend('<a href="admin.php">' . $Lang['GoBack'] . ' &gt;&gt;</a>');
 	}
 
