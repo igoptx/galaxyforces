@@ -11,7 +11,7 @@ for spec in $GALAXY_UNIVERSES; do
     echo "== Universo '$name' (base de dados $db, planeta inicial $start)"
 
     mysql -uroot -p"$MYSQL_ROOT_PASSWORD" <<SQL
-CREATE DATABASE IF NOT EXISTS \`$db\` CHARACTER SET utf8 COLLATE utf8_general_ci;
+CREATE DATABASE IF NOT EXISTS \`$db\` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 GRANT ALL PRIVILEGES ON \`$db\`.* TO '$MYSQL_USER'@'%';
 SQL
 

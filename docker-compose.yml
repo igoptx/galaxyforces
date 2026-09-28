@@ -60,9 +60,10 @@ services:
       - log-andromeda:/var/www/html/log
 
   db:
-    image: mysql:5.7
-    platform: linux/amd64
-    command: --sql-mode="" --character-set-server=utf8 --collation-server=utf8_general_ci
+    image: mysql:8.4
+    # utf8mb4_general_ci compara como a utf8_general_ci do MySQL 5.7; a omissão do 8.x
+    # (utf8mb4_0900_ai_ci) mudaria a comparação de logins e nomes
+    command: --sql-mode="" --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       MYSQL_USER: ${MYSQL_USER:-galaxy}
@@ -75,7 +76,7 @@ services:
       GALAXY_ADMIN_PASSWORD: ${GALAXY_ADMIN_PASSWORD:-admin}
       GALAXY_ADMIN_EMAIL: ${GALAXY_ADMIN_EMAIL:-admin@localhost}
     volumes:
-      - db-data:/var/lib/mysql
+      - db-data-mysql8:/var/lib/mysql
       - ./sql:/galaxy-sql:ro
       - ./docker/mysql:/docker-entrypoint-initdb.d:ro
     healthcheck:
@@ -86,6 +87,7 @@ services:
     restart: unless-stopped
 
 volumes:
-  db-data:
+  # o 8.4 não abre um diretório de dados do 5.7; o volume antigo (db-data) fica como estava
+  db-data-mysql8:
   log-milkyway:
   log-andromeda:

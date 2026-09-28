@@ -94,7 +94,7 @@ class Player:
 
 def sql(db, query):
     """Corre uma query no MySQL do stack e devolve as linhas como listas."""
-    r = subprocess.run(COMPOSE + ["exec", "-T", "db", "mysql", f"-u{DB_USER}", f"-p{DB_PASSWORD}", "-N", "-B", db, "-e", query],
+    r = subprocess.run(COMPOSE + ["exec", "-T", "db", "mysql", "--default-character-set=utf8mb4", f"-u{DB_USER}", f"-p{DB_PASSWORD}", "-N", "-B", db, "-e", query],
                        capture_output=True, text=True)
     return [l.split("\t") for l in r.stdout.strip().split("\n") if l]
 
