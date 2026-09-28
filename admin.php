@@ -577,8 +577,8 @@ elseif ($view == 'ban' || $view == 'lock') {
 	}
 
 	if ($name) {
-		if ($view == 'lock') $time = mktime (date('H'), date('i'), date('s'), date("m"), date("d") + 1, date("Y"));
-		else $time = mktime (date('H'), date('i') + 15, date('s'), date("m"), date("d"), date("Y"));
+		if ($view == 'lock') $time = mktime (num(date('H')), num(date('i')), num(date('s')), num(date("m")), num(date("d") + 1), num(date("Y")));
+		else $time = mktime (num(date('H')), num(date('i') + 15), num(date('s')), num(date("m")), num(date("d")), num(date("Y")));
 
 		list($h, $i, $s, $m, $d, $y) = explode(' ', date("H i s m d Y", $time));
 
@@ -953,7 +953,7 @@ elseif (($view == 'oldseen') && ($User['usergroup'] == 'wheel'))
 	$minuta  = substr($seen, 10, 2);
 	$sekunda = substr($seen, 12, 2);
 
-	$seen = mktime($godzina, $minuta, $sekunda, $miesiac, $dzien, $rok);
+	$seen = mktime(num($godzina), num($minuta), num($sekunda), num($miesiac), num($dzien), num($rok));
 	$seen = gmdate("YmdHis", $seen);
 
 		$db->query("SHOW TABLE STATUS FROM `" . $Database['Name'] . "` LIKE '{$prefix}users'");

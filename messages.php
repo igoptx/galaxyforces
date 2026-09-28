@@ -86,7 +86,7 @@ elseif ($action == 'markallread') $db->query("UPDATE `{$prefix}messages` SET `re
 // ===========================================================================
 
 elseif ($action == 'delete') {
-	if ($Config['MessageLife']) $db->query("DELETE FROM `{$prefix}messages` WHERE `timestamp`<'".date('Ymd', mktime(0, 0, 0, date("m"), date("d") - $Config['MessageLife'], date("Y"))).'000000'."';");
+	if ($Config['MessageLife']) $db->query("DELETE FROM `{$prefix}messages` WHERE `timestamp`<'".date('Ymd', mktime(0, 0, 0, num(date("m")), num(date("d") - $Config['MessageLife']), num(date("Y")))).'000000'."';");
 	if ($index == 'all') $db->query("DELETE FROM `{$prefix}messages` WHERE `to`='$login';");
 	else $db->query("DELETE FROM `{$prefix}messages` WHERE `to`='$login' AND `id`='$index';");
 }
@@ -96,7 +96,7 @@ elseif ($action == 'delete') {
 // ===========================================================================
 
 elseif ($action == 'deleteselected') {
-	if ($Config['MessageLife']) $db->query("DELETE FROM `{$prefix}messages` WHERE `timestamp`<'".date('Ymd', mktime(0, 0, 0, date("m"), date("d") - $Config['MessageLife'], date("Y"))).'000000'."';");
+	if ($Config['MessageLife']) $db->query("DELETE FROM `{$prefix}messages` WHERE `timestamp`<'".date('Ymd', mktime(0, 0, 0, num(date("m")), num(date("d") - $Config['MessageLife']), num(date("Y")))).'000000'."';");
 	for ($i = 0; $i < count((array)(@$_POST['checkbox'])); $i++) @$sql .= ($sql ? ' OR ' : '')."`id`='".$_POST['checkbox'][$i]."'";
 	$sql = "DELETE FROM `{$prefix}messages` WHERE `to`='$login' AND (".$sql.");";
 	$db->query($sql);

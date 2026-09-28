@@ -63,7 +63,7 @@ if ($action == 'register') {
 //	if (($birth > $year - 3) || ($birth < $year - 100)) $errors .= $Lang['ErrorBirthYear'] . '!<br />';
 
 	if (! $errors) {
-		$db->query("DELETE FROM `{$prefix}users` WHERE `active` = '0' AND `registered` < '" . date('Y-m-d', mktime(0, 0, 0, date("m"), date("d") - 2, date("Y"))) . "';");
+		$db->query("DELETE FROM `{$prefix}users` WHERE `active` = '0' AND `registered` < '" . date('Y-m-d', mktime(0, 0, 0, num(date("m")), num(date("d") - 2), num(date("Y")))) . "';");
 		$db->query("SELECT (`id`) FROM `{$prefix}users` WHERE `login`='$login' LIMIT 1;");
 		if ($db->numrows()) $errors .= $Lang['ErrorLoginExists'] . '!<br />';
 		else {

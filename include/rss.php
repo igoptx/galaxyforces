@@ -32,12 +32,12 @@ function ee($e, $v, $p="\t\t")
 	
 function timestamprss($timestamp)
 {
-	return gmdate("D, d M Y H:i:s", mktime(substr($timestamp, 8, 2), substr($timestamp, 10, 2), substr($timestamp, 12, 2), substr($timestamp, 4, 2), substr($timestamp, 6, 2), substr($timestamp, 0, 4))) . ' GMT';
+	return gmdate("D, d M Y H:i:s", mktime(num(substr($timestamp, 8, 2)), num(substr($timestamp, 10, 2)), num(substr($timestamp, 12, 2)), num(substr($timestamp, 4, 2)), num(substr($timestamp, 6, 2)), num(substr($timestamp, 0, 4)))) . ' GMT';
 }
 	
 function timestamprdf($timestamp)
 {
-	$t=gmdate("YmdHis", mktime(substr($timestamp, 8, 2), substr($timestamp, 10, 2), substr($timestamp, 12, 2), substr($timestamp, 4, 2), substr($timestamp, 6, 2), substr($timestamp, 0, 4)));
+	$t=gmdate("YmdHis", mktime(num(substr($timestamp, 8, 2)), num(substr($timestamp, 10, 2)), num(substr($timestamp, 12, 2)), num(substr($timestamp, 4, 2)), num(substr($timestamp, 6, 2)), num(substr($timestamp, 0, 4))));
 	return substr($t,0,4).'-'.substr($t,4,2).'-'.substr($t,6,2).'T'.substr($t,8,2).':'.substr($t,10,2).':'.substr($t,12,2);
 }
 

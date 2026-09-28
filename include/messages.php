@@ -53,7 +53,7 @@ function sendmessage($subject, $message, $from='', $to='', $type='message', $whe
 {
 	global $login, $db, $prefix, $Config, $timestamp, $sendmessagehandlers;
 
-	if ($Config['MessageLife']) deletemessage(0, 0, date('Y-m-d', mktime(0, 0, 0, date("m"), date("d") - $Config['MessageLife'], date("Y"))));
+	if ($Config['MessageLife']) deletemessage(0, 0, date('Y-m-d', mktime(0, 0, 0, num(date("m")), num(date("d") - $Config['MessageLife']), num(date("Y")))));
 	if (!$from) {
 		if ($type == 'message') $from = 'system';
 		elseif ($type == 'report') $from = 'robot';

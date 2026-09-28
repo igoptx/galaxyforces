@@ -82,14 +82,14 @@ elseif ($name) {
 
 	if ($t = $db->fetchrow()) {
 
-		$days = Round(num((time() - mktime(0, 0, 0, substr($t['seen'], 4, 2) ,substr($t['seen'], 6, 2), substr($t['seen'], 0, 4))) / $dl));
+		$days = Round(num((time() - mktime(0, 0, 0, num(substr($t['seen'], 4, 2)) ,num(substr($t['seen'], 6, 2)), num(substr($t['seen'], 0, 4)))) / $dl));
 		switch ($days) {
 			case 0: $lastseen = $Lang['Today']; break;
 			case 1: $lastseen =  $Lang['day'].' '.$Lang['ago']; break;
 			default: $lastseen =  $days.' '.$Lang['days'].' '.$Lang['ago'];
 		}
 
-		$days = Round(num((time() - mktime(0, 0, 0, substr($t['registered'], 5, 2) ,substr($t['registered'], 8, 2), substr($t['registered'], 0, 4))) / $dl));
+		$days = Round(num((time() - mktime(0, 0, 0, num(substr($t['registered'], 5, 2)) ,num(substr($t['registered'], 8, 2)), num(substr($t['registered'], 0, 4)))) / $dl));
 		if ($days < 21) $age = $Lang['Age[]'][0];
 		elseif ($days < 60) $age = $Lang['Age[]'][1];
 		elseif ($days < 120) $age = $Lang['Age[]'][2];
