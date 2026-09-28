@@ -21,6 +21,8 @@ x-db-env: &db-env
   DB_PASSWORD: ${MYSQL_PASSWORD:-galaxy}
   # password para confirmar apagar contas/clãs no painel de admin; vazio desativa
   GALAXY_ADMIN_CONFIRM: ${GALAXY_ADMIN_CONFIRM:-}
+  # idioma quando o browser não pede um disponível (en, pl, pt)
+  GALAXY_DEFAULT_LANGUAGE: ${GALAXY_DEFAULT_LANGUAGE:-pt}
 
 services:
   proxy:
