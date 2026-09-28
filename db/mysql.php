@@ -145,7 +145,7 @@ class mysql_db
 		if (is_null($charset)) $charset=$this->charset;
 		if (!$charset) return true;
 		switch ($charset=strtoupper($charset)) {
-			case 'UTF-8': $charset='utf8'; break;
+			case 'UTF-8': $charset='utf8mb4'; break;
 			case 'ISO-8859-2': $charset='latin2'; break;
 		}
 		return @mysqli_set_charset($this->link, strtolower($charset));
