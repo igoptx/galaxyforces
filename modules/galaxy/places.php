@@ -8,19 +8,19 @@ global $valid_resources;
 
 function actionbuy() {
 	global $login, $db, $prefix, $Lang, $Player, $Colony, $amount, $place, $name, $errors, $valid_resources;
-	if ($Colony && in_array($name, $valid_resources) && $amount && checkplace('market') && ($averageprice = @$place[$name.'buyaverage'])) {
+	if ($Colony && in_array($name, (array)($valid_resources)) && $amount && checkplace('market') && ($averageprice = @$place[$name.'buyaverage'])) {
 
 		if (!($price = $place[$name.'buy'])) $price = $averageprice;
 		elseif ($price < 0.66 * $averageprice) $price = 0.66 * $averageprice;
 		elseif ($price > 1.33 * $averageprice) $price = 1.33 * $averageprice;	
 		$price *= reputationmodifier($Player['reputation']);		
 		
-		if (floor($Player['credits']) >= floor($credits = $amount * $price)) {
-			if (!isset($Colony[$name.'capacity']) || floor($Colony[$name.'capacity'] - $Colony[$name]) >= $amount) {
+		if (floor(num($Player['credits'])) >= floor(num($credits = $amount * $price))) {
+			if (!isset($Colony[$name.'capacity']) || floor(num($Colony[$name.'capacity'] - $Colony[$name])) >= $amount) {
 				$Colony[$name] += $amount;
-				$db->query("UPDATE `${prefix}colonies` SET `$name`='${Colony[$name]}' WHERE `id`='${Colony['id']}';");
+				$db->query("UPDATE `{$prefix}colonies` SET `$name`='{$Colony[$name]}' WHERE `id`='{$Colony['id']}';");
 				$Player['credits'] -= $amount * $price;
-				$db->query("UPDATE `${prefix}users` SET `credits`='${Player['credits']}' WHERE `login`='$login';");
+				$db->query("UPDATE `{$prefix}users` SET `credits`='{$Player['credits']}' WHERE `login`='$login';");
 			}
 			else $errors .= $Lang['ErrorNotEnoughCapacity'].'<br />';
 		}
@@ -34,18 +34,18 @@ function actionbuy() {
 
 function actionsell() {
 	global $login, $db, $prefix, $Lang, $Player, $Colony, $amount, $place, $places, $name, $errors, $valid_resources;
-	if ($Colony && in_array($name, $valid_resources) && $amount && checkplace('market') && ($averageprice = @$place[$name.'sellaverage'])) {
+	if ($Colony && in_array($name, (array)($valid_resources)) && $amount && checkplace('market') && ($averageprice = @$place[$name.'sellaverage'])) {
 	
 		if (!($price = $place[$name.'sell'])) $price = $averageprice;
 		elseif ($price < 0.66 * $averageprice) $price = 0.66 * $averageprice;
 		elseif ($price > 1.33 * $averageprice) $price = 1.33 * $averageprice;
 		$price /= reputationmodifier($Player['reputation']); 
 
-		if (floor($Colony[$name]) >= floor($amount)) {
+		if (floor(num($Colony[$name])) >= floor(num($amount))) {
 			$Colony[$name] -= $amount;
-			$db->query("UPDATE `${prefix}colonies` SET `$name`='{$Colony[$name]}' WHERE `id`='{$Colony['id']}';");
+			$db->query("UPDATE `{$prefix}colonies` SET `$name`='{$Colony[$name]}' WHERE `id`='{$Colony['id']}';");
 			$Player['credits'] += $amount * $price;
-			$db->query("UPDATE `${prefix}users` SET `credits`='{$Player['credits']}' WHERE `login`='$login';");
+			$db->query("UPDATE `{$prefix}users` SET `credits`='{$Player['credits']}' WHERE `login`='$login';");
 		}
 		else $errors .= $Lang['ErrorNotEnoughResources'].'<br />';
 	}
@@ -65,7 +65,7 @@ function actiondeposit() {
 			else {
 				$Player['credits'] -= $amount;
 				$Player['bank'] += $amount;
-				$db->query("UPDATE `${prefix}users` SET `credits` = '${Player['credits']}', `bank` = '${Player['bank']}' WHERE `login` = '$login' LIMIT 1");
+				$db->query("UPDATE `{$prefix}users` SET `credits` = '{$Player['credits']}', `bank` = '{$Player['bank']}' WHERE `login` = '$login' LIMIT 1");
 			}
 		}
 	}
@@ -81,7 +81,7 @@ function actionwithdraw() {
 		if ($amount && ($amount <= $Player['bank'])) {
 			$Player['credits'] += $amount;
 			$Player['bank'] -= $amount;
-			$db->query("UPDATE `${prefix}users` SET `credits` = '${Player['credits']}', `bank` = '${Player['bank']}' WHERE `login` = '$login' LIMIT 1");
+			$db->query("UPDATE `{$prefix}users` SET `credits` = '{$Player['credits']}', `bank` = '{$Player['bank']}' WHERE `login` = '$login' LIMIT 1");
 		}
 	}
 }
@@ -94,8 +94,8 @@ function actionbanktransfer() {
 	global $login, $db, $prefix, $Player, $Lang, $amount, $place, $errors, $result, $name;
 	if (checkplace('bank')) {
 		if (($credit = equipmentparameters('creditcard')) > 0) {
-			if (($tax = log($place['parameters'] / 1000) - log($credit / 10000)) < 0.5) $tax = 0.5;			
-			if (($cost = round($amount * (100 + $tax) / 100)) < 100) $cost = 100;
+			if (($tax = log(num($place['parameters'] / 1000)) - log(num($credit / 10000))) < 0.5) $tax = 0.5;			
+			if (($cost = round(num($amount * (100 + $tax) / 100))) < 100) $cost = 100;
 			if ($amount > $place['parameters'] || $amount > $credit) $errors .= $Lang['BankLimit'].'<br />';
 			if ($Player['bank'] < $cost) $errors .= $Lang['ErrorNotEnoughCredits'].'<br />';
 			if ($Player['login'] == $name) $errors .= $Lang['ErrorCannotDonate'].'<br />';
@@ -132,12 +132,12 @@ function actionheal() {
 	global $login, $db, $prefix, $errors, $Player, $Lang, $places;
 	$errors = '';
 	if (checkplace('healer') && $Player['hpmax'] > $Player['hp']) {
-		if (($cost = round($places['healer']['parameters'] * ($Player['hpmax'] - $Player['hp']) * 20)) < $Player['credits']) {
+		if (($cost = round(num($places['healer']['parameters'] * ($Player['hpmax'] - $Player['hp']) * 20))) < $Player['credits']) {
 			$Player['credits'] -= $cost;
 			$Player['hp'] = $Player['hpmax'];
 			if ($Player['mp'] > 10) $Player['mp'] -= 0.3;
 			elseif ($Player['mp'] > 1) $Player['mp'] -= 0.15;
-			$db->query("UPDATE `${prefix}users` SET `credits`='${Player['credits']}',`hp`='${Player['hp']}',`mp`='${Player['mp']}' WHERE `login`='$login';");
+			$db->query("UPDATE `{$prefix}users` SET `credits`='{$Player['credits']}',`hp`='{$Player['hp']}',`mp`='{$Player['mp']}' WHERE `login`='$login';");
 		}
 		else $errors .= $Lang['ErrorNotEnoughCredits'] . '<br />';
 	}
@@ -149,7 +149,7 @@ function actionheal() {
 
 function actionacademy() {
 	global $login, $db, $prefix, $Player, $Colony, $amount, $place, $errors, $Lang, $result;
-	if ($Colony && $amount && checkplace('academy') && ($cost = round(reputationmodifier($Player['reputation'])*$place['parameters']))) {
+	if ($Colony && $amount && checkplace('academy') && ($cost = round(num(reputationmodifier($Player['reputation'])*$place['parameters'])))) {
 		if ($amount > $Colony['colonistsfree']) $errors .= $Lang['ExE1'].'<br />';
 		if ($amount * $cost > $Player['credits']) $errors .= $Lang['ErrorNotEnoughCredits'].'<br />';
 		if ($amount > $Colony['barracks'] * 50 - $Colony['soldiers']) $errors .= $Lang['NoRoomForS'].'<br />';
@@ -159,7 +159,7 @@ function actionacademy() {
 			$Colony['colonistsfree'] -= $amount;
 			$Colony['soldiers'] += $amount;
 			$db->query("UPDATE {$prefix}users SET `credits`='{$Player['credits']}' WHERE `login`='{$Player['login']};");
-			$db->query("UPDATE {$prefix}colonies SET `colonists`='{$Colony['colonists']}', `soldiers`='{$Colony['soldiers']}' WHERE `id`='${Colony['id']}';");
+			$db->query("UPDATE {$prefix}colonies SET `colonists`='{$Colony['colonists']}', `soldiers`='{$Colony['soldiers']}' WHERE `id`='{$Colony['id']}';");
 			$result = $amount;
 		}
 	}
@@ -182,8 +182,8 @@ function actionhire() {
 		else {
 			$Colony[$name] += $amount;
 			$Player['credits'] -= $amount * $price;
-			$db->query("UPDATE `${prefix}colonies` SET `$name` = '${Colony[$name]}' WHERE `name` = '${Colony['name']}' LIMIT 1");
-			$db->query("UPDATE `${prefix}users` SET `credits` = '${Player['credits']}' WHERE `login` = '$login' LIMIT 1");
+			$db->query("UPDATE `{$prefix}colonies` SET `$name` = '{$Colony[$name]}' WHERE `name` = '{$Colony['name']}' LIMIT 1");
+			$db->query("UPDATE `{$prefix}users` SET `credits` = '{$Player['credits']}' WHERE `login` = '$login' LIMIT 1");
 		}
 	}
 }
@@ -199,14 +199,14 @@ function actionteleport() {
 		$names = explode(',', $place['parameters']);
 		$prices = explode(',', $place['extra']);
 		$b = FALSE;
-		for ($i = 0; $i < count($names); $i++) {
+		for ($i = 0; $i < count((array)($names)); $i++) {
 			if ($names[$i] == $name) { 
 				if ($Player['credits'] < $prices[$i]) $errors .= $Lang['ErrorNotEnoughCredits'] . '<br />';
 				elseif ($Player['mp'] >= 5) {
 					$Player['mp'] -= 5;
 					$Player['credits'] -= $prices[$i];
 					$Player['planet'] = $name;
-					$db->query("UPDATE ${prefix}users SET mp='${Player['mp']}',planet='${Player['planet']}',credits='${Player['credits']}' WHERE id='${Player['id']}' LIMIT 1;");
+					$db->query("UPDATE {$prefix}users SET mp='{$Player['mp']}',planet='{$Player['planet']}',credits='{$Player['credits']}' WHERE id='{$Player['id']}' LIMIT 1;");
 				}
 				else $errors .= $Lang['ErrorNotEnoughMP'] . '<br />';
 				break;
@@ -225,12 +225,12 @@ function actiontrack() {
 	$tracker = '';
 	if (checkplace('tracker') && $name) {
 		$cost = $places['tracker']['parameters'];
-		$db->query("SELECT `login`, `planet`, `destination`, `time` FROM `${prefix}users` WHERE `login` = '$name' LIMIT 1");
+		$db->query("SELECT `login`, `planet`, `destination`, `time` FROM `{$prefix}users` WHERE `login` = '$name' LIMIT 1");
 		if ($t = $db->fetchrow()) {
 			if ($Player['credits'] < $cost) $errors .= $Lang['ErrorNotEnoughCredits'] . '<br />';
 			else {
 				$Player['credits'] -= $cost;
-				$db->query("UPDATE `${prefix}users` SET `credits` = '${Player['credits']}' WHERE `login` = '$login' LIMIT 1");
+				$db->query("UPDATE `{$prefix}users` SET `credits` = '{$Player['credits']}' WHERE `login` = '$login' LIMIT 1");
 				if ($t['destination']) {
 					$tracker = '<a href="whois.php?name=' . $t['login'] . '">' . $t['login'] . '</a> ' . $Lang['IsTravelingFrom'] . ' <font class="result">' . $t['planet'] . '</font> ' . $Lang['TravelingTo'] . ' <font class="result">' . $t['destination'] . '</font>.<br />';
 					$tracker .= '<br /><b>ETA</b>: <font class="work">' . eta($t['time'] - $stardate) . '</font>';
@@ -257,18 +257,18 @@ function actiongamble() {
 		else {
 			$Player['mp'] -= 0.1 + 0.1 * $Player['level'];
 			if (Rand(0, 199) < 2) {
-				$exp = round(33 * Rand(1, 5 * $cost) * $Player['level']) / 100;
+				$exp = round(num(33 * Rand(1, num(5 * $cost)) * $Player['level'])) / 100;
 				$Player['exp'] += $exp;
 				$result = $Lang['GambleTE'] . $exp . '!<br />';
 			}
 			elseif ($Colony && Rand(0, 99) < 1) {
-				$Colony['crystals'] += $crystals = floor(Rand(1, $cost) * $Player['level'] / 25) + 1;
+				$Colony['crystals'] += $crystals = floor(num(Rand(1, num($cost)) * $Player['level'] / 25)) + 1;
 
 				$result = $Lang['GambleC'] . $crystals . '!<br />';
-				$db->query("UPDATE `${prefix}colonies` SET `crystals`='${Colony['crystals']}' WHERE `id`='${Colony['id']}';");
+				$db->query("UPDATE `{$prefix}colonies` SET `crystals`='{$Colony['crystals']}' WHERE `id`='{$Colony['id']}';");
 			}
 			elseif (Rand(0, 199) < 4) {
-				$Player['credits'] += $credits = Rand(50, 50 * $cost);
+				$Player['credits'] += $credits = Rand(50, num(50 * $cost));
 				$result = $Lang['GambleWon'] . $credits . ' [!].<br />';
 			}
 			elseif(Rand(0, 99) < 5) {
@@ -278,7 +278,7 @@ function actiongamble() {
 				$result = $Lang['GambleN' . Rand(1, 3)] . '<br />';
 				$Player['credits'] -= $cost;
 			}
-			$db->query("UPDATE `${prefix}users` SET `exp` = '${Player['exp']}', `credits` = '${Player['credits']}', `mp` = '${Player['mp']}' WHERE `login` = '$login' LIMIT 1");
+			$db->query("UPDATE `{$prefix}users` SET `exp` = '{$Player['exp']}', `credits` = '{$Player['credits']}', `mp` = '{$Player['mp']}' WHERE `login` = '$login' LIMIT 1");
 		}
 	}
 }
@@ -292,7 +292,7 @@ function actionmine() {
 	$errors = '';
 	$result = '';
 	$b = FALSE;
-	$amount = floor($amount / 0.25);
+	$amount = floor(num($amount / 0.25));
 	if (! $amount) $amount = 1;
 	if (checkplace('mines')) {
 		if ($Player['mp'] < 0.25 * $amount) $errors .= $Lang['ErrorNotEnoughMP'] . '<br />';
@@ -302,28 +302,28 @@ function actionmine() {
 
 			for ($i = 0; $i < $amount; $i++) {
 				$Player['mp'] -= 0.25;
-				$credits += round(Rand(3, 15 + 5 * $kind) * ($Player['level'] + 5) / 5);
+				$credits += round(num(Rand(3, num(15 + 5 * $kind)) * ($Player['level'] + 5) / 5));
 
 				if ($Colony && Rand(0, 199) < 2 + $kind) {
-					$Colony['metalsources'] += $sources = round(5 * ($Player['level'] + 1)) / 10;
+					$Colony['metalsources'] += $sources = round(num(5 * ($Player['level'] + 1))) / 10;
 					$result .= $Lang['MineWork2'] . $sources . '.<br />';
 					$b = TRUE;
 				}
 				if (Rand(0, 199) < 2 + $kind) {
-					$Player['score'] += $score = Rand(1, 30 + 5 * $Player['level']);
-					$result .= "${Lang['MineWork3']} <font class=\"plus\">" . div($score) . '</font>.<br />';
+					$Player['score'] += $score = Rand(1, num(30 + 5 * $Player['level']));
+					$result .= "{$Lang['MineWork3']} <font class=\"plus\">" . div($score) . '</font>.<br />';
 				}
 				if (Rand(0, 199) < 2 + $kind) {
-					$exp = Rand(5, 20 + 5 * $Player['level']);
+					$exp = Rand(5, num(20 + 5 * $Player['level']));
 					if ($Player['level'] > 5) $exp *= 100 * $Player['level'];
 					$Player['exp'] += $exp;
 					if (Rand(0, 99) < 25) $s = $Lang['MineWork9'];
 					else if (Rand(0, 99) < 25) $s = $Lang['MineWork8'];
 					else $s = $Lang['MineWork4'];
-					$result .= "<font class=\"capacity\">$s</font><br /><b>${Lang['Experience']}</b>: <font class=\"capacity\"><b>"  . div($exp) . '</b></font>.<br />';
+					$result .= "<font class=\"capacity\">$s</font><br /><b>{$Lang['Experience']}</b>: <font class=\"capacity\"><b>"  . div($exp) . '</b></font>.<br />';
 				}
 				if (Rand(0, 99) < 1 + $kind) {
-					$Player['credits'] += $credits = Rand(10, 500 * $Player['level']);
+					$Player['credits'] += $credits = Rand(10, num(500 * $Player['level']));
 					if (Rand(0, 99) < 25) $s = $Lang['MineWork7'];
 					else if (Rand(0, 99) < 25) $s = $Lang['MineWork6'];
 					else $s = $Lang['MineWork5'];
@@ -334,8 +334,8 @@ function actionmine() {
 			$Player['credits'] += $credits;
 			$result .= $Lang['MineWork1'] . '<b>' . div($credits) . '</b> [!].<br />';
 
-			if ($b) $db->query("UPDATE `${prefix}colonies` SET `metalsources` = '${Colony['metalsources']}' WHERE `id` = '${Colony['id']}' LIMIT 1;");
-			$db->query("UPDATE `${prefix}users` SET `score`='${Player['score']}',`exp`='${Player['exp']}',`credits`='${Player['credits']}',`mp`='${Player['mp']}' WHERE `login`='$login';");
+			if ($b) $db->query("UPDATE `{$prefix}colonies` SET `metalsources` = '{$Colony['metalsources']}' WHERE `id` = '{$Colony['id']}' LIMIT 1;");
+			$db->query("UPDATE `{$prefix}users` SET `score`='{$Player['score']}',`exp`='{$Player['exp']}',`credits`='{$Player['credits']}',`mp`='{$Player['mp']}' WHERE `login`='$login';");
 		}
 	}
 }
@@ -351,7 +351,7 @@ function actionthoria() {
 	$b = FALSE;
 	if (checkplace('thoria')) {
 		$mpcost = ($p = $places['thoria']['parameters']) * $Player['level'] / 2;
-		if (! $amount = floor($amount / $mpcost)) $amount = 1;
+		if (! $amount = floor(num($amount / $mpcost))) $amount = 1;
 		if ($Player['mp'] < $mpcost * $amount) $errors .= $Lang['ErrorNotEnoughMP'] . '<br />';
 		elseif ($Player['hp'] < $places['thoria']['parameters'] * $Player['hpmax'] / 10) $errors .= $Lang['ErrorNotEnoughHP'] . '<br />';
 		else {
@@ -360,10 +360,10 @@ function actionthoria() {
 			$exp = 0;
 			$uransources = 0;
 
-			$n = log($Player['hpmax']);
+			$n = log(num($Player['hpmax']));
 
 			for ($i = 0; $i < $amount; $i++) {
-				$credits += floor($n * Rand(5 + $mpcost, 25 * $mpcost));
+				$credits += floor(num($n * Rand(num(5 + $mpcost), num(25 * $mpcost))));
 				$Player['mp'] -= $mpcost;
 
 				if (Rand(0, 999) < 50 * $n) {
@@ -372,17 +372,17 @@ function actionthoria() {
 							$item = generateitem('item');
 							$name = $Lang['items'][$item['name']]['name'];
 							addequipment($item);
-							$result .= "${Lang['FoundItem']}: <b><font class=\"capacity\">$name</font></b><br />";
+							$result .= "{$Lang['FoundItem']}: <b><font class=\"capacity\">$name</font></b><br />";
 							break;
 						}
-						if ($Colony) $uransources = round(Rand(1, 25 * $mpcost) / 10);
-						else $credits += Rand(100, 250 * $p * $mpcost);
+						if ($Colony) $uransources = round(num(Rand(1, num(25 * $mpcost)) / 10));
+						else $credits += Rand(100, num(250 * $p * $mpcost));
 					}
-					else $score += floor($n * Rand(1, 15 * $mpcost));
+					else $score += floor(num($n * Rand(1, num(15 * $mpcost))));
 				}
 
 				if (Rand(0, 999) < 5 * $p * $n) {
-					$Player['exp'] += ($exp = round(Rand(1, 10 + $amount) * $p * $Player['exp'] / 1000));
+					$Player['exp'] += ($exp = round(num(Rand(1, num(10 + $amount)) * $p * $Player['exp'] / 1000)));
 					$Player['hp'] = 0;
 					$result .= $Lang['Accident'] . '<br />' . $Lang['Experience'] . ': <font class="work"><b>' . div($exp) . '</b></font><br />';
 					break;
@@ -392,34 +392,34 @@ function actionthoria() {
 
 			if ($uransources) {
 				$Colony['uransources'] += $uransources;
-				$db->query("UPDATE `${prefix}colonies` SET `uransources`='${Colony['uransources']}' WHERE `id`='${Colony['id']}';");
+				$db->query("UPDATE `{$prefix}colonies` SET `uransources`='{$Colony['uransources']}' WHERE `id`='{$Colony['id']}';");
 				$result .= $Lang['UranSourcesGained'] . ': <b><font class="work">' . div($uransources) . '</font></b><br />';
 			}
 
 			if ($score) {
-				$tax = $Group ? round($score * $Group['tax'] / 100) : 0;
+				$tax = $Group ? round(num($score * $Group['tax'] / 100)) : 0;
 				$Player['score'] += $score - $tax;
 				$result .= $Lang['ScoreGained'] . ': <b><font class="result">' . div($score) . '</font></b><br />';
 				if ($tax) {
 					$Group['score'] += $tax;
-					$db->query("UPDATE `${prefix}groups` SET `score`=`score`+$tax WHERE `id`='${Group['id']}';");
+					$db->query("UPDATE `{$prefix}groups` SET `score`=`score`+$tax WHERE `id`='{$Group['id']}';");
 					$result .= $Lang['ClanTaxGiven'] . ': <b><font class="tax">' . div($tax) . '</font></b><br />';
 				}
 			}
 
 			if ($credits) {
-				$tax = $Group ? round($credits * $Group['tax'] / 100) : 0;
+				$tax = $Group ? round(num($credits * $Group['tax'] / 100)) : 0;
 				$Player['credits'] += $credits - $tax;
 				$result .= $Lang['PaymentForWork'] . ': <b><font class="plus">' . div($credits) . '</font> [!]</b><br />';
 				if ($tax) {
 					$Group['credits'] += $tax;
-					$db->query("UPDATE `${prefix}groups` SET `credits`=`credits`+$tax WHERE `id`='${Group['id']}';");
+					$db->query("UPDATE `{$prefix}groups` SET `credits`=`credits`+$tax WHERE `id`='{$Group['id']}';");
 					$result .= $Lang['ClanTaxGiven'] . ': <b><font class="tax">' . div($tax) . '</font> [!]</b><br />';
 				}
 			}
 
-			if ($b) $db->query("UPDATE `${prefix}colonies` SET `uransources`='${Colony['uransources']}' WHERE `id`='${Colony['id']}';");
-			$db->query("UPDATE `${prefix}users` SET `score`='${Player['score']}',`exp`='${Player['exp']}',`credits`='${Player['credits']}',`mp`='${Player['mp']}',`hp`='${Player['hp']}' WHERE `id`='${Player['id']}';");
+			if ($b) $db->query("UPDATE `{$prefix}colonies` SET `uransources`='{$Colony['uransources']}' WHERE `id`='{$Colony['id']}';");
+			$db->query("UPDATE `{$prefix}users` SET `score`='{$Player['score']}',`exp`='{$Player['exp']}',`credits`='{$Player['credits']}',`mp`='{$Player['mp']}',`hp`='{$Player['hp']}' WHERE `id`='{$Player['id']}';");
 		}
 	}
 }

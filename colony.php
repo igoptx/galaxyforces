@@ -36,34 +36,34 @@ if ($action) {
 	switch ($action) {
 		case 'abandon':
 			if ($Colony && (($confirm = getvar('confirm')) == $secret)) {
-				if (($exp = round(0.05 * $Player['exp'])) < 250) $exp = 250;
+				if (($exp = round(num(0.05 * $Player['exp']))) < 250) $exp = 250;
 				if ($exp > $Player['exp']) $exp = $Player['exp'];
-				$Player['score'] = round(0.85 * $Player['score']);
+				$Player['score'] = round(num(0.85 * $Player['score']));
 				$Player['exp'] -= $Cost['exp'];
-				$db->query("UPDATE {$prefix}users SET exp='${Player['exp']}',score='${Player['score']}' WHERE login='$login' LIMIT 1;");
-				$db->query("UPDATE ${prefix}space SET abandoned=abandoned+1 WHERE name='${Colony['planet']}' LIMIT 1;");
-				$db->query("DELETE FROM ${prefix}colonies WHERE name='${Colony['name']}' LIMIT 1;");
-				$db->query("DELETE FROM ${prefix}researches WHERE login='$login';");
-				$db->query("DELETE FROM ${prefix}exploration WHERE login='$login';");
-				$db->query("DELETE FROM ${prefix}buildings WHERE login='$login';");
-				$db->query("DELETE FROM ${prefix}productions WHERE login='$login';");
-				$db->query("DELETE FROM ${prefix}attacks WHERE login='$login';");
+				$db->query("UPDATE {$prefix}users SET exp='{$Player['exp']}',score='{$Player['score']}' WHERE login='$login' LIMIT 1;");
+				$db->query("UPDATE {$prefix}space SET abandoned=abandoned+1 WHERE name='{$Colony['planet']}' LIMIT 1;");
+				$db->query("DELETE FROM {$prefix}colonies WHERE name='{$Colony['name']}' LIMIT 1;");
+				$db->query("DELETE FROM {$prefix}researches WHERE login='$login';");
+				$db->query("DELETE FROM {$prefix}exploration WHERE login='$login';");
+				$db->query("DELETE FROM {$prefix}buildings WHERE login='$login';");
+				$db->query("DELETE FROM {$prefix}productions WHERE login='$login';");
+				$db->query("DELETE FROM {$prefix}attacks WHERE login='$login';");
 				sendmessage($Lang['AbaS'], $Lang['AbaM'], '', $login, 'report');
-				@chat("<font color=\"yellow\">$login</font>", "<font class=\"capacity\"><i>abandoned <b>${Colony['name']}</b></i></font>...");
-				$result = "${Lang['CA1']}<br />";
+				@chat("<font color=\"yellow\">$login</font>", "<font class=\"capacity\"><i>abandoned <b>{$Colony['name']}</b></i></font>...");
+				$result = "{$Lang['CA1']}<br />";
 				$Colony = array();
 			}
-			else $errors .= "${Lang['HaveNoColony']}<br />";
+			else $errors .= "{$Lang['HaveNoColony']}<br />";
 			break;
 
 		case 'create':
-			$db->query("SELECT `technology` FROM `${prefix}space` WHERE `name`='$planet';");
+			$db->query("SELECT `technology` FROM `{$prefix}space` WHERE `name`='$planet';");
 			if ($t = $db->fetchrow()) {
 				$technology = $t['technology'];
-				if ($technology == 'tron' && $Player['reputation'] > -5 || $technology == 'tron' && $Player['reputation'] > -5 || $technology == 'cyber' || $technology == 'necro' && $Player['voyaged'] < 250000 || $technology == 'ami') $errors .= "${Lang['ErrorCannotUse']}<br />";
+				if ($technology == 'tron' && $Player['reputation'] > -5 || $technology == 'tron' && $Player['reputation'] > -5 || $technology == 'cyber' || $technology == 'necro' && $Player['voyaged'] < 250000 || $technology == 'ami') $errors .= "{$Lang['ErrorCannotUse']}<br />";
 				elseif ($name) {
-					$db->query("SELECT `name` FROM `${prefix}colonies` WHERE `name`='$name';");
-					if ($db->numrows()) $errors .= "${Lang['ErrorColonyAlreadyExists']}<br />";
+					$db->query("SELECT `name` FROM `{$prefix}colonies` WHERE `name`='$name';");
+					if ($db->numrows()) $errors .= "{$Lang['ErrorColonyAlreadyExists']}<br />";
 					else {
 						$base = $technology == 'human' ? 1 : 0;
 						$tron = $technology == 'tron' ? 1 : 0;
@@ -75,15 +75,15 @@ if ($action) {
 						$metal = ($technology == 'human' ? 300 : 0) + ($technology == 'tron' ? 200 : 0);
 						$food = ($technology == 'human' ? 200 : 0);
 						$colonists = ($technology == 'human' ? 5 : 0);
-						$db->query("INSERT INTO `${prefix}colonies` (`name`,`owner`,`planet`,`thicks`,`base`,`tron`,`ami`,`cyber`,`necro`,`energy`,`silicon`,`metal`,`food`,`colonists`) VALUES ('$name','$login','$planet','$stardate',$base,$tron,$ami,$cyber,$necro,$energy,$silicon,$metal,$food,$colonists);");
+						$db->query("INSERT INTO `{$prefix}colonies` (`name`,`owner`,`planet`,`thicks`,`base`,`tron`,`ami`,`cyber`,`necro`,`energy`,`silicon`,`metal`,`food`,`colonists`) VALUES ('$name','$login','$planet','$stardate',$base,$tron,$ami,$cyber,$necro,$energy,$silicon,$metal,$food,$colonists);");
 						if ($Player['credits'] + $Player['bank'] < 25000) {
-							$db->query("UPDATE `${prefix}users` SET `credits`='25000',`bank`='0' WHERE `login`='$login' LIMIT 1;");
+							$db->query("UPDATE `{$prefix}users` SET `credits`='25000',`bank`='0' WHERE `login`='$login' LIMIT 1;");
 							sendmessage($Lang['BankDonatedSubject'], $Lang['BankDonated'] . '<b>25000</b>!<br />', $Lang['GalaxyBank'], $login, 'report');
 						}
-						$result .= "${Lang['Colony']} <b>$name</b> ${Lang['CC1']} <font class=\"capacity\">$planet</font><br />";
+						$result .= "{$Lang['Colony']} <b>$name</b> {$Lang['CC1']} <font class=\"capacity\">$planet</font><br />";
 					}
 				}
-				else $errors .= "${Lang['ErrorUnknownName']}<br />";
+				else $errors .= "{$Lang['ErrorUnknownName']}<br />";
 			}
 			break;
 	}
@@ -94,10 +94,10 @@ if ($action) {
 // ===========================================================================
 
 if ($errors) {
-	tablebegin("<font class=\"error\">${Lang['Error']}!</font>", '400');
-	echo "\t\t<br />\n\t\t<font class=\"h3\">${Lang['ErrorProblems']}</font><br />\n\t\t<br />\n\t\t<font class=\"error\">$errors</font>\n\t\t<br />\n\t\t<a href=\"javascript:history.back(1)\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />\n";
+	tablebegin("<font class=\"error\">{$Lang['Error']}!</font>", '400');
+	echo "\t\t<br />\n\t\t<font class=\"h3\">{$Lang['ErrorProblems']}</font><br />\n\t\t<br />\n\t\t<font class=\"error\">$errors</font>\n\t\t<br />\n\t\t<a href=\"javascript:history.back(1)\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />\n";
 	sound('error');
-	tableend("<a href=\"colony.php\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>");
+	tableend("<a href=\"colony.php\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>");
 }
 
 // ===========================================================================
@@ -106,8 +106,8 @@ if ($errors) {
 
 elseif ($result) {
 	tablebegin($pagename, 400);
-	echo "\t\t<br /><font class=\"result\">$result</font><br /><a href=\"${_SERVER['PHP_SELF']}\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
-	tableend("<a href=\"admin.php\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>");
+	echo "\t\t<br /><font class=\"result\">$result</font><br /><a href=\"{$_SERVER['PHP_SELF']}\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
+	tableend("<a href=\"admin.php\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>");
 }
 
 // ===========================================================================
@@ -117,16 +117,16 @@ elseif ($result) {
 elseif ($Colony && $view == 'abandon') {
 	tablebegin('<font class="work">' . $Lang['Confirmation'] . '</font>', 500);
 
-	if (($exp = round(0.05 * $Player['exp'])) < 250) $exp = 250;
+	if (($exp = round(num(0.05 * $Player['exp']))) < 250) $exp = 250;
 	if ($exp > $Player['exp']) $exp = $Player['exp'];
-	$score = round(0.15 * $Player['score']);
+	$score = round(num(0.15 * $Player['score']));
 
 	echo "<h3>{$Lang['AbandonColony']}</h3>";
 
-	if ($banned) echo "\t<font class=\"error\">${Lang['Banned']}!</font><br />\n";
+	if ($banned) echo "\t<font class=\"error\">{$Lang['Banned']}!</font><br />\n";
 	else {
 		echo $Lang['AC1'].':<br /><br /><b>'.$Lang['Experience'].'</b>: <font class="minus">'.div($exp).'</font><br /><b>'.$Lang['Score'].'</b>: <font class="work">'.div($score).'</font><br /><br />';
-		echo "\t<font class=\"error\">${Lang['RUSure']}</font><br /><br />\n";
+		echo "\t<font class=\"error\">{$Lang['RUSure']}</font><br /><br />\n";
 		echo "\t".'<a href="colony.php?action=abandon&confirm='.$secret.'" class="delete">'.$Lang['Yes'].'</a>&nbsp; &nbsp; &nbsp; &nbsp;<a href="colony.php">'.$Lang['No']."</a><br />\n";
 	}
 
@@ -180,10 +180,10 @@ elseif ($Colony) {
 
 	function fill($name) {
 		global $Colony, $Lang;
-	       if (@$Colony[$name.'capacity'] && (($x = round(100*$Colony[$name]/$Colony[$name.'capacity'])) >= 0)) {
-			if ($x == 0) return " (<font class=\"minus\">${Lang['Empty']}</font>)";
-			elseif ($x == 100) return " (<font class=\"plus\">${Lang['Full']}</font>)";
-			elseif ($x > 100) return " (<font class=\"work\">${Lang['Overload']}</font>)";
+	       if (@$Colony[$name.'capacity'] && (($x = round(num(100*$Colony[$name]/$Colony[$name.'capacity']))) >= 0)) {
+			if ($x == 0) return " (<font class=\"minus\">{$Lang['Empty']}</font>)";
+			elseif ($x == 100) return " (<font class=\"plus\">{$Lang['Full']}</font>)";
+			elseif ($x > 100) return " (<font class=\"work\">{$Lang['Overload']}</font>)";
 			else return " (<font class=\"result\">$x%</font>)";
 		}
 		else return '';
@@ -202,7 +202,7 @@ elseif ($Colony) {
 			<b><?php echo $Lang['Population']; ?></b>: <font class="result"><?php echo div($Colony['colonists'] + $Colony['scientists'] + $Colony['soldiers']); ?></font><br />
 			<b><?php echo $Lang['Robots']; ?></b>: <font class="result"><?php echo div($Colony['bx1'] + $Colony['bx2'] + $Colony['bx5'] + $Colony['bx10']); ?></font><br />
 			<br />
-			<b><?php echo $Lang['Damaged']; ?></b>: <font class="delete"><?php echo round(100 * $Colony['damage']) / 100; ?>%</font><?php if ($Colony['damage']) { ?> <a href="colony.php?action=repair"><?php echo $Lang['Repair']; ?> &gt;&gt;</a><?php } ?><br />
+			<b><?php echo $Lang['Damaged']; ?></b>: <font class="delete"><?php echo round(num(100 * $Colony['damage'])) / 100; ?>%</font><?php if ($Colony['damage']) { ?> <a href="colony.php?action=repair"><?php echo $Lang['Repair']; ?> &gt;&gt;</a><?php } ?><br />
 		</td>
 		<td width="8">&nbsp;</td>
 		<td>
@@ -299,10 +299,10 @@ elseif ($Colony) {
 
 	tableend($Lang['Resources']);
 
-	echo "\t<script>\n\t<!--\n\tfunction avatar() {\n\t\t\$msg = prompt('${Lang['EnterAvatarURL']}', '');\n\t\tif (\$msg > '') {\n\t\t\t\$url = '${_SERVER['PHP_SELF']}?rid=$rid&action=changeavatar&url=' + \$msg;\n\t\t\t	document.location.href = \$url;\n\t\t}\n";
-	if ($Colony['avatar']) echo "\t\telse if (\$msg != null) {\n\t\t\t\$url = '${_SERVER['PHP_SELF']}?rid=$rid&action=changeavatar';\n\t\t\tdocument.location.href = \$url;\n\t\t}\n";
-	echo "\t}\n\n\tfunction description() {\n\t\t\$msg = prompt('${Lang['EnterDescription']}:', '');\n\t\t\$msg = \$msg.replace(/\\+/g,\"%2B\"); // code: kot\n\t\t\$msg = \$msg.replace(/\\&/g,\"%26\");\n\t\t\$msg = \$msg.replace(/\\#/g,\"%23\");\n\t\tif (\$msg > '') {\n\t\t\t\$url = '${_SERVER['PHP_SELF']}?rid=$rid&action=changedescription&description=' + \$msg;\n\t\t\tdocument.location.href = \$url;\n\t\t}\n";
-	if ($Colony['description']) echo "\t\telse if (\$msg != null) {\n\t\t\t\$url = '${_SERVER['PHP_SELF']}?rid=$rid&action=changedescription';\n\t\t\tdocument.location.href = \$url;\n\t\t}\n";
+	echo "\t<script>\n\t<!--\n\tfunction avatar() {\n\t\t\$msg = prompt('{$Lang['EnterAvatarURL']}', '');\n\t\tif (\$msg > '') {\n\t\t\t\$url = '{$_SERVER['PHP_SELF']}?rid=$rid&action=changeavatar&url=' + \$msg;\n\t\t\t	document.location.href = \$url;\n\t\t}\n";
+	if ($Colony['avatar']) echo "\t\telse if (\$msg != null) {\n\t\t\t\$url = '{$_SERVER['PHP_SELF']}?rid=$rid&action=changeavatar';\n\t\t\tdocument.location.href = \$url;\n\t\t}\n";
+	echo "\t}\n\n\tfunction description() {\n\t\t\$msg = prompt('{$Lang['EnterDescription']}:', '');\n\t\t\$msg = \$msg.replace(/\\+/g,\"%2B\"); // code: kot\n\t\t\$msg = \$msg.replace(/\\&/g,\"%26\");\n\t\t\$msg = \$msg.replace(/\\#/g,\"%23\");\n\t\tif (\$msg > '') {\n\t\t\t\$url = '{$_SERVER['PHP_SELF']}?rid=$rid&action=changedescription&description=' + \$msg;\n\t\t\tdocument.location.href = \$url;\n\t\t}\n";
+	if ($Colony['description']) echo "\t\telse if (\$msg != null) {\n\t\t\t\$url = '{$_SERVER['PHP_SELF']}?rid=$rid&action=changedescription';\n\t\t\tdocument.location.href = \$url;\n\t\t}\n";
 	echo "\t}\n\t//-->\n\t</script>\n";
 }
 
@@ -312,33 +312,33 @@ elseif ($Colony) {
 
 elseif ($view == 'create') {
 	if ($planet) {
-		$db->query("SELECT `technology` FROM `${prefix}space` WHERE `name`='$planet';");
+		$db->query("SELECT `technology` FROM `{$prefix}space` WHERE `name`='$planet';");
 		if ($t = $db->fetchrow()) $technology = $t['technology'];
 	}
 
 	if ($technology && isset($Lang['Race[]'][$technology])) {
 		tablebegin($Lang['Create'], 500);
-		echo "\t<br /><font class=\"h3\">".$Lang['Technology[]'][$technology]."</font><br /><br />\n\t<font class=\"result\">${Lang['ChoosePlanet']}</font><br /><br />\n";
-		$db->query("SELECT `name`,`galaxy` FROM `${prefix}space` WHERE `type`='planet' AND `technology`='$technology' ORDER BY `galaxy`;");
+		echo "\t<br /><font class=\"h3\">".$Lang['Technology[]'][$technology]."</font><br /><br />\n\t<font class=\"result\">{$Lang['ChoosePlanet']}</font><br /><br />\n";
+		$db->query("SELECT `name`,`galaxy` FROM `{$prefix}space` WHERE `type`='planet' AND `technology`='$technology' ORDER BY `galaxy`;");
 
 		if ($db->numrows()) {
 			echo "\t<form action=\"colony.php\" method=\"POST\" name=\"form\">\n\t<table align=\"center\"><input type=\"hidden\" name=\"action\" value=\"create\" />\n";
-			echo "\t<tr><td><b>${Lang['Name']}</b>:</td><td>&nbsp; &nbsp;</td><td><input name=\"name\" size=\"24\" maxlength=\"32\" /></td></tr>\n";
+			echo "\t<tr><td><b>{$Lang['Name']}</b>:</td><td>&nbsp; &nbsp;</td><td><input name=\"name\" size=\"24\" maxlength=\"32\" /></td></tr>\n";
 			echo "\t<tr><td>&nbsp;</td></tr>\n";
-			echo "\t<tr><td><b>${Lang['Planet']}</b>:</td><td></td><td><select name=\"planet\">";
-			while ($t = $db->fetchrow()) echo "<option value=\"${t['name']}\"".($planet == $t['name'] ? ' selected="selected"' : '').'>'.strcap($t['name']).' ('.strcap($t['galaxy']).')'.'</option>';
-			echo "</select></td></tr>\n\t<tr><td>&nbsp;</td></tr>\n\t<tr><td colspan=\"3\" align=\"center\"><input type=\"submit\" value=\"${Lang['CreateColony']}\" /></td></tr>\n";
+			echo "\t<tr><td><b>{$Lang['Planet']}</b>:</td><td></td><td><select name=\"planet\">";
+			while ($t = $db->fetchrow()) echo "<option value=\"{$t['name']}\"".($planet == $t['name'] ? ' selected="selected"' : '').'>'.strcap($t['name']).' ('.strcap($t['galaxy']).')'.'</option>';
+			echo "</select></td></tr>\n\t<tr><td>&nbsp;</td></tr>\n\t<tr><td colspan=\"3\" align=\"center\"><input type=\"submit\" value=\"{$Lang['CreateColony']}\" /></td></tr>\n";
 			echo "\t</table>\n\t</form>\n";
 			echo "\t<script>\n\t<!--\n\t\tdocument.form.name.focus();\n\t//-->\n\t</script>\n";
 		}
-		else echo "\t<font class=\"error\">${Lang['NoPlanet']}</font><br />";
+		else echo "\t<font class=\"error\">{$Lang['NoPlanet']}</font><br />";
 
 		echo "\t<br />\n";
-		tableend("<a href=\"colony.php?view=create\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>");
+		tableend("<a href=\"colony.php?view=create\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>");
 	}
 	else {
 		tablebegin($Lang['Create'], 500);
-		echo "\t<br /><font class=\"h3\">${Lang['Technology']}</font><br /><br />\n\t${Lang['TechnologyTip']}<br />\n\t<br />\n";
+		echo "\t<br /><font class=\"h3\">{$Lang['Technology']}</font><br /><br />\n\t{$Lang['TechnologyTip']}<br />\n\t<br />\n";
 
 //		foreach (array('human','tron','ami','cyber','necro') as $race) {
 		foreach (array('human','tron') as $race) {
@@ -347,8 +347,8 @@ elseif ($view == 'create') {
 			tableimg('images/bw.gif', 168, 168, "gallery/technology/$race.jpg", 160, 160, '', 'right');
 			echo "\t<font class=\"h3\">".$Lang['Technology[]'][$race]."</font><br />\n";
 			echo "\t<br /><font class=\"result\">".$Lang['Race[]'][$race]."</font><br />\n";
-			echo "\t<br /><b>${Lang['Requirements']}</b>: <font class=\"capacity\">".$Lang['Req[]'][$race]."</font><br />\n";
-			echo "\t<br /><a href=\"colony.php?view=create&technology=$race\">${Lang['Next']}&nbsp;&gt;&gt;</a><br />\n";
+			echo "\t<br /><b>{$Lang['Requirements']}</b>: <font class=\"capacity\">".$Lang['Req[]'][$race]."</font><br />\n";
+			echo "\t<br /><a href=\"colony.php?view=create&technology=$race\">{$Lang['Next']}&nbsp;&gt;&gt;</a><br />\n";
 			subend();
 		}
 
@@ -356,7 +356,7 @@ elseif ($view == 'create') {
 //		echo "\t<br />${Lang['NotAvailable']}<br />\n";
 //		echo "\t<br />\n";
 
-		tableend("<a href=\"control.php\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>");
+		tableend("<a href=\"control.php\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>");
 
 	}
 }
@@ -368,12 +368,12 @@ elseif ($view == 'create') {
 else {
 	tablebegin($Lang['Colony'], 500);
 
-	echo "\t<br /><font class=\"h3\">${Lang['HaveNoColony']}</font><br /><br />\n";
-	echo "\t${Lang['NoColonyTip']}<br />\n";
-	echo "\t<br /><a href=\"colony.php?view=create\">${Lang['CreateColony']}&nbsp;&gt;&gt;</a><br />\n";
+	echo "\t<br /><font class=\"h3\">{$Lang['HaveNoColony']}</font><br /><br />\n";
+	echo "\t{$Lang['NoColonyTip']}<br />\n";
+	echo "\t<br /><a href=\"colony.php?view=create\">{$Lang['CreateColony']}&nbsp;&gt;&gt;</a><br />\n";
 	echo "\t<br />\n";
 
-	tableend("<a href=\"control.php\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>");
+	tableend("<a href=\"control.php\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>");
 }
 
 require('include/footer.php');

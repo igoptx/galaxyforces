@@ -21,17 +21,17 @@ require('include/header.php');
 
 $pagename = $Lang['Build'];
 
-if (! @$Colony) $errors .= "${Lang['NotAvailable']}<br />";
+if (! @$Colony) $errors .= "{$Lang['NotAvailable']}<br />";
 
 // ===========================================================================
 // ERRORS
 // ===========================================================================
 
 if ($errors) {
-	tablebegin("<font class=\"error\">${Lang['Error']}!</font>", '400');
-	echo "\t\t<br />\n\t\t<font class=\"h3\">${Lang['ErrorProblems']}</font><br />\n\t\t<br />\n\t\t<font class=\"error\">$errors</font>\n\t\t<br />\n\t\t<a href=\"javascript:history.back(1)\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />\n";
+	tablebegin("<font class=\"error\">{$Lang['Error']}!</font>", '400');
+	echo "\t\t<br />\n\t\t<font class=\"h3\">{$Lang['ErrorProblems']}</font><br />\n\t\t<br />\n\t\t<font class=\"error\">$errors</font>\n\t\t<br />\n\t\t<a href=\"javascript:history.back(1)\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />\n";
 	sound('error');
-	tableend("<a href=\"colony.php\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>");
+	tableend("<a href=\"colony.php\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>");
 }
 
 // ===========================================================================
@@ -40,8 +40,8 @@ if ($errors) {
 
 elseif ($result) {
 	tablebegin($pagename, 400);
-	echo "\t\t<br /><font class=\"result\">$result</font><br /><a href=\"${_SERVER['PHP_SELF']}\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
-	tableend("<a href=\"admin.php\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>");
+	echo "\t\t<br /><font class=\"result\">$result</font><br /><a href=\"{$_SERVER['PHP_SELF']}\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
+	tableend("<a href=\"admin.php\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>");
 }
 
 // ===========================================================================
@@ -49,19 +49,19 @@ elseif ($result) {
 // ===========================================================================
 
 else {
-	echo "\t<script>\n\t<!--\n\tfunction ask(\$url)\n\t{\n\t\tif (confirm('${Lang['AreYouSure?']}')) location.href = \$url;\n\t}\n\t//-->\n\t</script>\n";
+	echo "\t<script>\n\t<!--\n\tfunction ask(\$url)\n\t{\n\t\tif (confirm('{$Lang['AreYouSure?']}')) location.href = \$url;\n\t}\n\t//-->\n\t</script>\n";
 
 	if ($Buildings) {
 		tablebegin($pagename, 500);
 		subbegin();
 
-		tableimg('images/bw.gif', 168, 168, "gallery/buildings/${Buildings['name']}.jpg", 160, 160, '', 'right');
+		tableimg('images/bw.gif', 168, 168, "gallery/buildings/{$Buildings['name']}.jpg", 160, 160, '', 'right');
 
-		echo "\t<center><font class=\"h3\">${Lang['Building']}</font></center>\n";
+		echo "\t<center><font class=\"h3\">{$Lang['Building']}</font></center>\n";
 ?>	<br />
 	<b><?php echo $Lang['Name']; ?></b>: <font class="plus"><?php echo $Builds[$Buildings['name']]['name']; ?></font><br />
 	<b><?php echo $Lang['Amount']; ?></b>: <font class="result"><?php echo $Buildings['amount']; ?></font><br />
-	<b><?php echo $Lang['Progress']; ?></b>: <font class="capacity"><?php echo round(100 * ($stardate - $Buildings['begin']) / $Buildings['time']); ?> %</font><br />
+	<b><?php echo $Lang['Progress']; ?></b>: <font class="capacity"><?php echo round(num(100 * ($stardate - $Buildings['begin']) / $Buildings['time'])); ?> %</font><br />
 	<br />
 	<?php echo $Lang['FullETA']; ?>: <b><?php echo eta($Buildings['end'] - $stardate); ?><br />
 	<br />
@@ -103,9 +103,9 @@ else {
 		</tr>
 <?php
 			}
- 			if ($Cost['energy']) echo "\t<tr><td>${Lang['Energy']}:</td><td></td><td><b>".div($Cost['energy'])."</b></td></tr>\n";
- 			if ($Cost['silicon']) echo "\t<tr><td>${Lang['Silicon']}:</td><td></td><td><b>".div($Cost['silicon'])."</b></td></tr>\n";
- 			if ($Cost['metal']) echo "\t<tr><td>${Lang['Metal']}:</td><td></td><td><b>".div($Cost['metal'])."</b></td></tr>\n";
+ 			if ($Cost['energy']) echo "\t<tr><td>{$Lang['Energy']}:</td><td></td><td><b>".div($Cost['energy'])."</b></td></tr>\n";
+ 			if ($Cost['silicon']) echo "\t<tr><td>{$Lang['Silicon']}:</td><td></td><td><b>".div($Cost['silicon'])."</b></td></tr>\n";
+ 			if ($Cost['metal']) echo "\t<tr><td>{$Lang['Metal']}:</td><td></td><td><b>".div($Cost['metal'])."</b></td></tr>\n";
  			if ($Cost['uran']) {
 ?>		<tr>
 		<td><?php echo $Lang['Uran']; ?>:</td>
@@ -187,7 +187,7 @@ else {
 	
 ?>	<td width="4">&nbsp;</td>
 	<td width="80" align="center">
-		[ <font class="plus"><?php echo eta(round((50 / $Colony['infrastructure']) * $s['work'] / log($Colony['workforce']))); ?></b></font> ]<br />
+		[ <font class="plus"><?php echo eta(round(num((50 / $Colony['infrastructure']) * $s['work'] / log(num($Colony['workforce']))))); ?></b></font> ]<br />
 	</td>
 	<td width="4">&nbsp;</td>
 	<td width="100" align="right">
@@ -204,7 +204,7 @@ else {
 
 		}
 		echo "\t".'<tr height="8"><td colspan="9">&nbsp;</td></tr>'."\n\t</table>\n";
-		tableend(count($Builds) . $Lang[' structure(s) available']);
+		tableend(count((array)($Builds)) . $Lang[' structure(s) available']);
 
 		if ($action == 'cancelbuilding') sound('processcancelled');
 		else sound('selectstructure');

@@ -33,8 +33,8 @@ elseif ($Colony && checkplace('academy')) {
 <?php
 	}
 	else {
-		$cost = round(reputationmodifier($Player['reputation']) * $places['academy']['parameters']);
-		$max = $Player['credits'] / $cost < $Colony['colonistsfree'] ? floor($Player['credits'] / $cost) : $Colony['colonistsfree'];
+		$cost = round(num(reputationmodifier($Player['reputation']) * $places['academy']['parameters']));
+		$max = $Player['credits'] / $cost < $Colony['colonistsfree'] ? floor(num($Player['credits'] / $cost)) : $Colony['colonistsfree'];
 		$max = $Colony['barracks'] * 50 - $Colony['soldiers'] < $max ? $Colony['barracks'] * 50 - $Colony['soldiers'] : $max;
 
 		if ($max) {
@@ -61,7 +61,7 @@ elseif ($Colony && checkplace('academy')) {
 }
 else {
 	tablebegin($Lang['TrainingS'], 500);
-	echo "\t\t<br />\n\t\t${Lang['NotAvailable']}<br />\n\t\t<br />\t\t<font class=\"result\">${Lang['UDNA']}</font><br />\n\t\t<br />\n";
+	echo "\t\t<br />\n\t\t{$Lang['NotAvailable']}<br />\n\t\t<br />\t\t<font class=\"result\">{$Lang['UDNA']}</font><br />\n\t\t<br />\n";
 	tableend('<a href="control.php">' . $Lang['GoBack'] . ' &gt;&gt;</a>');
 }
 

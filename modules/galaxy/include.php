@@ -21,7 +21,7 @@ global $Config, $logged, $action, $login, $db, $prefix, $Lang, $secret, $languag
 global $Cost, $Player, $Group, $Equipment, $Exploration, $Buildings, $Structures, $Builds, $Units, $Colony, $Planet, $Galaxy, $Var, $Productions, $ProductionsAvailable, $Attackers, $Defenders;
 global $begining, $thicklength, $stardate, $starday, $playernature, $errors, $winner;
 global $soldierstraincost, $colonistshirecost, $scientistshirecost, $planetexplorecost, $galaxyexplorecost, $colonistexplorecost, $scientistsexplorecost, $soldiersexplorecost, $foodexplorecost, $vesselsexplorecost, $foundpercentage, $amiminlevel, $tronminreputation;
-global $defaultgalaxy, $playerspeed, $planet;
+global $defaultgalaxy, $playerspeed, $planet, $maximumsteps;
 global $valid_resources;
 
 locale('galaxy', $language = $Config['Language']);
@@ -46,10 +46,6 @@ foreach (array(
 	$State['registry']=$$name=isset($Config[$key="module.galaxy.$name"])
 	? $Config[$key] 
 	: $value;
-	
-$begining = 1092088800;
-$thicklength = 300;
-$starday = 12;
 
 $maximumsteps=10;
 
@@ -78,7 +74,7 @@ $valid_resources = array('energy', 'silicon', 'metal', 'uran', 'plutonium', 'deu
 // -------------------------------------------------------------------
 
 $name = strip_tags(escapesql(getvar('name')));
-$amount = abs(getvar('amount'));
+$amount = abs(num(getvar('amount')));
 
 $errors = '';
 $result = '';
@@ -95,7 +91,7 @@ function div($s='')
 function amount($s, $d = 1)
 {
 	global $Lang;
-	$t = number_format($s, $d, $Lang['DecPoint'], ' ');
+	$t = number_format(num($s), $d, $Lang['DecPoint'], ' ');
 	if ($s > 0) return "<font class=\"plus\">+$t</font>";
 	elseif ($s < 0) return "<font class=\"minus\">$t</font>";
 	else return $s;
@@ -105,7 +101,7 @@ function stardate($time=0)
 {
 	global $begining, $thicklength;
 	if (!$time) $time = time();
-	return floor(($time - $begining) / $thicklength);
+	return floor(num(($time - $begining) / $thicklength));
 }
 
 function startime($time=0)
@@ -124,7 +120,7 @@ function eta($time=0)
 	$y = ($y -= ($s = $y % 60)) / 60;
 	$y = ($y -= ($m = $y % 60)) / 60;
 	$y = ($y -= ($h = $y % 24)) / 24;
-	$y = round(($y -= ($d = $y % 365.24)) / 365.24);
+	$y = round(num(($y -= ($d = $y % 365.24)) / 365.24));
 
 	if ($thicklength < 60) $result = ($s < 10 ? '0' : '') . $s . 's';
 	else $result = '';
@@ -134,7 +130,7 @@ function eta($time=0)
 			$result = ($h < 10 ? '0' : '') . $h . 'h&nbsp;' . $result;
 			if ($d || $y) {
 				$result = $d . 'd&nbsp;' . $result;
-				if ($y) $result = number_format($y, 0, '', ' ') . 'y&nbsp;' . $result;
+				if ($y) $result = number_format(num($y), 0, '', ' ') . 'y&nbsp;' . $result;
 			}
 		}
 	}
@@ -143,12 +139,12 @@ function eta($time=0)
 
 function planetdistance($g, $h)
 {
-	return 10 * sqrt(pow($g['x'] - $h['x'], 2) + pow($g['y'] - $h['y'], 2) + pow($g['z'] - $h['z'], 2));
+	return 10 * sqrt(num(pow(num($g['x'] - $h['x']), 2) + pow(num($g['y'] - $h['y']), 2) + pow(num($g['z'] - $h['z']), 2)));
 }
 
 function galaxydistance($g, $h)
 {
-	return 1000 * sqrt(pow($g['x'] - $h['x'], 2) + pow($g['y'] - $h['y'], 2) + pow($g['z'] - $h['z'], 2));
+	return 1000 * sqrt(num(pow(num($g['x'] - $h['x']), 2) + pow(num($g['y'] - $h['y']), 2) + pow(num($g['z'] - $h['z']), 2)));
 }
 
 function playernature($reputation)
@@ -163,8 +159,8 @@ function playernature($reputation)
 
 function reputationmodifier($reputation)
 {
-	if ($reputation < -2.5) return 1 + 0.25*log(- 1.5 - $reputation);
-	elseif ($reputation > 2.5) return 1 / (1 + 0.25*log($reputation - 1.5));
+	if ($reputation < -2.5) return 1 + 0.25*log(num(- 1.5 - $reputation));
+	elseif ($reputation > 2.5) return 1 / (1 + 0.25*log(num($reputation - 1.5)));
 	else return 1;
 }
 
@@ -175,35 +171,38 @@ function reputationmodifier($reputation)
 function readplayer($name)
 {
 	global $db, $prefix;
-	$db->query("SELECT * FROM `${prefix}users` WHERE `login`='$name' LIMIT 1;");
+	$db->query("SELECT * FROM `{$prefix}users` WHERE `login`='$name' LIMIT 1;");
 	$Player = $db->fetchrow();
+	if (!$Player) $Player = array();
+	// colunas varchar usadas como números (vazias por omissão)
+	foreach (array('exp', 'hpmodifier', 'mpmodifier', 'strengthmodifier', 'agilitymodifier') as $f) $Player[$f] = num(@$Player[$f]);
 	$Player['strength'] += $Player['strengthmodifier']; if ($Player['strength'] < 0) $Player['strength'] = 0;
 	$Player['agility'] += $Player['agilitymodifier'];  if ($Player['agility'] < 0) $Player['agility'] = 0;
 	$Player['hpmax'] += $Player['hpmodifier']; if ($Player['hpmax'] < 0) $Player['hpmax'] = 0;
 	$Player['mpmax'] += $Player['mpmodifier']; if ($Player['mpmax'] < 0) $Player['mpmax'] = 0;
-	$Player['expbegin'] = (pow(2, $Player['level'] - 1) - 1) * 100;
-	$Player['exp4level'] = (pow(2, $Player['level']) - 1) * 100;
+	$Player['expbegin'] = (pow(2, num($Player['level'] - 1)) - 1) * 100;
+	$Player['exp4level'] = (pow(2, num($Player['level'])) - 1) * 100;
 	return $Player;
 }
 
 function readplanet($name) 
 {
 	global $db, $prefix;
-	$db->query("SELECT * FROM `${prefix}space` WHERE `name`='$name' LIMIT 1;");
+	$db->query("SELECT * FROM `{$prefix}space` WHERE `name`='$name' LIMIT 1;");
 	if ($t = $db->fetchrow()) return $t;
-	else return '';
+	else return null;
 }
 
 function readbuildings($name) 
 {
 	global $db, $prefix, $login;
 	if (! $name) $name = $login;
-	$db->query("SELECT * FROM `${prefix}buildings` WHERE `login` = '$name' LIMIT 1;");
+	$db->query("SELECT * FROM `{$prefix}buildings` WHERE `login` = '$name' LIMIT 1;");
 	if ($t = $db->fetchrow()) {
 		$t['end'] = $t['begin'] + $t['time'];
 		return $t;
 	}
-	else return '';
+	else return null;
 }
 
 function readattacks($login, $target='') {
@@ -227,7 +226,7 @@ function readresearch($name='') {
 		$t['end'] = $t['begin'] + $t['time'];
 		return $t;
 	}
-	else return '';
+	else return null;
 }
 
 function readproductions($name='') {
@@ -245,17 +244,17 @@ function readproductions($name='') {
 function readexploration($name = '') {
 	global $login, $db, $prefix;
 	if (! $name) $name = $login;
-	$db->query("SELECT * FROM `${prefix}exploration` WHERE `login` = '$name' LIMIT 1;");
+	$db->query("SELECT * FROM `{$prefix}exploration` WHERE `login` = '$name' LIMIT 1;");
 	if ($t = $db->fetchrow()) {
 		$t['end'] = $t['begin'] + $t['time'];
 		return $t;
 	}
-	else return '';
+	else return null;
 }
 
 function readgalaxy($name) {
 	global $db, $prefix;
-	$db->query("SELECT * FROM `${prefix}universe` WHERE `name` = '$name' LIMIT 1;");
+	$db->query("SELECT * FROM `{$prefix}universe` WHERE `name` = '$name' LIMIT 1;");
 	if ($t = $db->fetchrow()) return $t;
 	else return 0;
 }
@@ -266,7 +265,7 @@ function readequipment(&$Player)
 
 	$Player['min'] = 1;
 	$Player['max'] = 0;
-	$Player['armor'] = 1 + round(5 * ($Player['strength'] + $Player['agility'])) / 100;
+	$Player['armor'] = 1 + round(num(5 * ($Player['strength'] + $Player['agility']))) / 100;
 
 	$Player['hit'] = 0;
 	$Player['criticalhit'] = 0;
@@ -284,7 +283,7 @@ function readequipment(&$Player)
 
 	$Equipment = array();
 
-	$db->query("SELECT * FROM `${prefix}equipment` WHERE `owner`='${Player['login']}';");
+	$db->query("SELECT * FROM `{$prefix}equipment` WHERE `owner`='{$Player['login']}';");
 	while ($t = $db->fetchrow()) {
 		if ($t['active']) {
 			switch ($t['type']) {
@@ -307,8 +306,8 @@ function readequipment(&$Player)
 
 	$Player['distancefight'] = $Player['weapon'] && $Player['weapon']['distance'] && ((! $Player['weapon2']) || $Player['weapon2']['distance']);
 
-	if ($Player['distancefight']) $Player['max'] += round(100 * (1 + $Player['agility'] / 2 > 3 ? 1 + $Player['agility'] / 2 : 3)) / 100;
-	else $Player['max'] += round(100 * (1 + $Player['strength'] / 2 > 3 ? 1 + $Player['strength'] / 2 : 3)) / 100;
+	if ($Player['distancefight']) $Player['max'] += round(num(100 * (1 + $Player['agility'] / 2 > 3 ? 1 + $Player['agility'] / 2 : 3))) / 100;
+	else $Player['max'] += round(num(100 * (1 + $Player['strength'] / 2 > 3 ? 1 + $Player['strength'] / 2 : 3))) / 100;
 
 	return $Equipment;
 }
@@ -317,7 +316,7 @@ function addequipment($item, $name='')
 {
 	global $db, $prefix, $login, $Equipment, $Lang;
 	if ($name) {
-		$db->query("SELECT login FROM ${prefix}users where login='$name';");
+		$db->query("SELECT login FROM {$prefix}users where login='$name';");
 		$db->numrows() or die("User $name doesn't exists!");
 	}
 	else $name = $login;
@@ -326,7 +325,7 @@ function addequipment($item, $name='')
 		if ($name == $login) {
 			foreach ($Equipment as $id => $tab) {
 				if ($tab['name'] == $item['name']) {
-					$db->query("UPDATE {$prefix}equipment SET count=count+${item['count']} WHERE id='$id';");
+					$db->query("UPDATE {$prefix}equipment SET count=count+{$item['count']} WHERE id='$id';");
 					if ($name == $login) $Equipment[$id]['count'] += $item['count'];
 					return true;
 				}
@@ -338,7 +337,7 @@ function addequipment($item, $name='')
 		}
 	}
 
-	$db->query("INSERT INTO `${prefix}equipment` (`owner`,`name`,`type`,`count`,`damaged`,`active`,`level`,`levelmax`,`price`,`distance`,`req_level`,`req_strength`,`req_agility`,`req_psi`,`req_force`,`req_intellect`,`req_knowledge`,`req_pocketstealing`,`req_hacking`,`req_alcoholism`,`weight`,`min`,`max`,`armor`,`hit`,`criticalhit`,`critical`,`block`,`speed`,`deaf`,`hide`,`protection`,`hp`,`mp`,`parameters`,`use`) VALUES ('$name','${item['name']}','${item['type']}','${item['count']}','${item['damaged']}','${item['active']}','${item['level']}','${item['levelmax']}','${item['price']}','${item['distance']}','${item['req_level']}','${item['req_strength']}','${item['req_agility']}','${item['req_psi']}','${item['req_force']}','${item['req_intellect']}','${item['req_knowledge']}','${item['req_pocketstealing']}','${item['req_hacking']}','${item['req_alcoholism']}','${item['weight']}','${item['min']}','${item['max']}','${item['armor']}','${item['hit']}','${item['criticalhit']}','${item['critical']}','${item['block']}','${item['speed']}','${item['deaf']}','${item['hide']}','${item['protection']}','${item['hp']}','${item['mp']}','${item['parameters']}','${item['use']}');");
+	$db->query("INSERT INTO `{$prefix}equipment` (`owner`,`name`,`type`,`count`,`damaged`,`active`,`level`,`levelmax`,`price`,`distance`,`req_level`,`req_strength`,`req_agility`,`req_psi`,`req_force`,`req_intellect`,`req_knowledge`,`req_pocketstealing`,`req_hacking`,`req_alcoholism`,`weight`,`min`,`max`,`armor`,`hit`,`criticalhit`,`critical`,`block`,`speed`,`deaf`,`hide`,`protection`,`hp`,`mp`,`parameters`,`use`) VALUES ('$name','{$item['name']}','{$item['type']}','{$item['count']}','{$item['damaged']}','{$item['active']}','{$item['level']}','{$item['levelmax']}','{$item['price']}','{$item['distance']}','{$item['req_level']}','{$item['req_strength']}','{$item['req_agility']}','{$item['req_psi']}','{$item['req_force']}','{$item['req_intellect']}','{$item['req_knowledge']}','{$item['req_pocketstealing']}','{$item['req_hacking']}','{$item['req_alcoholism']}','{$item['weight']}','{$item['min']}','{$item['max']}','{$item['armor']}','{$item['hit']}','{$item['criticalhit']}','{$item['critical']}','{$item['block']}','{$item['speed']}','{$item['deaf']}','{$item['hide']}','{$item['protection']}','{$item['hp']}','{$item['mp']}','{$item['parameters']}','{$item['use']}');");
 
 	if ($name == $login) $Equipment[] = $item;
 }
@@ -349,12 +348,12 @@ function delequipment($id, $count=1)
 	if (@$Equipment[$id]) {
 		if ($count < $Equipment[$id]['count']) {
 			$n = $Equipment[$id]['count'] -= $count;
-			$db->query("UPDATE ${prefix}equipment SET count='$n' WHERE id='$id' LIMIT 1;");
+			$db->query("UPDATE {$prefix}equipment SET count='$n' WHERE id='$id' LIMIT 1;");
 		}
 		else {
 			if (($count = $Equipment[$id]['count']) < 1) $count = 1;
 			$Equipment = array_delete($Equipment, $id);
-			$db->query("DELETE FROM ${prefix}equipment WHERE id='$id' LIMIT 1;");
+			$db->query("DELETE FROM {$prefix}equipment WHERE id='$id' LIMIT 1;");
 		}
 		return $count;
 	}
@@ -371,9 +370,9 @@ function equipmentparameters($type)
 function unitslist($Colony, $Planet)
 {
 	global $Lang, $Var;
-	$result = '';
+	$result = null;
 	$r = array('bx1','bx2','bx5','bx10','ax3','ax6','cx7','cx13','walker','mmu','worker','hawk','valkyrie','crusader','warrior','dragon','whisper','nemesis','bee','scavenger','carrier','cage','vessel','detector','satellite');
-	for ($i = 0; $i < count($r); $i++) if ($a = $Colony[$r[$i]]) $result[$r[$i]] = $Lang['units'][$r[$i]] + $Var['units'][$r[$i]] + array('amount' => $a, 'energyratio'=>-@$Var['units'][$r[$i]]['e']*$a,'siliconratio'=>-@$Var['units'][$r[$i]]['s']*$a,'metalratio'=>-@$Var['units'][$r[$i]]['m']*$a,'uranratio'=>-@$Var['units'][$r[$i]]['u']*$a,'plutoniumratio'=>-@$Var['units'][$r[$i]]['p']*$a,'deuteriumratio'=>-@$Var['units'][$r[$i]]['d']*$a,'foodratio'=>-@$Var['units'][$r[$i]]['f']*$a);
+	for ($i = 0; $i < count((array)($r)); $i++) if ($a = $Colony[$r[$i]]) $result[$r[$i]] = $Lang['units'][$r[$i]] + $Var['units'][$r[$i]] + array('amount' => $a, 'energyratio'=>-@$Var['units'][$r[$i]]['e']*$a,'siliconratio'=>-@$Var['units'][$r[$i]]['s']*$a,'metalratio'=>-@$Var['units'][$r[$i]]['m']*$a,'uranratio'=>-@$Var['units'][$r[$i]]['u']*$a,'plutoniumratio'=>-@$Var['units'][$r[$i]]['p']*$a,'deuteriumratio'=>-@$Var['units'][$r[$i]]['d']*$a,'foodratio'=>-@$Var['units'][$r[$i]]['f']*$a);
 	if (isset($result['satellite'])) $result['satellite']['energyratio']=$Planet['illumination']*$result['satellite']['amount'];
 	return $result;
 }
@@ -381,7 +380,7 @@ function unitslist($Colony, $Planet)
 function structureslist($Colony, $Planet)
 {
 	global $Lang, $Var;
-	$result = '';
+	$result = null;
 	if ($Colony['base']) $result['base'] = $Lang['structures']['base'] + $Var['structures']['base'] + array('level' => $Colony['base'], 'food' => $Colony['base'], 'foodratio' => $Colony['base'], 'metalcapacity' => 500, 'energyratio' => 5 * $Colony['base'], 'energycapacity' => 1000 * $Colony['base'], 'metalratio' => 1.0 * $Colony['base'], 'foodcapacity' => 450 + 50 * $Colony['base'], 'flats' => 20);
 	if ($Colony['tron']) $result['tron'] = $Lang['structures']['tron'] + $Var['structures']['base'] + array('level'=>$Colony['tron'],'energyratio'=>250*$Colony['tron'],'siliconratio'=>$Colony['tron'],'metalratio'=>5*$Colony['tron'],'energycapacity'=>10000*$Colony['tron'],'siliconcapacity'=>500*$Colony['tron'],'metalcapacity'=>1000*$Colony['tron']);
 	if ($Colony['laboratory']) $result['laboratory'] = $Lang['structures']['laboratory'] + $Var['structures']['laboratory'] + array('level' => $Colony['laboratory']);
@@ -449,7 +448,7 @@ function buildslist($Colony, $Player)
 		if ($Colony['base'] > 1) $result['foodsilo'] = $Lang['structures']['foodsilo'] + $Var['structures']['foodsilo'];
 	}
 
-	if ($result) foreach ($result as $id => $r) if (@$r['max'] && $Colony[$id] > $r['max']) $result[$id]['cost'] = round(($Colony[$id] - $r['max']) * $r['credits'] * $r['tax'] / 100);
+	if ($result) foreach ($result as $id => $r) if (@$r['max'] && $Colony[$id] > $r['max']) $result[$id]['cost'] = round(num(($Colony[$id] - $r['max']) * $r['credits'] * $r['tax'] / 100));
 
 	return $result;
 }
@@ -499,7 +498,7 @@ function productionslist($Colony)
 
 		foreach ($result as $id => $r)
 			if (isset($r['max']) && $Colony[$id] > $r['max'])
-				$result[$id]['cost'] = round(($Colony[$id] - $r['max']) * $r['credits'] * $r['tax'] / 100);
+				$result[$id]['cost'] = round(num(($Colony[$id] - $r['max']) * $r['credits'] * $r['tax'] / 100));
 	}
 	return $result;
 }
@@ -509,7 +508,7 @@ function addtech($Colony, $name)
 	global $Lang, $Var;
 
 	$v = $Var['technologies'][$id = $name.'technology'];
-	$a = pow(10, $l = $Colony[$id]);
+	$a = pow(10, num($l = $Colony[$id]));
 
 	@$v['credits'] *= $a;
 	@$v['energy'] *= $a;
@@ -592,12 +591,12 @@ function technologieslist($Colony) {
 
 function updateplayer($Player) {
 	global $db, $prefix;
-	$db->query("UPDATE {$prefix}users SET `credits`='${Player['credits']}',`bank`='${Player['bank']}',`score`='${Player['score']}',`exp`='${Player['exp']}',`hp`='${Player['hp']}',`hpgain`='${Player['hpgain']}',`mp`='${Player['mp']}',`mpgain`='${Player['mpgain']}',`thicks`='${Player['thicks']}',`strengthmodifier`='${Player['strengthmodifier']}',`agilitymodifier`='${Player['agilitymodifier']}',`hpmodifier`='${Player['hpmodifier']}',`mpmodifier`='${Player['mpmodifier']}' WHERE `id`='${Player['id']}';");
+	$db->query("UPDATE {$prefix}users SET `credits`='{$Player['credits']}',`bank`='{$Player['bank']}',`score`='{$Player['score']}',`exp`='{$Player['exp']}',`hp`='{$Player['hp']}',`hpgain`='{$Player['hpgain']}',`mp`='{$Player['mp']}',`mpgain`='{$Player['mpgain']}',`thicks`='{$Player['thicks']}',`strengthmodifier`='{$Player['strengthmodifier']}',`agilitymodifier`='{$Player['agilitymodifier']}',`hpmodifier`='{$Player['hpmodifier']}',`mpmodifier`='{$Player['mpmodifier']}' WHERE `id`='{$Player['id']}';");
 }
 
 function updatecolony($Colony) {
 	global $db, $prefix;
-	$db->query("UPDATE {$prefix}colonies SET `thicks`='${Colony['thicks']}',`energy`='${Colony['energy']}',`silicon`='${Colony['silicon']}',`metal`='${Colony['metal']}',`uran`='${Colony['uran']}',`plutonium`='${Colony['plutonium']}',`deuterium`='${Colony['deuterium']}',`food`='${Colony['food']}',`crystals`='${Colony['crystals']}' WHERE `id`='${Colony['id']}' LIMIT 1;");
+	$db->query("UPDATE {$prefix}colonies SET `thicks`='{$Colony['thicks']}',`energy`='{$Colony['energy']}',`silicon`='{$Colony['silicon']}',`metal`='{$Colony['metal']}',`uran`='{$Colony['uran']}',`plutonium`='{$Colony['plutonium']}',`deuterium`='{$Colony['deuterium']}',`food`='{$Colony['food']}',`crystals`='{$Colony['crystals']}' WHERE `id`='{$Colony['id']}' LIMIT 1;");
 }
 
 function explorationfinish($name) {
@@ -618,7 +617,7 @@ function checkplace($name)
 	if (!$Player['destination']) {
 		switch ($name) {
 			case 'market':  $db->query("SELECT * FROM {$prefix}markets WHERE position='{$Player['planet']}' LIMIT 1;"); break;
-			default:  $db->query("SELECT * FROM ${prefix}places WHERE type='$name' AND position='${Player['planet']}' LIMIT 1;");
+			default:  $db->query("SELECT * FROM {$prefix}places WHERE type='$name' AND position='{$Player['planet']}' LIMIT 1;");
 		}
 		return $places[$name] = $place = $db->fetchrow();
 //			return $place = $db->fetchrow();
@@ -636,26 +635,26 @@ function playerexists($name)
 function colonyexists($name)
 {
 	global $db, $prefix;
-	$db->query("SELECT `owner` FROM `${prefix}colonies` WHERE `name`='$name' LIMIT 1;");
+	$db->query("SELECT `owner` FROM `{$prefix}colonies` WHERE `name`='$name' LIMIT 1;");
 	return ($t = $db->fetchrow()) ? $t['owner'] : '';
 }
 
 function playerlevel($name)
 {
 	global $db, $prefix;
-	$db->query("SELECT `level` FROM `${prefix}users` WHERE `login`='$name' LIMIT 1;");
+	$db->query("SELECT `level` FROM `{$prefix}users` WHERE `login`='$name' LIMIT 1;");
 	return ($t = $db->fetchrow()) ? $t['level'] : '';
 }
 
 function playerscore($name) {
 	global $db, $prefix;
-	$db->query("SELECT `score` FROM `${prefix}users` WHERE `login`='$name' LIMIT 1;");
+	$db->query("SELECT `score` FROM `{$prefix}users` WHERE `login`='$name' LIMIT 1;");
 	return ($t = $db->fetchrow()) ? $t['score'] : '';
 }
 
 function playergroup($name) {
 	global $db, $prefix;
-	$db->query("SELECT `clan` FROM `${prefix}users` WHERE `login`='$name' LIMIT 1;");
+	$db->query("SELECT `clan` FROM `{$prefix}users` WHERE `login`='$name' LIMIT 1;");
 	return ($t = $db->fetchrow()) ? $t['clan'] : '';
 }
 
@@ -673,31 +672,31 @@ function generateitem($type = '', $level = 0, $class = '')
 
 	$w = '';
 	if ($type) $w = " AND `type`='$type'";
-	$t = '';
-	$db->query("SELECT * FROM `${prefix}items` WHERE `class`='$class'$w;");
+	$t = null;
+	$db->query("SELECT * FROM `{$prefix}items` WHERE `class`='$class'$w;");
 	while ($x = $db->fetchrow()) $t[] = $x;
 
 	if ($t) {
-		$i = $t[rand(0, count($t) - 1)];
+		$i = $t[rand(0, count((array)($t)) - 1)];
 		$i['maxlevel'] = $level;
-		$i['level'] = $l = rand(0, $level);
-		$i['price'] += floor($i['price'] * ($level - $l) / 2);
-		$i['price'] += floor($i['price'] * $l * 2);
-		$i['req_level'] += floor($i['req_level'] * $l / 2);
-		$i['req_strength'] += floor(10 * $i['req_strength'] * $l / 3) / 10;
-		$i['req_agility'] += floor(10 * $i['req_agility'] * $l / 3) / 10;
-		$i['req_psi'] += floor(10 * $i['req_psi'] * $l / 3) / 10;
-		$i['req_force'] += floor(10 * $i['req_force'] * $l / 3) / 10;
-		$i['min'] += floor(100 * $i['min'] * $l / 4) / 100;
-		$i['max'] += floor(100 * $i['max'] * $l / 4) / 100;
-		$i['armor'] += floor(100 * $i['armor'] * $l / 4) / 100;
-		$i['hit'] += floor($i['hit'] * $l / 5);
-		$i['criticalhit'] += floor($i['criticalhit'] * $l / 5);
-		$i['block'] += floor($i['block'] * $l / 5);
-		$i['speed'] += floor($i['speed'] * $l / 5);
-		$i['deaf'] += floor($i['deaf'] * $l / 5);
-		$i['hide'] += floor($i['hide'] * $l / 5);
-		$i['protection'] += floor($i['protection'] * $l / 5);
+		$i['level'] = $l = rand(0, num($level));
+		$i['price'] += floor(num($i['price'] * ($level - $l) / 2));
+		$i['price'] += floor(num($i['price'] * $l * 2));
+		$i['req_level'] += floor(num($i['req_level'] * $l / 2));
+		$i['req_strength'] += floor(num(10 * $i['req_strength'] * $l / 3)) / 10;
+		$i['req_agility'] += floor(num(10 * $i['req_agility'] * $l / 3)) / 10;
+		$i['req_psi'] += floor(num(10 * $i['req_psi'] * $l / 3)) / 10;
+		$i['req_force'] += floor(num(10 * $i['req_force'] * $l / 3)) / 10;
+		$i['min'] += floor(num(100 * $i['min'] * $l / 4)) / 100;
+		$i['max'] += floor(num(100 * $i['max'] * $l / 4)) / 100;
+		$i['armor'] += floor(num(100 * $i['armor'] * $l / 4)) / 100;
+		$i['hit'] += floor(num($i['hit'] * $l / 5));
+		$i['criticalhit'] += floor(num($i['criticalhit'] * $l / 5));
+		$i['block'] += floor(num($i['block'] * $l / 5));
+		$i['speed'] += floor(num($i['speed'] * $l / 5));
+		$i['deaf'] += floor(num($i['deaf'] * $l / 5));
+		$i['hide'] += floor(num($i['hide'] * $l / 5));
+		$i['protection'] += floor(num($i['protection'] * $l / 5));
 
 		return $i;
 	}
@@ -837,8 +836,8 @@ function battle($t, $i, &$Player, &$Colony)
 	foreach ($Attackers as $unit) $a[] = array('id'=>$unit, 'amount'=>$t[$unit]);
 	foreach ($Defenders as $unit) $d[] = array('id'=>$unit, 'amount'=>$Colony[$unit]);
 
-	for ($j = 0; $j < count($a); $j++) $ai[$a[$j]['id']] = $j;
-	for ($j = 0; $j < count($d); $j++) $di[$d[$j]['id']] = $j;
+	for ($j = 0; $j < count((array)($a)); $j++) $ai[$a[$j]['id']] = $j;
+	for ($j = 0; $j < count((array)($d)); $j++) $di[$d[$j]['id']] = $j;
 
 	$ac = 0;	// count
 	$aa = 0;	// attack
@@ -862,24 +861,24 @@ function battle($t, $i, &$Player, &$Colony)
 	}
 	$ds = $dc;	// store
 
-	$e = (($aa + $t['bonus'] - $Colony['defense']) / $aa) - Rand(-5 * $t['strategy'], 10 * $t['strategy'] + 15 * $t['strategy'] * $t['status']) / 100;
+	$e = (($aa + $t['bonus'] - $Colony['defense']) / $aa) - Rand(num(-5 * $t['strategy']), num(10 * $t['strategy'] + 15 * $t['strategy'] * $t['status'])) / 100;
 	if ($e < 0) $e = 0;
 	$aa *= $e;
 
 	$msg = $Lang['Attack0'].' <a href="whois.php?name='.$t['login'].'">'.$t['login'].'</a>'.$Lang['Attack1'].$t['owner'].$Lang['Attack00'].'<font class="capacity">'.$Lang['Strategies'][$t['strategy']].'</font>'.$Lang['Attack000'].'<br /><br />';
 
 	if (!$t['strategy'] && ($aa > 3 * $da)) {
-		if ($Player['credits'] > 100000) $t['credits'] = 1 + round(Rand(1, 200) * $Player['credits'] / 10000);
-		$t['score'] = 1 + round(Rand(1, 100) * $Player['score'] / 10000);
-		$t['exp'] = 1 + round(Rand(1, 100) * $Player['exp'] / 10000);
+		if ($Player['credits'] > 100000) $t['credits'] = 1 + round(num(Rand(1, 200) * $Player['credits'] / 10000));
+		$t['score'] = 1 + round(num(Rand(1, 100) * $Player['score'] / 10000));
+		$t['exp'] = 1 + round(num(Rand(1, 100) * $Player['exp'] / 10000));
 		$e = 100;
 		$t['status'] = 2;
 		$lost = TRUE;
 	}
 	elseif (!$t['strategy'] && ($da > 3 * $aa)) {
-		$t['credits'] = -1 - round(Rand(1, 250) * $Attacker['credits'] / 10000);
-		$t['score'] = -1 - round(Rand(1, 100) * $Attacker['score'] / 10000);
-		$t['exp'] = -1 - round(Rand(1, 100) * $Attacker['exp'] / 10000);
+		$t['credits'] = -1 - round(num(Rand(1, 250) * $Attacker['credits'] / 10000));
+		$t['score'] = -1 - round(num(Rand(1, 100) * $Attacker['score'] / 10000));
+		$t['exp'] = -1 - round(num(Rand(1, 100) * $Attacker['exp'] / 10000));
 		$e = 0;
 		$t['status'] = 4;
 		$lost = FALSE;
@@ -891,28 +890,28 @@ function battle($t, $i, &$Player, &$Colony)
 			foreach ($a as $u) {
 				$unit = $Var['units'][$u['id']];
 				if ($enemies = $unit['enemy']) foreach (explode(',', $enemies) as $enemy) {
-					$c = floor($e * $u['amount'] * $unit['attack'] / $Var['units'][$enemy]['damage']);
+					$c = floor(num($e * $u['amount'] * $unit['attack'] / $Var['units'][$enemy]['damage']));
 					if ($d[$di[$enemy]]['amount'] < $c) $c = $d[$di[$enemy]]['amount'];
 					$aa -= $c * $Var['units'][$enemy]['damage'];
 					$dd -= $c * $Var['units'][$enemy]['damage'];
 					$ak += $c;
 					$dc -= $c;
 					$d[$di[$enemy]]['amount'] -= $c;
-					$t["${enemy}killed"] += $c;
+					$t["{$enemy}killed"] += $c;
 				}
 			}
 			// Defender: Atacking enemy units
 			foreach ($d as $u) {
 				$unit = $Var['units'][$u['id']];
 				if ($enemies = @$unit['enemy']) foreach (explode(',', $enemies) as $enemy) {
-					$c = floor($u['amount'] * $unit['attack'] / $Var['units'][$enemy]['damage']);
+					$c = floor(num($u['amount'] * $unit['attack'] / $Var['units'][$enemy]['damage']));
 					if ($a[$ai[$enemy]]['amount'] < $c) $c = $a[$ai[$enemy]]['amount'];
 					$da -= $c * $Var['units'][$enemy]['damage'];
 					$ad -= $c * $Var['units'][$enemy]['damage'];
 					$dk += $c;
 					$ac -= $c;
 					$a[$ai[$enemy]]['amount'] -= $c;
-					$t["${enemy}lost"] += $c;
+					$t["{$enemy}lost"] += $c;
 				}
 			}
 		}
@@ -925,11 +924,11 @@ function battle($t, $i, &$Player, &$Colony)
 					$ee = $aa / $dc;
 					foreach ($d as $u) {
 						if (!$t['strategy'] && ($Var['units'][$u['id']]['type'] == 'robot')) continue;
-						$c = floor($e * $u['amount'] * $ee / $Var['units'][$u['id']]['damage']);
+						$c = floor(num($e * $u['amount'] * $ee / $Var['units'][$u['id']]['damage']));
 						if ($u['amount'] < $c) $c = $u['amount'];
 						$da -= $c*@$Var['units'][$u['id']]['attack'];
 						$d[$di[$u['id']]]['amount'] -= $c;
-						$t["${u['id']}killed"] += $c;
+						$t["{$u['id']}killed"] += $c;
 						$ak += $c;
 					}
 				}
@@ -937,10 +936,10 @@ function battle($t, $i, &$Player, &$Colony)
 				if (($ac > 0) && ($da > 0)) {
 					$ee = $da / $ac;
 					foreach ($a as $u) {
-						$c = floor($u['amount'] * $ee / $Var['units'][$u['id']]['damage']);
+						$c = floor(num($u['amount'] * $ee / $Var['units'][$u['id']]['damage']));
 						if ($u['amount'] < $c) $c = $u['amount'];
 						$a[$ai[$u['id']]]['amount'] -= $c;
-						$t["${u['id']}lost"] += $c;
+						$t["{$u['id']}lost"] += $c;
 						$dk += $c;
 					}
 				}
@@ -950,20 +949,20 @@ function battle($t, $i, &$Player, &$Colony)
 		if (!$ds || $ak / $ds > $dk / $as) $lost = TRUE;
 		else $lost = FALSE;
 
-		$t['soldierslost'] = floor($t['soldiers'] * $dk / $as);
-		$t['bx10lost'] = floor($t['bx10'] * $dk / $as);
-		$t['walkerlost'] = floor($t['walker'] * $dk / $as);
+		$t['soldierslost'] = floor(num($t['soldiers'] * $dk / $as));
+		$t['bx10lost'] = floor(num($t['bx10'] * $dk / $as));
+		$t['walkerlost'] = floor(num($t['walker'] * $dk / $as));
 
 		if ($lost) {
 			if ($c = $a[$ai['scavenger']]['amount']) {
-				if (Rand(1, 30) < 10) $t['uran'] = round(Rand(1, 20 + 25 * $t['strategy'] + 5 * $c) * $Colony['uran'] / 1000);
-				else $t['metal'] = round(Rand(1, 20 + 25 * $t['strategy'] + 5 * $c) * $Colony['metal'] / 1000);
+				if (Rand(1, 30) < 10) $t['uran'] = round(num(Rand(1, num(20 + 25 * $t['strategy'] + 5 * $c)) * $Colony['uran'] / 1000));
+				else $t['metal'] = round(num(Rand(1, num(20 + 25 * $t['strategy'] + 5 * $c)) * $Colony['metal'] / 1000));
 			}
 
 			if ($c = $a[$ai['carrier']]['amount']) {
-				$t['uran'] = round(Rand(1, 10 + 15 * $t['strategy'] + 5 * $c) * $Colony['uran'] / 1000);
-				$t['metal'] = round(Rand(1, 10 + 15 * $t['strategy'] + 5 * $c) * $Colony['metal'] / 1000);
-				$t['crystals'] = round(Rand(1, 5 + 15 * $t['strategy'] + 5 * $c) * $Colony['crystals'] / 1000);
+				$t['uran'] = round(num(Rand(1, num(10 + 15 * $t['strategy'] + 5 * $c)) * $Colony['uran'] / 1000));
+				$t['metal'] = round(num(Rand(1, num(10 + 15 * $t['strategy'] + 5 * $c)) * $Colony['metal'] / 1000));
+				$t['crystals'] = round(num(Rand(1, num(5 + 15 * $t['strategy'] + 5 * $c)) * $Colony['crystals'] / 1000));
 			}
 
 			if (($c = $t['soldiers'] - $t['soldierslost'] - $dk) > 0) {
@@ -971,10 +970,10 @@ function battle($t, $i, &$Player, &$Colony)
 				else $f = $c;
 				if ($f > 5) $f = 5;
 				else if ($f < 0) $f = 0;
-				$t['colonistskilled'] = round($f * Rand(1, 5 + 10 * $t['strategy']) * $Colony['colonistsfree'] / 100);
-				$t['scientistskilled'] = round($f * Rand(1, 5 + 10 * $t['strategy']) * $Colony['scientistsfree'] / 100);
-				$t['soldierskilled'] = round($f * Rand(1, 5 + 10 * $t['strategy']) * $Colony['soldiersfree'] / 100);
-				$t['soldierslost'] += round(Rand(1, 50) * $c / 100);
+				$t['colonistskilled'] = round(num($f * Rand(1, num(5 + 10 * $t['strategy'])) * $Colony['colonistsfree'] / 100));
+				$t['scientistskilled'] = round(num($f * Rand(1, num(5 + 10 * $t['strategy'])) * $Colony['scientistsfree'] / 100));
+				$t['soldierskilled'] = round(num($f * Rand(1, num(5 + 10 * $t['strategy'])) * $Colony['soldiersfree'] / 100));
+				$t['soldierslost'] += round(num(Rand(1, 50) * $c / 100));
 			}
 
 			if (($c = $t['bx10'] - $t['bx10lost'] + $t['carrier'] - $t['carrierlost']) > 0) {
@@ -987,17 +986,17 @@ function battle($t, $i, &$Player, &$Colony)
 			if ($ds) $dmax = 100 * $ak / $ds;
 			else $dmax = 1500;
 
-			if ($t['strategy']) $Colony['damage'] += Rand(1, $dmax) / 100;
-			else $t['credits'] = 1 + round(Rand(1, 100) * $Player['credits'] / 10000);
+			if ($t['strategy']) $Colony['damage'] += Rand(1, num($dmax)) / 100;
+			else $t['credits'] = 1 + round(num(Rand(1, 100) * $Player['credits'] / 10000));
 
-			$t['score'] = 1 + round(Rand(1, 150 + 200 * $t['strategy']) * $Player['score'] / 10000) + $t['windgenerator'] + $t['solarbattery'];
-			$t['exp'] = 1 + round(Rand(1, 150 + 250 * $t['strategy']) * $Player['exp'] / 10000) + $t['soldierskilled'];
+			$t['score'] = 1 + round(num(Rand(1, num(150 + 200 * $t['strategy'])) * $Player['score'] / 10000)) + $t['windgenerator'] + $t['solarbattery'];
+			$t['exp'] = 1 + round(num(Rand(1, num(150 + 250 * $t['strategy'])) * $Player['exp'] / 10000)) + $t['soldierskilled'];
 			$t['status'] = 2;
 		}
 		else {
-			if (!$t['strategy']) $t['credits'] = -1 - round(Rand(1, 150) * $Attacker['credits'] / 10000);
-			$t['score'] = -1 - round(Rand(1, 150 + 200 * $t['strategy']) * $Attacker['score'] / 10000);
-			$t['exp'] = -1 - round(Rand(1, 150 + 300 * $t['strategy']) * $Attacker['exp'] / 10000) - $t['soldierslost'];
+			if (!$t['strategy']) $t['credits'] = -1 - round(num(Rand(1, 150) * $Attacker['credits'] / 10000));
+			$t['score'] = -1 - round(num(Rand(1, num(150 + 200 * $t['strategy'])) * $Attacker['score'] / 10000));
+			$t['exp'] = -1 - round(num(Rand(1, num(150 + 300 * $t['strategy'])) * $Attacker['exp'] / 10000)) - $t['soldierslost'];
 			$t['status'] = 3;
 		}
 	}
@@ -1028,19 +1027,19 @@ function battle($t, $i, &$Player, &$Colony)
 
 	foreach ($Defenders as $unit) $Colony[$unit] -= $t[$unit.'killed'];
 
-	$e = round(100 * $e) / 100;
+	$e = round(num(100 * $e)) / 100;
 
 	$t['begin'] = $t['end'];
 
-	$sql = "UPDATE {$prefix}attacks SET `begin`='${t['begin']}',`status`='${t['status']}',`efficacy`='$e',`colonistskilled`='${t['colonistskilled']}',`scientistskilled`='${t['scientistskilled']}',`soldierslost`='${t['soldierslost']}',`soldierskilled`='${t['soldierskilled']}',";
+	$sql = "UPDATE {$prefix}attacks SET `begin`='{$t['begin']}',`status`='{$t['status']}',`efficacy`='$e',`colonistskilled`='{$t['colonistskilled']}',`scientistskilled`='{$t['scientistskilled']}',`soldierslost`='{$t['soldierslost']}',`soldierskilled`='{$t['soldierskilled']}',";
 	foreach ($Attackers as $u) $sql .= "`{$u}lost`='".$t[$u.'lost']."',";
 	foreach ($Defenders as $u) $sql .= "`{$u}killed`='".$t[$u.'killed']."',";
-	$sql .= "`windgenerator`='${t['windgenerator']}',`solarbattery`='${t['solarbattery']}',";
-	$sql .= "`score`='{$t['score']}',`exp`='{$t['exp']}',`credits`='{$t['credits']}',`metal`='${t['metal']}',`uran`='${t['uran']}',`crystals`='${t['crystals']}' WHERE id='${t['id']}';";
+	$sql .= "`windgenerator`='{$t['windgenerator']}',`solarbattery`='{$t['solarbattery']}',";
+	$sql .= "`score`='{$t['score']}',`exp`='{$t['exp']}',`credits`='{$t['credits']}',`metal`='{$t['metal']}',`uran`='{$t['uran']}',`crystals`='{$t['crystals']}' WHERE id='{$t['id']}';";
 
 	$db->query($sql);
 
-	$sql = "UPDATE `${prefix}colonies` SET `damage`='${Colony['damage']}',`windgenerator`='${Colony['windgenerator']}',`solarbattery`='${Colony['solarbattery']}',`attacked`='${Colony['attacked']}',`colonists`='${Colony['colonists']}',`scientists`='${Colony['scientists']}',`soldiers`='${Colony['soldiers']}'";
+	$sql = "UPDATE `{$prefix}colonies` SET `damage`='{$Colony['damage']}',`windgenerator`='{$Colony['windgenerator']}',`solarbattery`='{$Colony['solarbattery']}',`attacked`='{$Colony['attacked']}',`colonists`='{$Colony['colonists']}',`scientists`='{$Colony['scientists']}',`soldiers`='{$Colony['soldiers']}'";
 	foreach ($Defenders as $unit) $sql .= ",`$unit`='{$Colony[$unit]}'";	
 	$sql .= "WHERE id='{$Colony['id']}';";
 	$db->query($sql);
@@ -1085,8 +1084,8 @@ function explore($i, $Exploration, $Player, $Colony, $Units, $Planet)
 		$Planet['explored'] += $e;
 		if ($Planet['explored'] > 100) $Planet['explored'] = 100;
 		elseif ($Planet['explored'] < 0) $Planet['explored'] = 0;
-		$db->query("UPDATE `${prefix}space` SET `explored`='${Planet['explored']}' WHERE `name`='${Planet['name']}' LIMIT 1;");
-		$msg .= $Lang['Explor2'] . '<font class="capacity">' . (round(1000 * $e) / 1000) . '</font>%.<br />';
+		$db->query("UPDATE `{$prefix}space` SET `explored`='{$Planet['explored']}' WHERE `name`='{$Planet['name']}' LIMIT 1;");
+		$msg .= $Lang['Explor2'] . '<font class="capacity">' . (round(num(1000 * $e)) / 1000) . '</font>%.<br />';
 	}
 	$msg .= '<br /><font class="result"><b>' . $Lang['Explor3'] . '</b></font>:<br /><br />';
 
@@ -1101,20 +1100,20 @@ function explore($i, $Exploration, $Player, $Colony, $Units, $Planet)
 			$b = FALSE;
 			$Player['score']++;
 			if (Rand(0, 99) < 5 + ($Exploration['type'] == 'galaxy' ? 10 : 0)) {
-				$v = round($crew * Rand(1, 15) / 50) + 1;
+				$v = round(num($crew * Rand(1, 15) / 50)) + 1;
 				$Colony['crystals'] += $v;
 				$Player['score'] += 2;
 				$msg .= $Lang['ExplorRC'] . $v . $Lang['ExplorRC1'] . '<br />';
 			}
 			elseif (Rand(0, 199) < 75 + 25 * $Colony['resourcestechnology']) {
 				if (Rand(0, 999) < 333) {
-					if (($v = floor(1 + round(Rand(1, 25 + $crew - 3 * $Exploration['vessels'] + $Colony['satellite']) / 11))) < 1) $v = 1;
+					if (($v = floor(num(1 + round(num(Rand(1, num(25 + $crew - 3 * $Exploration['vessels'] + $Colony['satellite'])) / 11))))) < 1) $v = 1;
 					$Colony['uransources'] += $v;
 					$msg .= $Lang['ExplorSU'] . '<font class="plus">' . $v . '</font>.<br />';
 					$Player['score'] += 1;
 				}
 				else {
-					if (($v = floor(1 + round(Rand(1, 66 + $crew - 2 * $Exploration['vessels'] + $Colony['satellite']) / 9))) < 1) $v = 1;
+					if (($v = floor(num(1 + round(num(Rand(1, num(66 + $crew - 2 * $Exploration['vessels'] + $Colony['satellite'])) / 9))))) < 1) $v = 1;
 					$Colony['metalsources'] += $v;
 					$msg .= $Lang['ExplorSM'] . '<font class="plus">' . $v . '</font>.<br />';
 					$Player['score'] += 1;
@@ -1122,12 +1121,12 @@ function explore($i, $Exploration, $Player, $Colony, $Units, $Planet)
 			}
 			else {
 				if (Rand(0, 199) < 119) {
-					if (($v = ($Colony['base']+$Colony['tron'])*$Player['level']*round(($Exploration['vessels']+$Colony['satellite']+$crew)*rand(1, 50)/10)) < 1) $v = 1;
+					if (($v = ($Colony['base']+$Colony['tron'])*$Player['level']*round(num(($Exploration['vessels']+$Colony['satellite']+$crew)*rand(1, 50)/10))) < 1) $v = 1;
 					$Colony['metal'] += $v;
 					$msg .= $Lang['ExplorRM'].'<font class="capacity">'.$v.'</font>.<br />';
 				}
 				else {
-					if (($v = $Player['level']*round(($Exploration['vessels']+$Colony['satellite']+$crew)*rand(1, 15)/10)) < 1) $v = 1;
+					if (($v = $Player['level']*round(num(($Exploration['vessels']+$Colony['satellite']+$crew)*rand(1, 15)/10))) < 1) $v = 1;
 					$Colony['uran'] += $v;
 					$msg .= $Lang['ExplorRU'].'<font class="capacity">'.$v.'</font>.<br />';
 				}
@@ -1135,7 +1134,7 @@ function explore($i, $Exploration, $Player, $Colony, $Units, $Planet)
 		}
 	}
 
-	$db->query("UPDATE `${prefix}colonies` SET `uransources`='${Colony['uransources']}',`metalsources`='${Colony['metalsources']}' WHERE `id`='${Colony['id']}' LIMIT 1;");
+	$db->query("UPDATE `{$prefix}colonies` SET `uransources`='{$Colony['uransources']}',`metalsources`='{$Colony['metalsources']}' WHERE `id`='{$Colony['id']}' LIMIT 1;");
 
 	if ($b) $msg .= $Lang['ExplorX'] . '<br />';
 
@@ -1144,9 +1143,9 @@ function explore($i, $Exploration, $Player, $Colony, $Units, $Planet)
 	if ($Exploration['vessels'] && $killed) $killed = Rand(1, 100) < 50;
 
 	if ($killed) { // killed
-		$colonistskilled = round($Exploration['colonists'] * Rand(1, 33) / 100);
-		$scientistskilled = round($Exploration['scientists'] * Rand(1, 45) / 100);
-		$soldierskilled = round($Exploration['soldiers'] * Rand(1, 25) / 100);
+		$colonistskilled = round(num($Exploration['colonists'] * Rand(1, 33) / 100));
+		$scientistskilled = round(num($Exploration['scientists'] * Rand(1, 45) / 100));
+		$soldierskilled = round(num($Exploration['soldiers'] * Rand(1, 25) / 100));
 
 		$Colony['colonists'] -= $colonistskilled;
 		$Colony['scientists'] -= $scientistskilled;
@@ -1155,7 +1154,7 @@ function explore($i, $Exploration, $Player, $Colony, $Units, $Planet)
 		$Colony['scientistsfree'] -= $scientistskilled;
 		$Colony['soldiersfree'] -= $soldierskilled;
 
-		$Player['exp'] += $exp = round(0.1 * $scientistskilled + 0.2 * $colonistskilled + 0.5 * $soldierskilled);
+		$Player['exp'] += $exp = round(num(0.1 * $scientistskilled + 0.2 * $colonistskilled + 0.5 * $soldierskilled));
 
 		if ($colonistskilled || $scientistskilled || $soldierskilled) {
 			$msg .= '<font class="delete"><b>' . $Lang['ELost'] . '</b></font>:<br /><br />';
@@ -1165,18 +1164,18 @@ function explore($i, $Exploration, $Player, $Colony, $Units, $Planet)
 			if ($exp) $msg .= $Lang['GainedExperience'] . ':<b>'.$exp.'</b><br />';
 			$msg .= '<br />';
 
-			$db->query("UPDATE `${prefix}colonies` SET `colonists` = '${Colony['colonists']}', `scientists` = '${Colony['scientists']}', `soldiers` = '${Colony['soldiers']}' WHERE `id` = '${Colony['id']}' LIMIT 1;");
+			$db->query("UPDATE `{$prefix}colonies` SET `colonists` = '{$Colony['colonists']}', `scientists` = '{$Colony['scientists']}', `soldiers` = '{$Colony['soldiers']}' WHERE `id` = '{$Colony['id']}' LIMIT 1;");
 		}
 	}
 
 	if ($Exploration['type'] == 'planet') {
 		if (Rand(0, 99) < 10) { // score bonus
-			$a = round(1 + $crew / 5 + $Exploration['scientists'] / 2);
+			$a = round(num(1 + $crew / 5 + $Exploration['scientists'] / 2));
 			$Player['score'] += $a;
 			$msg .= $Lang['ExplorB2'] . '<b>' . $a . '</b>.<br /><br />';
 		}
 		elseif (Rand(0, 99) < 10) { // exp bonus
-			$a = round(1 + $crew / 5 + $Exploration['soldiers'] / 2);
+			$a = round(num(1 + $crew / 5 + $Exploration['soldiers'] / 2));
 			$Player['exp'] += $a;
 			$msg .= $Lang['ExplorB1'] . '<b>' . $a . '</b>.<br /><br />';
 		}
@@ -1208,9 +1207,9 @@ function eventcorruption($i, &$Colony, &$Player)
 
 	$msg = $Lang['Event1'] . '<br /><br />';
 
-	$colonistskilled = round($Colony['colonistsfree'] * Rand(1, 40) / 100);
-	$scientistskilled = round($Colony['scientistsfree'] * Rand(1, 10) / 100);
-	$soldierskilled = round($Colony['soldiersfree'] * Rand(1, 20) / 100);
+	$colonistskilled = round(num($Colony['colonistsfree'] * Rand(1, 40) / 100));
+	$scientistskilled = round(num($Colony['scientistsfree'] * Rand(1, 10) / 100));
+	$soldierskilled = round(num($Colony['soldiersfree'] * Rand(1, 20) / 100));
 	$reputationlost = Rand(1, 50) / 100;
 	$satisfactionlost = Rand(1, 30) / 10;
 
@@ -1229,13 +1228,13 @@ function eventcorruption($i, &$Colony, &$Player)
 		if ($colonistskilled) $msg .= $Lang['Colonists'].': <b>'.$colonistskilled.'</b><br />';
 		if ($scientistskilled) $msg .= $Lang['Scientists'].':<b>'.$scientistskilled.'</b></br />';
 		if ($soldierskilled) $msg .= $Lang['Soldiers'].':<b>'.$soldierskilled.'</b><br />';
-		if ($satisfactionlost > 0.05) $msg .= "<br /><b>${Lang['SatisfactionLost']}</b>: <font class=\"minus\">$satisfactionlost</font><br />";
-		$db->query("UPDATE `${prefix}colonies` SET `colonists`='${Colony['colonists']}',`scientists`='${Colony['scientists']}',`soldiers`='${Colony['soldiers']}',`lost`='${Colony['lost']}',`satisfaction`='${Colony['satisfaction']}' WHERE `id`='${Colony['id']}';");
+		if ($satisfactionlost > 0.05) $msg .= "<br /><b>{$Lang['SatisfactionLost']}</b>: <font class=\"minus\">$satisfactionlost</font><br />";
+		$db->query("UPDATE `{$prefix}colonies` SET `colonists`='{$Colony['colonists']}',`scientists`='{$Colony['scientists']}',`soldiers`='{$Colony['soldiers']}',`lost`='{$Colony['lost']}',`satisfaction`='{$Colony['satisfaction']}' WHERE `id`='{$Colony['id']}';");
 	}
 	else $msg .= $Lang['FNK'] . '<br />';
 
-	$msg .= "<br /><b>${Lang['ReputationLost']}</b>: <font class=\"minus\">$reputationlost</font><br />";
-	$db->query("UPDATE `${prefix}users` SET `reputation`='${Player['reputation']}' WHERE `id`='${Player['id']}';");
+	$msg .= "<br /><b>{$Lang['ReputationLost']}</b>: <font class=\"minus\">$reputationlost</font><br />";
+	$db->query("UPDATE `{$prefix}users` SET `reputation`='{$Player['reputation']}' WHERE `id`='{$Player['id']}';");
 
 	sendmessage($Lang['EventS1'], $msg, '', $Player['login'], 'report', $i);
 }
@@ -1250,9 +1249,9 @@ function eventstarving($i, &$Colony, &$Player)
 
 	$msg = $Lang['Event2'] . '<br /><br />';
 
-	$colonistskilled = round($Colony['colonistsfree'] * Rand(1, 15) / 100);
-	$scientistskilled = round($Colony['scientistsfree'] * Rand(1, 25) / 100);
-	$soldierskilled = round($Colony['soldiersfree'] * Rand(1, 10) / 100);
+	$colonistskilled = round(num($Colony['colonistsfree'] * Rand(1, 15) / 100));
+	$scientistskilled = round(num($Colony['scientistsfree'] * Rand(1, 25) / 100));
+	$soldierskilled = round(num($Colony['soldiersfree'] * Rand(1, 10) / 100));
 	$reputationlost = Rand(1, 30) / 100;
 	$satisfactionlost = Rand(1, 50) / 10;
 
@@ -1271,13 +1270,13 @@ function eventstarving($i, &$Colony, &$Player)
 		if ($colonistskilled) $msg .= $Lang['Colonists'].': <b>'.$colonistskilled.'</b><br />';
 		if ($scientistskilled) $msg .= $Lang['Scientists'].':<b>'.$scientistskilled.'</b></br />';
 		if ($soldierskilled) $msg .= $Lang['Soldiers'].':<b>'.$soldierskilled.'</b><br />';
-		if ($satisfactionlost > 0.05) $msg .= "<br /><b>${Lang['SatisfactionLost']}</b>: <font class=\"minus\">$satisfactionlost</font><br />";
-		$db->query("UPDATE `${prefix}colonies` SET `colonists`='${Colony['colonists']}',`scientists`='${Colony['scientists']}',`soldiers`='${Colony['soldiers']}',`lost`='${Colony['lost']}',`satisfaction`='${Colony['satisfaction']}' WHERE `id`='${Colony['id']}';");
+		if ($satisfactionlost > 0.05) $msg .= "<br /><b>{$Lang['SatisfactionLost']}</b>: <font class=\"minus\">$satisfactionlost</font><br />";
+		$db->query("UPDATE `{$prefix}colonies` SET `colonists`='{$Colony['colonists']}',`scientists`='{$Colony['scientists']}',`soldiers`='{$Colony['soldiers']}',`lost`='{$Colony['lost']}',`satisfaction`='{$Colony['satisfaction']}' WHERE `id`='{$Colony['id']}';");
 	}
 	else $msg .= $Lang['FNK'] . '<br />';
 
-	$msg .= "<br /><b>${Lang['ReputationLost']}</b>: <font class=\"minus\">$reputationlost</font><br />";
-	$db->query("UPDATE `${prefix}users` SET `reputation`='${Player['reputation']}' WHERE `id`='${Player['id']}';");
+	$msg .= "<br /><b>{$Lang['ReputationLost']}</b>: <font class=\"minus\">$reputationlost</font><br />";
+	$db->query("UPDATE `{$prefix}users` SET `reputation`='{$Player['reputation']}' WHERE `id`='{$Player['id']}';");
 	sendmessage($Lang['EventS2'], $msg, '', $Player['login'], 'report', $i);
 }
 
@@ -1296,22 +1295,22 @@ function eventexpend($i, &$Colony, &$Player)
 	$db->query("SELECT metalsources,siliconsources,uransources,plutoniumsources FROM {$prefix}colonies WHERE id='{$Colony['id']}';");
 	$r = $db->fetchrow();
 
-	if ($r['metalsources'] > 2500*$Colony['metalcentertechnology'] && ($m = round(0.0001*rand(0, 500)*$r['metalsources']))) {
+	if ($r['metalsources'] > 2500*$Colony['metalcentertechnology'] && ($m = round(num(0.0001*rand(0, 500)*$r['metalsources'])))) {
 		$msg .= $Lang['Metal'].': <b>'.strdiv($m).'</b><br />';
 		$Colony['metalsources'] -= $m; $r['metalsources'] -= $m; $expend++;
 	}
 
-	if ($Colony['siliconsources'] > 2500*$Colony['metalcentertechnology'] && ($s = round(0.0001*rand(0, 500)*$Colony['siliconsources']))) {
+	if ($Colony['siliconsources'] > 2500*$Colony['metalcentertechnology'] && ($s = round(num(0.0001*rand(0, 500)*$Colony['siliconsources'])))) {
 		$msg .= $Lang['Silicon'].': <b>'.strdiv($s).'</b><br />';
 		$Colony['siliconsources'] -= $s; $r['siliconsources'] -= $s; $expend++;
 	}
 
-	if ($Colony['uransources'] > 750*$Colony['urancentertechnology'] && ($u = round(0.0001*rand(0, 75+$Player['level'])*$Colony['uransources']))) {
+	if ($Colony['uransources'] > 750*$Colony['urancentertechnology'] && ($u = round(num(0.0001*rand(0, num(75+$Player['level']))*$Colony['uransources'])))) {
 		$msg .= $Lang['Uran'].': <b>'.strdiv($u).'</b><br />';
 		$Colony['uransources'] -= $u; $r['uransources'] -= $u; $expend++;
 	}
 
-	if ($Colony['plutoniumsources'] > 750*$Colony['urancentertechnology'] && ($p = round(0.0001*rand(0, 75+$Player['level'])*$Colony['plutoniumsources']))) {
+	if ($Colony['plutoniumsources'] > 750*$Colony['urancentertechnology'] && ($p = round(num(0.0001*rand(0, num(75+$Player['level']))*$Colony['plutoniumsources'])))) {
 		$msg .= $Lang['Plutonium'].': <b>'.strdiv($p).'</b><br />';
 		$Colony['plutoniumsources'] -= $p; $r['plutoniumsources'] -= $p; $expend++;
 	}
@@ -1330,7 +1329,7 @@ function eventcrystals($i, &$Colony, &$Player)
 {
 	global $db, $prefix, $Lang;
 
-	if (($expend = round($Colony['crystals']*rand(1, 15)/1000)) > 0) {
+	if (($expend = round(num($Colony['crystals']*rand(1, 15)/1000))) > 0) {
 		$msg = $Lang['Event4_'.rand(1, 3)].'<br /><br />'.$Lang['Crystals'].': '.strdiv($expend);
 		$Colony['crystals'] -= $expend;
 	}
@@ -1435,30 +1434,30 @@ function engine($stardate = 0, $name = '', $steps = null)
 
 	$Player = readplayer($name);
 
-	$db->query("SELECT `galaxy` FROM `${prefix}space` WHERE `name`='${Player['planet']}';");
+	$db->query("SELECT `galaxy` FROM `{$prefix}space` WHERE `name`='{$Player['planet']}';");
 	$t = $db->fetchrow();
 	$Player['galaxy'] = $t['galaxy'];
 
 	// $Group
 
 	if ($Player['clan']) {
-		$db->query("SELECT * FROM `${prefix}groups` WHERE `name`='${Player['clan']}';");
+		$db->query("SELECT * FROM `{$prefix}groups` WHERE `name`='{$Player['clan']}';");
 		$Group = $db->fetchrow();
 		$Player['privileged'] = ($Player['login'] == $Group['owner']) || ($Player['login'] == $Group['co1']) || ($Player['login'] == $Group['co2']);
 	}
-	else $Group = '';
+	else $Group = null;
 
 	// $Colony
 
-	$db->query("SELECT * FROM `${prefix}colonies` WHERE `owner`='$name' LIMIT 1;");
+	$db->query("SELECT * FROM `{$prefix}colonies` WHERE `owner`='$name' LIMIT 1;");
 	if ($t = $db->fetchrow()) {
-		$t['defense'] = round($t['base']*(50000 + 5000*$t['militarytechnology']) * (100 - $t['damage']) / 100) + $t['soldiers'] + 15 * $t['bunker'] + 50 * $t['lasertower'] + 100 * $t['plasmatower'];
+		$t['defense'] = round(num($t['base']*(50000 + 5000*$t['militarytechnology']) * (100 - $t['damage']) / 100)) + $t['soldiers'] + 15 * $t['bunker'] + 50 * $t['lasertower'] + 100 * $t['plasmatower'];
 		if ($Player['planet'] == $t['planet']) $t['defense'] += $Player['level'] * 100;
 		if ($Player['clan']) $t['defense'] += $Group['defense'];
 		$t['maxattacks'] = 1 + $t['militarytechnology'];
 		$Colony = $t;
 	}
-	else $Colony = '';
+	else $Colony = null;
 
 	// ...
 
@@ -1477,12 +1476,12 @@ function engine($stardate = 0, $name = '', $steps = null)
 		$Incoming = readattacks('', $Colony['name']);
 	}
 	else {
-		$Planet = '';
-		$Galaxy = '';
-		$Structures = '';
-		$Units = '';
-		$Technologies = '';
-		$Incoming = '';
+		$Planet = null;
+		$Galaxy = null;
+		$Structures = null;
+		$Units = null;
+		$Technologies = null;
+		$Incoming = null;
 	}
 
 	if ($Player['language'] != $language) {
@@ -1501,19 +1500,19 @@ function engine($stardate = 0, $name = '', $steps = null)
 			$Player['planet'] = $Player['destination'];
 			$Player['destination'] = '';
 			$Player['time'] = 0;
-			$db->query("UPDATE `${prefix}users` SET `planet`='${Player['planet']}',`destination`='',`time`='0',`voyaged`='${Player['voyaged']}' WHERE `id`='${Player['id']}';");
+			$db->query("UPDATE `{$prefix}users` SET `planet`='{$Player['planet']}',`destination`='',`time`='0',`voyaged`='{$Player['voyaged']}' WHERE `id`='{$Player['id']}';");
 		}
 		// END ( traveling ) //
 
-		$Player['bank'] = round($Player['bank'] * (1 + Rand(0, 5) / 1000 / (35 + $Player['level'])));
+		$Player['bank'] = round(num($Player['bank'] * (1 + Rand(0, 5) / 1000 / (35 + $Player['level']))));
 
 		if ($s = sgn($a = $Player['hpmodifier'])) {
-			if (abs($Player['hpmodifier']) < $Player['hpgain']) $Player['hpmodifier'] = 0;
+			if (abs(num($Player['hpmodifier'])) < $Player['hpgain']) $Player['hpmodifier'] = 0;
 			$Player['hpmodifier'] -= $s * $Player['hpgain'];
 		}
 
 		if ($s = sgn($a = $Player['mpmodifier'])) {
-			if (abs($Player['mpmodifier']) < $Player['mpgain']) $Player['mpmodifier'] = 0;
+			if (abs(num($Player['mpmodifier'])) < $Player['mpgain']) $Player['mpmodifier'] = 0;
 			$Player['mpmodifier'] -= $s * $Player['mpgain'];
 		}
 
@@ -1528,7 +1527,7 @@ function engine($stardate = 0, $name = '', $steps = null)
 		}
 
 		if ($s = sgn($a = $Player['strengthmodifier'])) {
-			if (abs($Player['strengthmodifier']) < $Player['mpgain']) {
+			if (abs(num($Player['strengthmodifier'])) < $Player['mpgain']) {
 				$Player['strength'] -= $s * $Player['strengthmodifier'];
 				$Player['strengthmodifier'] = 0;
 			}
@@ -1539,7 +1538,7 @@ function engine($stardate = 0, $name = '', $steps = null)
 		}
 
 		if ($s = sgn($a = $Player['agilitymodifier'])) {
-			if (abs($Player['agilitymodifier']) < $Player['hpgain']) {
+			if (abs(num($Player['agilitymodifier'])) < $Player['hpgain']) {
 				$Player['agility'] -= $s * $Player['agilitymodifier'];
 				$Player['agilitymodifier'] = 0;
 			}
@@ -1579,14 +1578,14 @@ function engine($stardate = 0, $name = '', $steps = null)
 			$Colony['soldierseat'] -= $Exploration['soldiers'];
 		}
 
-		if ($Productions) $Colony['colonistsfree'] -= count($Productions);
-		if ($Buildings) $Colony['colonistsfree'] -= ceil(0.25 * $Colony['colonists']); // count($Buildings);
-		if ($Research) $Colony['scientistsfree'] -= ceil(0.5 * $Colony['scientists']);
+		if ($Productions) $Colony['colonistsfree'] -= count((array)($Productions));
+		if ($Buildings) $Colony['colonistsfree'] -= ceil(num(0.25 * $Colony['colonists'])); // count($Buildings);
+		if ($Research) $Colony['scientistsfree'] -= ceil(num(0.5 * $Colony['scientists']));
 		if (isset($Units['vessel'])) $Units['vessel']['amount'] = $Colony['vesselsfree'];
 
 		countrates($Colony, $Planet, $Units);
 
-		$chk = '';
+		$chk = array();
 
 		// ===================================================================
 		// M A I N   L O O P
@@ -1596,14 +1595,14 @@ function engine($stardate = 0, $name = '', $steps = null)
 			// BEGIN ( building ) //
 			if ($Buildings && $i >= $Buildings['end']) {
 				$Colony[$Buildings['name']] += $Buildings['amount'];
-				$Colony['colonistsfree'] += ceil(0.25 * $Colony['colonists']);
+				$Colony['colonistsfree'] += ceil(num(0.25 * $Colony['colonists']));
 				if ($Group) {
-					$Group['score'] += $t = round($Buildings['score'] * $Group['tax'] / 100);
+					$Group['score'] += $t = round(num($Buildings['score'] * $Group['tax'] / 100));
 					$Player['score'] += $Buildings['score'] - $t;
-					$db->query("UPDATE `${prefix}groups` SET `score`=`score`+$t WHERE `id`='${Group['id']}';");
+					$db->query("UPDATE `{$prefix}groups` SET `score`=`score`+$t WHERE `id`='{$Group['id']}';");
 				}
 				else $Player['score'] += $Buildings['score'];
-				$db->query("UPDATE `${prefix}colonies` SET `${Buildings['name']}` = '${Colony[$Buildings['name']]}' WHERE `owner` = '$name' LIMIT 1");
+				$db->query("UPDATE `{$prefix}colonies` SET `{$Buildings['name']}` = '{$Colony[$Buildings['name']]}' WHERE `owner` = '$name' LIMIT 1");
 				buildingfinish($name);
 				$Buildings = '';
 				$Structures = structureslist($Colony, $Planet);
@@ -1618,7 +1617,7 @@ function engine($stardate = 0, $name = '', $steps = null)
 				$db->query("DELETE FROM {$prefix}researches WHERE login='$name';");
 				sendmessage($Lang['ResearchS'], $Lang['Research1'].'<b>'.$Lang['technologies'][$Research['name']]['name'] . '</b>' . $Lang['Research2'], '', $name, 'report');
 				$Research = array();
-				$Colony['scientistsfree'] += ceil(0.5 * $Colony['scientists']);
+				$Colony['scientistsfree'] += ceil(num(0.5 * $Colony['scientists']));
 				$Technologies = technologieslist($Colony);
 			}
 			// END ( research ) //
@@ -1628,7 +1627,7 @@ function engine($stardate = 0, $name = '', $steps = null)
 				$Colony[$p['name']] += $p['amount'];
 				$Colony['colonistsfree']++;
 				if ($Group) {
-					$Group['score'] += $t = round($p['score'] * $Group['tax'] / 100);
+					$Group['score'] += $t = round(num($p['score'] * $Group['tax'] / 100));
 					$Player['score'] += $p['score'] - $t;
 					$db->query("UPDATE {$prefix}groups SET `score`=`score`+$t WHERE id='{$Group['id']}';");
 				}
@@ -1672,10 +1671,10 @@ function engine($stardate = 0, $name = '', $steps = null)
 								break;
 							}
 						if ($b) {
-							$db->query("UPDATE `${prefix}attacks` SET `status` = '1' WHERE `id` = '${t['id']}' LIMIT 1;");
+							$db->query("UPDATE `{$prefix}attacks` SET `status` = '1' WHERE `id` = '{$t['id']}' LIMIT 1;");
 							$bb = TRUE;
 							$msg = $Lang['Detected1'] . '<br /><br />';
-							$msg .= $Lang['Attacker'] . ": <a href=\"whois.php?name=${t['login']}\">${t['login']}</a><br /><br />";
+							$msg .= $Lang['Attacker'] . ": <a href=\"whois.php?name={$t['login']}\">{$t['login']}</a><br /><br />";
 							$msg .= $Lang['Detected2'] . '<br />';
 							sendmessage($Lang['DetectedS'] . $t['login'], $msg, '', $name, 'report', $i);
 						}
@@ -1692,7 +1691,7 @@ function engine($stardate = 0, $name = '', $steps = null)
 						$b = TRUE;
 						echolog('Counting incoming battle ' . $Player['login'] . ' of ' . $Colony['name']);
 						battle($t, $i, $Player, $Colony);
-						if ($Group) $db->query("INSERT INTO `${prefix}clanmessages` (`type`,`time`,`clan`,`from`,`to`) VALUES ('attack','$stardate','${Group['name']}','${t['login']}','${Player['login']}');");
+						if ($Group) $db->query("INSERT INTO `{$prefix}clanmessages` (`type`,`time`,`clan`,`from`,`to`) VALUES ('attack','$stardate','{$Group['name']}','{$t['login']}','{$Player['login']}');");
 					}
 				}
 				if ($b) $Incoming = readattacks('', $Colony['name']);
@@ -1706,7 +1705,7 @@ function engine($stardate = 0, $name = '', $steps = null)
 					foreach($Attacks as $t) {
 						if ($i >= $t['end']) {
 							if ($t['status'] < 2) {
-								$db->query("SELECT `owner` FROM `${prefix}colonies` WHERE `name` = '${t['target']}' LIMIT 1;");
+								$db->query("SELECT `owner` FROM `{$prefix}colonies` WHERE `name` = '{$t['target']}' LIMIT 1;");
 								if ($o  = $db->fetchrow()) {
 									if (! isset($chk[$o['owner']])) {
 										echolog('Counting outgoing battle ' . $o['owner']);
@@ -1718,7 +1717,7 @@ function engine($stardate = 0, $name = '', $steps = null)
 								else {
 									$t['status'] = 5;
 									$t['begin'] = $t['end'];
-									$db->query("UPDATE `{$prefix}attacks` SET `begin` = '${t['begin']}', `status` = '${t['status']}' WHERE `id`='${t['id']}' LIMIT 1;");
+									$db->query("UPDATE `{$prefix}attacks` SET `begin` = '{$t['begin']}', `status` = '{$t['status']}' WHERE `id`='{$t['id']}' LIMIT 1;");
 									$b = TRUE;
 								}
 							}
@@ -1745,13 +1744,13 @@ function engine($stardate = 0, $name = '', $steps = null)
 								$Colony['carrier'] += $t['carrier'] - $t['carrierlost'];
 								$Colony['bee'] += $t['bee'] - $t['beelost'];
 
-								$sql = "UPDATE `${prefix}colonies` SET `bx10`='${Colony['bx10']}',`soldiers`='${Colony['soldiers']}',`hawk`='${Colony['hawk']}',`crusader`='${Colony['crusader']}',";
-								$sql .= "`bee`='${Colony['bee']}',";
-								$sql .= "`warrior`='${Colony['warrior']}',`dragon`='${Colony['dragon']}',`warrior`='${Colony['warrior']}',`nemesis`='${Colony['nemesis']}',`scavenger`='${Colony['scavenger']}',`carrier`='${Colony['carrier']}' WHERE `id`='${Colony['id']}' AND `owner`='${Player['login']}' LIMIT 1";
+								$sql = "UPDATE `{$prefix}colonies` SET `bx10`='{$Colony['bx10']}',`soldiers`='{$Colony['soldiers']}',`hawk`='{$Colony['hawk']}',`crusader`='{$Colony['crusader']}',";
+								$sql .= "`bee`='{$Colony['bee']}',";
+								$sql .= "`warrior`='{$Colony['warrior']}',`dragon`='{$Colony['dragon']}',`warrior`='{$Colony['warrior']}',`nemesis`='{$Colony['nemesis']}',`scavenger`='{$Colony['scavenger']}',`carrier`='{$Colony['carrier']}' WHERE `id`='{$Colony['id']}' AND `owner`='{$Player['login']}' LIMIT 1";
 								$db->query($sql);
 								if (!$db->affectedrows()) echolog($sql);
 
-								$db->query("DELETE FROM `${prefix}attacks` WHERE `id`='${t['id']}' LIMIT 1");
+								$db->query("DELETE FROM `{$prefix}attacks` WHERE `id`='{$t['id']}' LIMIT 1");
 
 								sendmessage($Lang['AttackR'] . $t['target'], attackerreport($t), '', $Player['login'], 'report', $i);
 							}
@@ -1868,22 +1867,22 @@ function actiondeleteaccount() {
 	global $auth, $login, $db, $prefix, $Colony, $secret;
 	if (($confirm = getvar('confirm')) == $secret) {
 		if ($Colony) {
-			$db->query("UPDATE `${prefix}space` SET `abandoned`=`abandoned`+1 WHERE `name`='${Colony['planet']}' LIMIT 1;");
-			$db->query("DELETE FROM `${prefix}colonies` WHERE `owner`='$login';");
-			$db->query("DELETE FROM `${prefix}researches` WHERE `login`='$login';");
-			$db->query("DELETE FROM `${prefix}exploration` WHERE `login`='$login';");
-			$db->query("DELETE FROM `${prefix}buildings` WHERE `login`='$login';");
-			$db->query("DELETE FROM `${prefix}productions` WHERE `login`='$login';");
-			$db->query("DELETE FROM `${prefix}attacks` WHERE `login`='$login';");
-			@chat("<font color=\"yellow\">${Colony['owner']}</font>", "<font class=\"capacity\"><i>abandoned <b>${Colony['name']}</b></i></font>...");
+			$db->query("UPDATE `{$prefix}space` SET `abandoned`=`abandoned`+1 WHERE `name`='{$Colony['planet']}' LIMIT 1;");
+			$db->query("DELETE FROM `{$prefix}colonies` WHERE `owner`='$login';");
+			$db->query("DELETE FROM `{$prefix}researches` WHERE `login`='$login';");
+			$db->query("DELETE FROM `{$prefix}exploration` WHERE `login`='$login';");
+			$db->query("DELETE FROM `{$prefix}buildings` WHERE `login`='$login';");
+			$db->query("DELETE FROM `{$prefix}productions` WHERE `login`='$login';");
+			$db->query("DELETE FROM `{$prefix}attacks` WHERE `login`='$login';");
+			@chat("<font color=\"yellow\">{$Colony['owner']}</font>", "<font class=\"capacity\"><i>abandoned <b>{$Colony['name']}</b></i></font>...");
 		}
 
-		$db->query("DELETE FROM ${prefix}messages WHERE to='$login';");
-		$db->query("DELETE FROM ${prefix}users WHERE login='$login' LIMIT 1;");
+		$db->query("DELETE FROM {$prefix}messages WHERE to='$login';");
+		$db->query("DELETE FROM {$prefix}users WHERE login='$login' LIMIT 1;");
 
 		$auth = FALSE;
-		$Colony = '';
-		$Player = '';
+		$Colony = null;
+		$Player = null;
 	}
 }
 
@@ -1896,11 +1895,11 @@ function actiondestroybuildings()
 	global $login, $db, $prefix, $errors, $Structures, $Colony, $Cost, $Planet, $Lang, $amount, $name;
 	if ((! $amount) || ($Colony[$Structures[$name]['id']] < $amount)) $errors .= $Lang['ErrDestroy1'] . '<br />';
 	elseif (isset($Structures[$name])) {
-		if  (isset($Structures[$name]['metal'])) $metal = round($Structures[$name]['metal'] * $amount * 0.33); else $metal = 0;
+		if  (isset($Structures[$name]['metal'])) $metal = round(num($Structures[$name]['metal'] * $amount * 0.33)); else $metal = 0;
 		$Colony['metal'] += $metal;
 		if ($Colony['metal'] > $Colony['metalcapacity']) $Colony['metal'] = $Colony['metalcapacity'];
 		$Colony[$Structures[$name]['id']] -= $amount;
-		$db->query("UPDATE `${prefix}colonies` SET `metal` = '${Colony['metal']}', `" . $Structures[$name]['id'] . "` = '" . $Colony[$Structures[$name]['id']] . "' WHERE `name` = '${Colony['name']}' LIMIT 1");
+		$db->query("UPDATE `{$prefix}colonies` SET `metal` = '{$Colony['metal']}', `" . $Structures[$name]['id'] . "` = '" . $Colony[$Structures[$name]['id']] . "' WHERE `name` = '{$Colony['name']}' LIMIT 1");
 		$Structures = structureslist($Colony, $Planet);
 		$Cost['metal'] = $metal;
 	}
@@ -1924,7 +1923,7 @@ function actionchangeavatar($name='')
 	$url = getvar('url');
 	if ($url && strpos('-' . $url, 'http://') != 1) $url = 'http://' . $url;
 //		if (strpos('..', $url) >= 0) $url = '';
-	if (ereg(";' \"", $url)) $url = '';
+	if (strpos($url, ";' \"") !== false) $url = '';
 	$ext = substr(strrchr($url, '.'), 1);
 	if (($ext == 'jpg') || ($ext == 'gif') || ($ext == 'png') || ($ext == 'jpeg') || (! $url)) {
 		$db->query("UPDATE `{$prefix}colonies` SET `avatar` = '$url' WHERE `owner` = '$name' LIMIT 1;");
@@ -1938,7 +1937,7 @@ function actionchangeplayeravatar($name = '')
 	if (! $name) $name = $login;
 	$url = getvar('url');
 	if ($url && strpos('-' . $url, 'http://') != 1) $url = 'http://' . $url;
-	if (ereg(";' \"", $url)) $url = '';
+	if (strpos($url, ";' \"") !== false) $url = '';
 //		if (strpos('..', $url) >= 0) $url = '';
 	$ext = substr(strrchr($url, '.'), 1);
 	if (($ext == 'jpg') || ($ext == 'gif') || ($ext == 'png') || ($ext == 'jpeg') || (! $url)) {
@@ -1960,7 +1959,7 @@ function actionprepare()
 		if ($Player['clan'] && (playergroup($owner) == $Player['clan'])) $errors .= $Lang['ErrorAlly'] . '<br />';
 		elseif (playerlevel($owner) < 5) $errors .= $Lang['ErrorProtected'] . '<br />';
 		elseif (playerscore($owner) < $Player['score'] / 10) $errors .= $Lang['ErrorScoreDifference'] . '<br />';
-		if ($Attacks && count($Attacks) >= $Colony['maxattacks']) $errors .= $Lang['ErrorTooManyAttacks'] . '<br />';
+		if ($Attacks && count((array)($Attacks)) >= $Colony['maxattacks']) $errors .= $Lang['ErrorTooManyAttacks'] . '<br />';
 		if (! $Colony['soldiersfree']) $errors .= $Lang['ErrorNeedSoldiers'] . '<br />';
 		$b = TRUE;
 		if ($Units)
@@ -1973,15 +1972,15 @@ function actionprepare()
 		if ($owner == $Player['login']) $errors = $Lang['RUMad?'] . '<br />';
 	}
 	if (! $errors) {
-		$db->query("SELECT * FROM `${prefix}space` WHERE `name`='${Colony['planet']}' LIMIT 1;");
+		$db->query("SELECT * FROM `{$prefix}space` WHERE `name`='{$Colony['planet']}' LIMIT 1;");
 		$sp = $db->fetchrow();
-		$db->query("SELECT * FROM `${prefix}universe` WHERE `name`='${sp['galaxy']}' LIMIT 1;");
+		$db->query("SELECT * FROM `{$prefix}universe` WHERE `name`='{$sp['galaxy']}' LIMIT 1;");
 		$sg = $db->fetchrow();
-		$db->query("SELECT * FROM `${prefix}colonies` WHERE `name`='$name' LIMIT 1;");
+		$db->query("SELECT * FROM `{$prefix}colonies` WHERE `name`='$name' LIMIT 1;");
 		$dp = $db->fetchrow();
-		$db->query("SELECT * FROM `${prefix}space` WHERE `name`='${dp['planet']}' LIMIT 1;");
+		$db->query("SELECT * FROM `{$prefix}space` WHERE `name`='{$dp['planet']}' LIMIT 1;");
 		$dp = $db->fetchrow();
-		$db->query("SELECT * FROM `${prefix}universe` WHERE `name`='${dp['galaxy']}' LIMIT 1;");
+		$db->query("SELECT * FROM `{$prefix}universe` WHERE `name`='{$dp['galaxy']}' LIMIT 1;");
 		$dg = $db->fetchrow();
 
 		$distance = galaxydistance($dg, $sg) + planetdistance($dp, $sp);
@@ -1998,9 +1997,9 @@ function actionattack()
 	global $db, $prefix, $distance, $errors, $name, $login, $Player, $Group, $Units, $Colony, $Attacks, $Lang, $stardate, $Attackers;
 	$owner = actionprepare();
 
-	foreach ($Attackers as $u) $s[] = array('id'=>$u,'amount'=>abs(postvar($u)));
+	foreach ($Attackers as $u) $s[] = array('id'=>$u,'amount'=>abs(num(postvar($u))));
 
-	$soldiers = abs(getvar('soldiers'));
+	$soldiers = abs(num(getvar('soldiers')));
 	$strategy = (int)getvar('strategy');
 
 	$a = 0;
@@ -2041,9 +2040,9 @@ function actionattack()
 				}
 				else $ground += $u['amount'];
 
-				$sql1 .= ",`${u['id']}`";
-				$sql2 .= ",'${u['amount']}'";
-				$sql3 .= ",`${u['id']}`='" . ($Units[$u['id']]['amount'] - $u['amount']) . "'";
+				$sql1 .= ",`{$u['id']}`";
+				$sql2 .= ",'{$u['amount']}'";
+				$sql3 .= ",`{$u['id']}`='" . ($Units[$u['id']]['amount'] - $u['amount']) . "'";
 			}
 		}
 	if ($hnut) $errors .= $Lang['ErrorHNUT'] . '<br />';
@@ -2053,7 +2052,7 @@ function actionattack()
 	if ($a < 100) $errors .= $Lang['Error2LU'].'<br />';
 
 	if (!$errors) {
-		$time = 6 + round($distance / 6 / $speed);
+		$time = 6 + round(num($distance / 6 / $speed));
 
 		$Player['credits'] -= $credits;
 		$Colony['energy'] -= $energy;
@@ -2065,8 +2064,8 @@ function actionattack()
 		foreach ($s as $u) if ($u['amount'] && (isset($Units[$u['id']]) && ($u['amount'] <= $Units[$u['id']]['amount']))) $Colony[$u['id']] -= $u['amount'];
 
 		$db->query("UPDATE {$prefix}users SET credits='{$Player['credits']}' WHERE login='{$Player['login']}';");
-		$db->query("UPDATE `${prefix}colonies` SET `energy`=${Colony['energy']},`metal`='${Colony['metal']}',`uran`='${Colony['uran']}',`food`='${Colony['food']}'$sql3 WHERE `owner`='$login' LIMIT 1;");
-		$db->query("INSERT INTO `${prefix}attacks` (`login`,`owner`, `target`,`begin`,`time`,`strategy`,`bonus`,`soldiers`$sql1) VALUES ('$login','${Colony['name']}','$name','$stardate','$time','$strategy','$bonus','$soldiers'$sql2);");
+		$db->query("UPDATE `{$prefix}colonies` SET `energy`={$Colony['energy']},`metal`='{$Colony['metal']}',`uran`='{$Colony['uran']}',`food`='{$Colony['food']}'$sql3 WHERE `owner`='$login' LIMIT 1;");
+		$db->query("INSERT INTO `{$prefix}attacks` (`login`,`owner`, `target`,`begin`,`time`,`strategy`,`bonus`,`soldiers`$sql1) VALUES ('$login','{$Colony['name']}','$name','$stardate','$time','$strategy','$bonus','$soldiers'$sql2);");
 
 		$Attacks = readattacks($login);
 	}
@@ -2085,7 +2084,7 @@ function actioncancelattack()
 			if (rand(0, 99) < 10) $db->query("UPDATE {$prefix}attacks SET communicationlost=1 WHERE id='$id';");
 			else {
 				$time = $stardate - $a['begin'];
-				$db->query("UPDATE `${prefix}attacks` SET `status`=5,`begin`='$stardate',`time`='$time' WHERE `id`='$id' AND `login`='$login' LIMIT 1;");
+				$db->query("UPDATE `{$prefix}attacks` SET `status`=5,`begin`='$stardate',`time`='$time' WHERE `id`='$id' AND `login`='$login' LIMIT 1;");
 				$Attacks = readattacks($login);
 			}
 		}
@@ -2098,7 +2097,7 @@ function actioncancelattack()
 
 $stardate = stardate();
 //	$stardate = 72580;
-$starmonth = 1 + floor(($stardate % 3456) / 288);
+$starmonth = 1 + floor(num(($stardate % 3456) / 288));
 
 $r = engine();
 
@@ -2123,7 +2122,7 @@ $Galaxy = $r['Galaxy'];
 $playernature = playernature($Player['reputation']);
 $playerspeed = 0.1 + $Var['units'][$Player['ship']]['speed'];
 $planet = $Player['planet'];
-if ($Colony && $Colony['academy']) $soldierstraincost = floor(reputationmodifier($Player['reputation']) * 5000 / $Colony['academy']);
+if ($Colony && $Colony['academy']) $soldierstraincost = floor(num(reputationmodifier($Player['reputation']) * 5000 / $Colony['academy']));
 
 switch ($action) {
 	case 'build': case 'destroyunits': case 'product': case 'initiate': case 'repair': case 'shipexchange': case 'disable': case 'enable': case 'canceltravel': case 'travel': case 'cancelbuilding': case 'management': case 'cancelresearch': case 'cancelexpedition': case 'cancelproduction': case 'train': case 'scanobject': case 'explore': 

@@ -19,7 +19,7 @@ tablebegin('Galaxy Forces', 550);
 	<td>
 <?php
 	$date = date('Ymd');
-	$db->query("SELECT login from galaxy_users where registered='$date' ORDER BY id DESC;");
+	$db->query("SELECT login from {$prefix}users where registered='$date' ORDER BY id DESC;");
 	if ($registered = $db->numrows()) {
 		$t = $db->fetchrow();
 		$last = $t['login'];

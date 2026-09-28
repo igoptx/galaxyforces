@@ -29,7 +29,7 @@ function rank_update ($Ranks)
 	{
 		$packed .= ($packed ? '|' : '').$k.','.implode(',', $v);
 	}
-	$db->query("UPDATE `${prefix}config` SET `config_value`='".$packed."' WHERE `config_key`='Ranks' LIMIT 1;"); echo mysql_error();
+	$db->query("UPDATE `{$prefix}config` SET `config_value`='".$packed."' WHERE `config_key`='Ranks' LIMIT 1;"); echo $db->error();
 }
 
 function rank_styles() {

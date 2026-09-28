@@ -124,19 +124,19 @@ VALUES ('venus', 'planet', 'medium', 'human', 'milky_way', 'solar_system',
 INSERT IGNORE INTO `galaxy_space` (`name`, `type`, `class`, `technology`, `galaxy`, `system`, `x`, `y`, `z`, `explored`, `abandoned`, `wind`, `life`, `terrain`, `gravity`, `moons`, `illumination`)
 VALUES ('ariel', 'asteroid', 'medium', 'none', 'onion', 'bree', -2, 0, -1, 0, 0, 0, 0, 0, 1, 0, 15);
 
-INSERT INTO `galaxy_space` VALUES (7, 'harmony', 'planet', 'big', 'ami', 'onion', '', -4, 3, 7, 0, 0, 3, 11, 13, 7, 4, 76);
-INSERT INTO `galaxy_space` VALUES (14, 'amoeba', 'planet', 'huge', 'human', 'onion', '', 5, -7, 3, 40.283, 132, 21, 71, 63, 5, 0, 23);
-INSERT INTO `galaxy_space` VALUES (18, 'gemini', 'meteor', 'big', 'none', 'onion', '', 4, 5, -3, 0, 0, 0, 0, 0, 10, 0, 0);
-INSERT INTO `galaxy_space` VALUES (21, 'phantomia', 'planet', 'medium', 'unknown', 'onion', 'zoob', -7, -8, -10, 0.246, 2, 79, 42, 59, 20, 7, 35);
+INSERT INTO `galaxy_space` VALUES (NULL, 'harmony', 'planet', 'big', 'ami', 'onion', '', -4, 3, 7, 0, 0, 3, 11, 13, 7, 4, 76);
+INSERT INTO `galaxy_space` VALUES (NULL, 'amoeba', 'planet', 'huge', 'human', 'onion', '', 5, -7, 3, 40.283, 132, 21, 71, 63, 5, 0, 23);
+INSERT INTO `galaxy_space` VALUES (NULL, 'gemini', 'meteor', 'big', 'none', 'onion', '', 4, 5, -3, 0, 0, 0, 0, 0, 10, 0, 0);
+INSERT INTO `galaxy_space` VALUES (NULL, 'phantomia', 'planet', 'medium', 'unknown', 'onion', 'zoob', -7, -8, -10, 0.246, 2, 79, 42, 59, 20, 7, 35);
 
-INSERT INTO `galaxy_space` VALUES (5, 'erathia', 'planet', 'big', 'ami', 'maya', '', -7, 4, 0, 0, 0, 1, 30, 50, 2.5, 0, 15);
-INSERT INTO `galaxy_space` VALUES (8, 'hybrid', 'planet', 'huge', 'ami', 'maya', 'ameno', 3, 12, 8, 0, 0, 3, 30, 50, 2.5, 0, 15);
-INSERT INTO `galaxy_space` VALUES (19, 'sula', 'asteroid', 'medium', 'none', 'maya', 'ameno', 4, 10, 7, 0, 0, 0, 0, 0, 1, 0, 15);
-INSERT INTO `galaxy_space` VALUES (10, 'dreamer', 'planet', 'small', 'ami', 'maya', '', -5, 4, -3, 0, 0, 2, 30, 50, 2.5, 0, 15);
+INSERT INTO `galaxy_space` VALUES (NULL, 'erathia', 'planet', 'big', 'ami', 'maya', '', -7, 4, 0, 0, 0, 1, 30, 50, 2.5, 0, 15);
+INSERT INTO `galaxy_space` VALUES (NULL, 'hybrid', 'planet', 'huge', 'ami', 'maya', 'ameno', 3, 12, 8, 0, 0, 3, 30, 50, 2.5, 0, 15);
+INSERT INTO `galaxy_space` VALUES (NULL, 'sula', 'asteroid', 'medium', 'none', 'maya', 'ameno', 4, 10, 7, 0, 0, 0, 0, 0, 1, 0, 15);
+INSERT INTO `galaxy_space` VALUES (NULL, 'dreamer', 'planet', 'small', 'ami', 'maya', '', -5, 4, -3, 0, 0, 2, 30, 50, 2.5, 0, 15);
 
-INSERT INTO `galaxy_space` VALUES (11, 'eye', 'planet', 'huge', 'ami', 'plexi', '', -2, -1, 7, 0, 0, 1, 30, 50, 2.5, 0, 15);
-INSERT INTO `galaxy_space` VALUES (12, 'galeon', 'planet', 'huge', 'tron', 'plexi', '', -4, -20, 17, 0, 66, 35, 30, 50, 2.5, 0, 15);
-INSERT INTO `galaxy_space` VALUES (23, 'quarell', 'meteor', 'small', 'none', 'plexi', '', -3, -10, 11, 0, 0, 0, 0, 0, 5, 0, 15);
+INSERT INTO `galaxy_space` VALUES (NULL, 'eye', 'planet', 'huge', 'ami', 'plexi', '', -2, -1, 7, 0, 0, 1, 30, 50, 2.5, 0, 15);
+INSERT INTO `galaxy_space` VALUES (NULL, 'galeon', 'planet', 'huge', 'tron', 'plexi', '', -4, -20, 17, 0, 66, 35, 30, 50, 2.5, 0, 15);
+INSERT INTO `galaxy_space` VALUES (NULL, 'quarell', 'meteor', 'small', 'none', 'plexi', '', -3, -10, 11, 0, 0, 0, 0, 0, 5, 0, 15);
 
 
 INSERT IGNORE INTO `galaxy_space` (`name`, `type`, `class`, `technology`, `galaxy`, `system`, `x`, `y`, `z`, `explored`, `abandoned`, `wind`, `life`, `terrain`, `gravity`, `moons`, `illumination`)
@@ -149,7 +149,7 @@ VALUES ('mar_sara', 'planet', 'small', 'human', 'wolf', 'ando_space',
 
 
 INSERT IGNORE INTO `galaxy_space` (`name`, `type`, `class`, `technology`, `galaxy`, `system`, `x`, `y`, `z`, `explored`, `abandoned`, `wind`, `life`, `terrain`, `gravity`, `moons`, `illumination`)
-VALUES (6, 'darkstar', 'planet', 'medium', 'tron', 'tron', '', 0, -1, 2, 0.426, 66, 40, 30, 50, 2.5, 0, 15);
+VALUES ('darkstar', 'planet', 'medium', 'tron', 'tron', '', 0, -1, 2, 0.426, 66, 40, 30, 50, 2.5, 0, 15);
 
 INSERT IGNORE INTO `galaxy_space` (`name`, `type`, `class`, `technology`, `galaxy`, `system`, `x`, `y`, `z`, `explored`, `abandoned`, `wind`, `life`, `terrain`, `gravity`, `moons`, `illumination`)
 VALUES ('phantasmagoria', 'planet', 'giant', 'tron', 'tron', '', 4, 2, -1, 0, 67, 25, 30, 50, 2.5, 0, 15);
@@ -160,8 +160,8 @@ VALUES ('enea', 'asteroid', 'medium', 'none', 'tron', '42', 22, 5, -7, 0, 0, 0, 
 INSERT IGNORE INTO `galaxy_space` (`name`, `type`, `class`, `technology`, `galaxy`, `system`, `x`, `y`, `z`, `explored`, `abandoned`, `wind`, `life`, `terrain`, `gravity`, `moons`, `illumination`)
 VALUES ('nine', 'planet', 'medium', 'tron', 'tron', '42', 12, -3, -2, 0.426, 66, 40, 30, 50, 2.5, 0, 15);
 
-INSERT INTO `galaxy_space` VALUES (22, 'prophetie', 'planet', 'giant', 'unknown', 'underverse', '', 0, 0, 0, 0.063, 0, 0, -100, 100, 100, 50, 15);
-INSERT INTO `galaxy_space` VALUES (24, 'yareach', 'planet', 'medium', 'unknown', 'underverse', 'twin_sector', 446, 336, 446, 0, 0, 0, 0, 0, 50, 3, 15);
+INSERT INTO `galaxy_space` VALUES (NULL, 'prophetie', 'planet', 'giant', 'unknown', 'underverse', '', 0, 0, 0, 0.063, 0, 0, -100, 100, 100, 50, 15);
+INSERT INTO `galaxy_space` VALUES (NULL, 'yareach', 'planet', 'medium', 'unknown', 'underverse', 'twin_sector', 446, 336, 446, 0, 0, 0, 0, 0, 50, 3, 15);
 
-INSERT INTO `galaxy_space` VALUES (31, 'velmor', 'asteroid', '', 'none', 'wolf', 'Cularian Line', -44, 33, 25, 0, 0, 0, 0, 0, 10, 0, 15);
-INSERT INTO `galaxy_space` VALUES (32, 'ruan', 'asteroid', '', 'none', 'wolf', 'Cularian Line', -47, 31, 32, 0, 0, 0, 0, 0, 10, 0, 15);
+INSERT INTO `galaxy_space` VALUES (NULL, 'velmor', 'asteroid', '', 'none', 'wolf', 'Cularian Line', -44, 33, 25, 0, 0, 0, 0, 0, 10, 0, 15);
+INSERT INTO `galaxy_space` VALUES (NULL, 'ruan', 'asteroid', '', 'none', 'wolf', 'Cularian Line', -47, 31, 32, 0, 0, 0, 0, 0, 10, 0, 15);

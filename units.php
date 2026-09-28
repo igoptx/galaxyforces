@@ -111,7 +111,7 @@ elseif (isset($Colony) && $Colony) {
 	<td width="72" align="left">
 <?php
 	if (isset($s['workforce'])) echo "\t\t<b>[W]</b> <font class=\"work\">" . ($s['workforce']) . "</font><br />\n";
-	if (@$s['scienceforce']) echo "\t\t<b>[S]</b> <font class=\"work\">${s['scienceforce']}</font><br />\n";
+	if (@$s['scienceforce']) echo "\t\t<b>[S]</b> <font class=\"work\">{$s['scienceforce']}</font><br />\n";
 	if (isset($s['attack']) && $s['attack']) echo "\t\t<b>[A]</b> <font class=\"plus\">" . div($s['attack']) . "</font><br />\n";
 	if (isset($s['damage'])) echo "\t\t<b>[D]</b> <font class=\"capacity\">" . div($s['damage']) . "</font><br />\n";
 	if (isset($s['capacity']) && $s['capacity']) echo "\t\t<b>[C]</b> <font class=\"result\">" . div($s['capacity']) . "</font><br />\n";
@@ -130,7 +130,7 @@ elseif (isset($Colony) && $Colony) {
 		<input size="4" maxlength="8" name="amount" value="0" />&nbsp;<input type="submit" value="<?php echo $Lang['destroy']; ?>" />
 		</form>
 <?php
-		if (($Player['planet'] == $Colony['planet']) && ($type == 'fighter' || $type == 'thief')) echo "\t\t<a href=\"equipment.php?action=shipexchange&name=${s['id']}\">${Lang['Equip']} &gt;&gt;</a>\n";
+		if (($Player['planet'] == $Colony['planet']) && ($type == 'fighter' || $type == 'thief')) echo "\t\t<a href=\"equipment.php?action=shipexchange&name={$s['id']}\">{$Lang['Equip']} &gt;&gt;</a>\n";
 	}
 	else echo "&nbsp;";
 ?>	</td>
@@ -138,7 +138,7 @@ elseif (isset($Colony) && $Colony) {
 	</tr>
 <?php
 	}
-	else echo "\t<tr><td align=\"center\"><br />${Lang['No units']}</td></tr>\n";
+	else echo "\t<tr><td align=\"center\"><br />{$Lang['No units']}</td></tr>\n";
 
 ?>	<tr height="8"><td colspan="9">&nbsp;</td></tr>
 	</table>

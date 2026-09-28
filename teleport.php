@@ -23,11 +23,11 @@ require('include/header.php');
 // ===========================================================================
 
 if ($errors) {
-	tablebegin("<font class=\"error\">${Lang['Error']}!</font>", '400');
-	echo "\t\t<br />\n\t\t<font class=\"h3\">${Lang['ErrorCantTeleport']}</font><br />\n\t\t<br />\n\t\t<font class=\"error\">$errors</font>\n\t\t<br />\n\t\t<a href=\"javascript:history.back(1)\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br />\n";
+	tablebegin("<font class=\"error\">{$Lang['Error']}!</font>", '400');
+	echo "\t\t<br />\n\t\t<font class=\"h3\">{$Lang['ErrorCantTeleport']}</font><br />\n\t\t<br />\n\t\t<font class=\"error\">$errors</font>\n\t\t<br />\n\t\t<a href=\"javascript:history.back(1)\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br />\n";
 	echo "\t\t<br />\n";
 	sound('error');
-	tableend("<a href=\"control.php\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>");
+	tableend("<a href=\"control.php\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>");
 }
 
 // ===========================================================================
@@ -80,7 +80,7 @@ else {
 <?php
 		subend();
 	}
-	else echo "\t\t<br />\n\t\t${Lang['NotAvailable']}<br />\n\t\t<br />\n";
+	else echo "\t\t<br />\n\t\t{$Lang['NotAvailable']}<br />\n\t\t<br />\n";
 
 	tableend('<a href="control.php">' . $Lang['GoBack'] . ' &gt;&gt;</a>');
 }

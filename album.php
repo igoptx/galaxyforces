@@ -46,7 +46,7 @@ $print_footer = "print_footer"; // put in the name of the function you use to pr
 /********** end editable variables **********/
 
 // figure out this script's name
-$self = $HTTP_SERVER_VARS['PHP_SELF'];
+$self = $_SERVER['PHP_SELF'];
 
 if (basename($self) == "index.$ext") {
 	$self = str_replace(basename($self), "", $self);
@@ -98,16 +98,16 @@ sort($thumbs);
 
 // lowest displayed image in the array
 // use http_get_vars incase register_globals is off in php.ini
-if (!isset($HTTP_GET_VARS['i'])) {
+if (!isset($_GET['i'])) {
 	$i = 0;
 }
 else {
-	$i = $HTTP_GET_VARS['i'];
+	$i = $_GET['i'];
 }
 
 // check to see if all thumbs are meant to be displayed on one page
 if ($max_thumbs == 0) {
-	$max_thumbs = sizeof($thumbs);
+	$max_thumbs = sizeof((array)($thumbs));
 	$mt_check = 1;
 }
 else {
@@ -124,7 +124,7 @@ if (is_numeric($i)) {
 		$start = 0;
 	}
 	// are they looking for thumbs pages that don't exist?
-	if ($start > sizeof($thumbs)) {
+	if ($start > sizeof((array)($thumbs))) {
 		print '<a href="' . $self . '">index</a>' . "\n\n";
 		imgerror('Sorry, there are no images to display on this page');
 	}
@@ -136,7 +136,7 @@ if (is_numeric($i)) {
 	// loop through $thumbs and display $max_thumbs per page
 	for($count = 1; $count <= $max_thumbs; $start++) {
 		// break if past max_thumbs
-		if ($start >= sizeof($thumbs)) {
+		if ($start >= sizeof((array)($thumbs))) {
 			break;
 		}
 		
@@ -149,7 +149,7 @@ if (is_numeric($i)) {
 		}
 		
    	// open cell
-		print '<td align="center" width="' . (floor(100 / $cols)) . '%">';
+		print '<td align="center" width="' . (floor(num(100 / $cols))) . '%">';
 		
    	// insert thumb
 		print '<a href="' . $self . '?i=' . rawurlencode("$thumbs[$start]") . '"><img src="' . $thumbs_dir . '/' . rawurlencode("$thumbs[$start]") . '" ';
@@ -161,7 +161,7 @@ if (is_numeric($i)) {
 		// image title
    	if($thumb_title) {
 			$title = explode(".", str_replace("Icon_", "",  ucfirst($thumbs[$start])));
-			print "\n<br><a href=\"${_SERVER['PHP_SELF']}?chat=:${title[0]}:\">:${title[0]}:";
+			print "\n<br><a href=\"{$_SERVER['PHP_SELF']}?chat=:{$title[0]}:\">:{$title[0]}:";
 		}
 		
 		// close cell
@@ -178,7 +178,7 @@ if (is_numeric($i)) {
 	if (!$mt_check) {
 		print "\n<p>";
 		// how many total thumbs pages, including a "remainder" page if needed
-		$pages = ceil(sizeof($thumbs) / $max_thumbs);
+		$pages = ceil(num(sizeof((array)($thumbs)) / $max_thumbs));
 		for ($count = 1; $count <= $pages; $count++) {
 			if ($count == 1) {
 				if ($count == $i || $i == 0) {
@@ -227,7 +227,7 @@ else if (file_exists("$full_dir/$i")) {
 		print ' | <a href="' . $self . '?i=' . rawurlencode($thumbs[$random[0]]) . '">random</a>';
 	}
 	// next
-	if($key != (sizeof($thumbs) - 1)) {
+	if($key != (sizeof((array)($thumbs)) - 1)) {
 		print ' | <a href="' . $self . '?i=' . rawurlencode($thumbs[$key + 1]) . '">next &raquo;</a>';
 	}
 	else {
@@ -253,7 +253,7 @@ else if (file_exists("$full_dir/$i")) {
 	// numerically show what image it is in the series; hide this if image isn't in the series
 	if ($key >= 0) {
 		// add 1 so that the first image is image 1 in the series, not 0
-		print '<div class="series">' . ($key + 1) . ' of ' . sizeof($thumbs) . "</div>\n\n";
+		print '<div class="series">' . ($key + 1) . ' of ' . sizeof((array)($thumbs)) . "</div>\n\n";
 	}
 
 	// caption (optional)

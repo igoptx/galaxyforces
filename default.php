@@ -147,7 +147,7 @@ else {
 	<center>
 <?php
 
-$files = '';
+$files = null;
 
 function rd($path) {
 	global $files;

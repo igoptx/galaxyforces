@@ -25,19 +25,19 @@ if (! defined('__RSS_PHP__')) {
 function ee($e, $v, $p="\t\t")
 {
 	if (is_array($e)) {
-		for ($i = 0; $i < count($e); $i++) echo $p.'<'.$e[$i].'>'.$v[$i].'</'.$e[$i].">\n";
+		for ($i = 0; $i < count((array)($e)); $i++) echo $p.'<'.$e[$i].'>'.$v[$i].'</'.$e[$i].">\n";
 	}
 	else echo "$p<$e>$v</$e>\n";
 }
 	
 function timestamprss($timestamp)
 {
-	return gmdate("D, d M Y H:i:s", mktime(substr($timestamp, 8, 2), substr($timestamp, 10, 2), substr($timestamp, 12, 2), substr($timestamp, 4, 2), substr($timestamp, 6, 2), substr($timestamp, 0, 4))) . ' GMT';
+	return gmdate("D, d M Y H:i:s", mktime(num(substr($timestamp, 8, 2)), num(substr($timestamp, 10, 2)), num(substr($timestamp, 12, 2)), num(substr($timestamp, 4, 2)), num(substr($timestamp, 6, 2)), num(substr($timestamp, 0, 4)))) . ' GMT';
 }
 	
 function timestamprdf($timestamp)
 {
-	$t=gmdate("YmdHis", mktime(substr($timestamp, 8, 2), substr($timestamp, 10, 2), substr($timestamp, 12, 2), substr($timestamp, 4, 2), substr($timestamp, 6, 2), substr($timestamp, 0, 4)));
+	$t=gmdate("YmdHis", mktime(num(substr($timestamp, 8, 2)), num(substr($timestamp, 10, 2)), num(substr($timestamp, 12, 2)), num(substr($timestamp, 4, 2)), num(substr($timestamp, 6, 2)), num(substr($timestamp, 0, 4))));
 	return substr($t,0,4).'-'.substr($t,4,2).'-'.substr($t,6,2).'T'.substr($t,8,2).':'.substr($t,10,2).':'.substr($t,12,2);
 }
 
@@ -58,7 +58,7 @@ class rss
 
 	function destroy()
 	{
-		settype(&$this, 'null');
+		// settype(&$this) já não é permitido; nada a libertar
 	}
 
 	function item($title,$description='',$date='',$link='')
@@ -93,9 +93,9 @@ class rss
 
                 echo "\t</channel>\n";
 		
-		for ($i = 0; $i < count($this->items); $i++) {
+		for ($i = 0; $i < count((array)($this->items)); $i++) {
 			$t = $this->items[$i];
-			echo "\n\t<item rdf:about=\"${t['title']}\">\n";
+			echo "\n\t<item rdf:about=\"{$t['title']}\">\n";
 			if ($t['title']) ee('title', $t['title']);
 			if ($t['description']) ee('description', '<![CDATA['.$t['description'].']]>');
 			if ($t['link']) ee('link', $t['link']);

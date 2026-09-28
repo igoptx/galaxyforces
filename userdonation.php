@@ -29,9 +29,9 @@ $pagename = $Lang['UserDonation'];
 // ===========================================================================
 
 if ($errors) {
-	tablebegin("<font class=\"error\">${Lang['Error']}!</font>", '400');
-	echo "\t\t<h3>${Lang['ErrorProblems']}</h3><font class=\"error\">$errors</font><br />";
-	echo "<a href=\"javascript:history.back(1)\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
+	tablebegin("<font class=\"error\">{$Lang['Error']}!</font>", '400');
+	echo "\t\t<h3>{$Lang['ErrorProblems']}</h3><font class=\"error\">$errors</font><br />";
+	echo "<a href=\"javascript:history.back(1)\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
 	tableend("$pagename");
 }
 
@@ -41,7 +41,7 @@ if ($errors) {
 
 elseif ($result) {
 	tablebegin("$pagename", 400);
-	echo "\t\t<br /><font class=\"result\">$result</font><br /><a href=\"${_SERVER['PHP_SELF']}\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
+	echo "\t\t<br /><font class=\"result\">$result</font><br /><a href=\"{$_SERVER['PHP_SELF']}\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
 	tableend($Lang['Clan']);
 }
 
@@ -51,8 +51,8 @@ elseif ($result) {
 
 elseif (! $Player['privileged']) {
 	tablebegin($pagename);
-	echo "\t\t<br />\n\t\t${Lang['NotAvailable']}<br />\n\t\t<br />\n";
-	tableend($back ? "<a href=\"$back\">${Lang['GoBack']} &gt;&gt;</a>" : $Lang['Clan']);
+	echo "\t\t<br />\n\t\t{$Lang['NotAvailable']}<br />\n\t\t<br />\n";
+	tableend($back ? "<a href=\"$back\">{$Lang['GoBack']} &gt;&gt;</a>" : $Lang['Clan']);
 }
 
 // ===========================================================================
@@ -63,7 +63,7 @@ else {
 	tablebegin($pagename, 500);
 
 	subbegin('images/table-b2.jpg');
-	echo "\t\t<center><font class=\"h3\">${Lang['UserDonation']}</font><br /><br />";
+	echo "\t\t<center><font class=\"h3\">{$Lang['UserDonation']}</font><br /><br />";
 
 	$db->query("SELECT name from {$prefix}groups ORDER BY name;");
 	if ($db->numrows()) {
@@ -94,7 +94,7 @@ else {
 	tableimg("images/bw.gif", 168, 168, 'gallery/places/bank.jpg', 160, 160, '', 'right');
 	subend();
 
-	tableend("<a href=\"$back\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>");
+	tableend("<a href=\"$back\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>");
 }
 
 require('include/footer.php');

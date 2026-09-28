@@ -15,9 +15,9 @@ $pagename = $Lang['Clan'];
 // ===========================================================================
 
 if ($errors) {
-	tablebegin("<font class=\"error\">${Lang['Error']}!</font>", '400');
-	echo "\t\t<h3>${Lang['ErrorProblems']}</h3><font class=\"error\">$errors</font><br />";
-	echo "<a href=\"javascript:history.back(1)\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
+	tablebegin("<font class=\"error\">{$Lang['Error']}!</font>", '400');
+	echo "\t\t<h3>{$Lang['ErrorProblems']}</h3><font class=\"error\">$errors</font><br />";
+	echo "<a href=\"javascript:history.back(1)\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
 	tableend("$pagename");
 }
 
@@ -27,7 +27,7 @@ if ($errors) {
 
 elseif ($result) {
 	tablebegin("$pagename", 400);
-	echo "\t\t<br /><font class=\"result\">$result</font><br /><a href=\"${_SERVER['PHP_SELF']}\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
+	echo "\t\t<br /><font class=\"result\">$result</font><br /><a href=\"{$_SERVER['PHP_SELF']}\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
 	tableend($Lang['Clan']);
 }
 
@@ -40,7 +40,7 @@ elseif (checkplace('clanhall')) {
 
 	subbegin('images/table-b2.jpg');
 	tableimg("images/bw.gif", 168, 168, 'gallery/places/clanhall.jpg', 160, 160, '', 'right');
-	echo "\t\t<center><font class=\"h3\">${Lang['FoundClan']}</font><br /><br /><font class=\"result\">${Lang['FoundHallInformation']}</font><br />";
+	echo "\t\t<center><font class=\"h3\">{$Lang['FoundClan']}</font><br /><br /><font class=\"result\">{$Lang['FoundHallInformation']}</font><br />";
 	subend();
 
 	if (! $Group && ($Player['level'] > 1)) {
@@ -75,7 +75,7 @@ elseif (checkplace('clanhall')) {
 		subend();
 	}
 
-	tableend("<a href=\"$back\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>");
+	tableend("<a href=\"$back\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>");
 }
 
 // ===========================================================================
@@ -84,8 +84,8 @@ elseif (checkplace('clanhall')) {
 
 else {
 	tablebegin('<font class="error">' . $Lang['Error'] . '!</font>', '400');
-	echo "\t\t<h3>${Lang['NotAvailable']}</h3><font class=\"capacity\">${Lang['BugHint']}</font><br /><br />";
-	tableend($back ? "<a href=\"$back\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>" : "${Lang['Error']}: ${Lang['NotAvailable']}");
+	echo "\t\t<h3>{$Lang['NotAvailable']}</h3><font class=\"capacity\">{$Lang['BugHint']}</font><br /><br />";
+	tableend($back ? "<a href=\"$back\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>" : "{$Lang['Error']}: {$Lang['NotAvailable']}");
 }
 
 require('include/footer.php');

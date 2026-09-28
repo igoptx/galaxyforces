@@ -41,32 +41,32 @@ if ($action == 'add') {
 		if (function_exists('censorship') && !censorship($message)) $errors = $Lang['BackOff'].'<br />';
 		if ($Player['usergroup'] != 'admin') $status = '0';
 		if ($notify) $notify = '1';
-		$time = 6 * ceil($time / 6); if ($time < 6) $time = 6; else if ($time > 72) $time = 72;
+		$time = 6 * ceil(num($time / 6)); if ($time < 6) $time = 6; else if ($time > 72) $time = 72;
 		$expires = $time * 3600 + time();
 		$class = $Player['usergroup'] ? $Player['usergroup'] : 'user';
-echo "INSERT INTO `${prefix}ads` (`expires`,`time`,`lang`,`class`,`author`,`title`,`type`,`content`,`status`,`notify`) VALUES ('".$expires."','".time()."','".$lang."','".$class."','".$Player['login']."','".$title."','".$type."','".$message."','$status','$notify');";		
-		if ($db->query("INSERT INTO `${prefix}ads` (`expires`,`time`,`lang`,`class`,`author`,`title`,`type`,`content`,`status`,`notify`) VALUES ('".$expires."','".time()."','".$lang."','".$class."','".$Player['login']."','".$title."','".$type."','".$message."','$status','$notify');")) $result .= $Lang['AdAdded'].'<br />';
-	else $errors = mysql_error().'<br />';
+echo "INSERT INTO `{$prefix}ads` (`expires`,`time`,`lang`,`class`,`author`,`title`,`type`,`content`,`status`,`notify`) VALUES ('".$expires."','".time()."','".$lang."','".$class."','".$Player['login']."','".$title."','".$type."','".$message."','$status','$notify');";		
+		if ($db->query("INSERT INTO `{$prefix}ads` (`expires`,`time`,`lang`,`class`,`author`,`title`,`type`,`content`,`status`,`notify`) VALUES ('".$expires."','".time()."','".$lang."','".$class."','".$Player['login']."','".$title."','".$type."','".$message."','$status','$notify');")) $result .= $Lang['AdAdded'].'<br />';
+	else $errors = $db->error().'<br />';
 	}
 }
 else if ($action == 'reply') {
 	$ad = getvar('ad');
 	$message = str_sqlsafe(htmlspecialchars(str_replace("\n", '[br]', (strip_tags(getvar('message'))))));
 	if (!$message) $errors = $Lang['NoInput'].'<br />';
-	else if ($db->query("SELECT id,status,notify,author,title FROM `${prefix}ads` WHERE id='$ad' AND type!='reply' LIMIT 1;") && (!$t = $db->fetchrow())) $errors = $Lang['AdNotExists'].'<br />';
+	else if ($db->query("SELECT id,status,notify,author,title FROM `{$prefix}ads` WHERE id='$ad' AND type!='reply' LIMIT 1;") && (!$t = $db->fetchrow())) $errors = $Lang['AdNotExists'].'<br />';
 	else if ($t['status'] != '2') {
 		if (function_exists('censorship') && !censorship($message)) $errors = $Lang['BackOff'].'<br />';
 		if ($t['author'] != $login && $t['notify'] == '1') sendmessage($Lang['TitleNotify'], '<a href="whois.php?player='.$login.'">'.strcap($login).'</a> '.$Lang['MsgNotify'].' <a href="ads.php?ad='.$ad.'" class="result">"'.$t['title'].'"</a>', 'Robot', $t['author']);
 		$class = $Player['usergroup'] ? $Player['usergroup'] : 'user';
-		if ($db->query("INSERT INTO `${prefix}ads` (`class`,`time`,`author`,`title`,`type`,`content`) VALUES ('".$class."','".time()."','".$Player['login']."','".$ad."','reply','".$message."');")) $result .= $Lang['ReplySent'].'<br />';
-		else $errors = mysql_error().'<br />';
-		$db->query("UPDATE `${prefix}ads` SET replies=replies+1 WHERE id='$ad';");
+		if ($db->query("INSERT INTO `{$prefix}ads` (`class`,`time`,`author`,`title`,`type`,`content`) VALUES ('".$class."','".time()."','".$Player['login']."','".$ad."','reply','".$message."');")) $result .= $Lang['ReplySent'].'<br />';
+		else $errors = $db->error().'<br />';
+		$db->query("UPDATE `{$prefix}ads` SET replies=replies+1 WHERE id='$ad';");
 	} else $errors = 'Whoops! <br />';
 }
 else if ($action == 'edit') {
 	$ad = getvar('ad');
 	list($lang, $type, $title, $message, $time, $status, $notify) = array(getvar('lang'), getvar('type'), str_sqlsafe(htmlspecialchars(strip_tags(getvar('title')))), str_sqlsafe(htmlspecialchars(str_replace("\n", '[br]', (strip_tags(getvar('message')))))), getvar('time'), getvar('status'), getvar('notify'));
-	if ($db->query("SELECT type,title FROM `${prefix}ads` WHERE id='$ad' LIMIT 1;") && ($t = $db->fetchrow())) {
+	if ($db->query("SELECT type,title FROM `{$prefix}ads` WHERE id='$ad' LIMIT 1;") && ($t = $db->fetchrow())) {
 		if (((!$message || !$title) && $t['type'] != 'reply') || (!$message)) $errors .= $Lang['ErrorNoContent'].'<br />';
 		else {
 			if (function_exists('censorship') && !censorship($message)) $errors = $Lang['BackOff'].'<br />';
@@ -82,26 +82,26 @@ else if ($action == 'edit') {
 			
 			$time_sql = '';
 			if ($time) {
-				$time = 6 * ceil($time / 6);
+				$time = 6 * ceil(num($time / 6));
 				if ($time < 6) $time = 6;
 				else if ($time > 72) $time = 72;
 				
 				$time_sql = ",`expires`='".( time() + $time * 3600 )."'";
 			}
-			if ($db->query("UPDATE `${prefix}ads` SET lang='$lang',title='$title',type='$type',content='$message',status='$status',notify='$notify'".$time_sql." WHERE `id`='".$ad."'".$clausule." ;")) $result = $Lang['PostEdited']."<br />";
-			else $errors = mysql_error().'<br />';
+			if ($db->query("UPDATE `{$prefix}ads` SET lang='$lang',title='$title',type='$type',content='$message',status='$status',notify='$notify'".$time_sql." WHERE `id`='".$ad."'".$clausule." ;")) $result = $Lang['PostEdited']."<br />";
+			else $errors = $db->error().'<br />';
 		}
 	} else $errors = $Lang['AdNotExists'].'<br />';
 }
 else if ($action == 'remove') {
 	$ad = getvar('ad');
-	if ($db->query("SELECT `type`,`title`,`author` FROM `${prefix}ads` WHERE id='$ad' LIMIT 1;") && $t = $db->fetchrow()) {
+	if ($db->query("SELECT `type`,`title`,`author` FROM `{$prefix}ads` WHERE id='$ad' LIMIT 1;") && $t = $db->fetchrow()) {
 		if ($Player['usergroup'] == 'admin' || $Player['usergroup'] == 'mod' || $Player['usergroup'] == 'global_mod') $clausule = '';
 		else $clausule = " AND `author`='".$login."'";
-		if ($db->query("DELETE FROM `${prefix}ads` WHERE id='$ad' OR (type='reply' AND title='$ad') ".$clausule.";")) {
+		if ($db->query("DELETE FROM `{$prefix}ads` WHERE id='$ad' OR (type='reply' AND title='$ad') ".$clausule.";")) {
 			if ($t['type'] == 'reply') {
 				$ad = $t['title'];
-				$db->query("UPDATE `${prefix}ads` SET replies=replies-1 WHERE id='$ad';");
+				$db->query("UPDATE `{$prefix}ads` SET replies=replies-1 WHERE id='$ad';");
 			}
 			if ($t['type'] == 'reply') {
 				$result = $Lang['ReplyDeleted'].'<br />';
@@ -112,7 +112,7 @@ else if ($action == 'remove') {
 				if ($t['author'] != $login) sendmessage($Lang['TitleAdDeleted'], '<a href="whois.php?player='.$login.'">'.strcap($login).'</a> '.$Lang['MsgAdDeleted'].' <span class="result">"'.$t['title'].'"</span>', 'Robot', $t['author']);
 			}
 		}
-		else $errors = $Lang['Error'].' '.mysql_error().'<br />';
+		else $errors = $Lang['Error'].' '.$db->error().'<br />';
 	}
 	else $errors = $Lang['AdNotExists'].'<br />';
 }
@@ -122,9 +122,9 @@ else if ($action == 'remove') {
 // ===========================================================================
 
 if ($errors) {
-	tablebegin("<font class=\"error\">${Lang['Error']}!</font>", '400');
-	echo "\t\t<h3>${Lang['ErrorProblems']}</h3><font class=\"error\">$errors</font><br />";
-	echo "<a href=\"javascript:history.back(1)\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
+	tablebegin("<font class=\"error\">{$Lang['Error']}!</font>", '400');
+	echo "\t\t<h3>{$Lang['ErrorProblems']}</h3><font class=\"error\">$errors</font><br />";
+	echo "<a href=\"javascript:history.back(1)\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
 	tableend($pagename);
 }
 
@@ -134,7 +134,7 @@ if ($errors) {
 
 elseif ($result) {
 	tablebegin($pagename, 400);
-	echo "\t\t<br /><font class=\"result\">$result</font><br /><a href=\"${_SERVER['PHP_SELF']}\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
+	echo "\t\t<br /><font class=\"result\">$result</font><br /><a href=\"{$_SERVER['PHP_SELF']}\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
 	tableend($pagename);
 }
 
@@ -172,12 +172,12 @@ else if (!$view) {
 		$tab = array();
 		$del = false;
 
-		$db->query("SELECT * FROM `${prefix}ads` WHERE `type` != 'reply' AND `expired`=0;");
+		$db->query("SELECT * FROM `{$prefix}ads` WHERE `type` != 'reply' AND `expired`=0;");
 		while ($t = $db->fetchrow()) {
 			if ($t['expires'] <= $now) $del=true;
 			else $tab[] = $t;
 		}
-		if ($del) $db->query("UPDATE `${prefix}ads` SET `expired`=1 WHERE `expires`<=".time());
+		if ($del) $db->query("UPDATE `{$prefix}ads` SET `expired`=1 WHERE `expires`<=".time());
 ?>
 	<script>
 	<!--
@@ -189,7 +189,7 @@ else if (!$view) {
 	//-->
 	</script>
 <?php
-		if (count($tab)) foreach ($tab as $t) {
+		if (count((array)($tab))) foreach ($tab as $t) {
 			$i++;
 			if (isset($Ranks[$t['class']]['chat'])) $id = ' style="'.$Ranks[$t['class']]['chat'].'"';
 			else $id = (! ($i % 2)) ? $id = ' id="div"' :  $id = '';
@@ -222,7 +222,7 @@ else if (!$view) {
 									<td id="headerl">&nbsp;</td><td>'.$Lang['Message'].'</td><td id="headerr">&nbsp;</td>
 								</tr><tr id="div">
 									<td id="headerl">&nbsp;</td><td>'.bbcode($t['content']).'<br /><div align="right"><b><a href="?ad='.$ad.'&view=reply">'.$Lang['Reply'].' &raquo;</a></b>';
-				if ($t['author'] == $login || in_array($Player['usergroup'], array('admin', 'global_mod'))) echo " &nbsp; <a href=\"?ad=$ad&view=edit\">${Lang['Edit']} &raquo;</a> &nbsp;  <a href=\"javascript:ask('ads.php?action=remove&ad=".$t['id']."')\" class=\"minus\">${Lang['Delete']} &raquo;</a>";
+				if ($t['author'] == $login || in_array($Player['usergroup'], array('admin', 'global_mod'))) echo " &nbsp; <a href=\"?ad=$ad&view=edit\">{$Lang['Edit']} &raquo;</a> &nbsp;  <a href=\"javascript:ask('ads.php?action=remove&ad=".$t['id']."')\" class=\"minus\">{$Lang['Delete']} &raquo;</a>";
 				echo '</div></td><td id="headerr">&nbsp;</td>
 								</tr><tr>
 									<td id="headerb" colspan="3">&nbsp;</td>
@@ -230,7 +230,7 @@ else if (!$view) {
 							</table>';
 				// Ad have replies?
 				if ($t['replies'] > 0) {
-					$db->query("SELECT * FROM `${prefix}ads` WHERE type = 'reply' AND title = $ad;");
+					$db->query("SELECT * FROM `{$prefix}ads` WHERE type = 'reply' AND title = $ad;");
 					
 					echo '<a name="replies"></a><table cellspacing="0" cellpadding="0" style="width: 50%;">
 							<tr id="header">
@@ -240,7 +240,7 @@ else if (!$view) {
 						if (isset($Ranks[$r['class']]['chat'])) $id = ' style="'.$Ranks[$r['class']]['chat'].'"';
 						else $id = ' id="div"';
 						echo '<tr'.$id.'><td id="headerl">&nbsp;</td><td>'.bbcode($r['content']).'<br /><b><a href="whois.php?player='.$r['author'].'">'.strcap($r['author']).'</a> at <span class="minus">'.date('Y-m-d H:i', $r['time']).'</span></b>';
-						if ($t['author'] == $login || in_array($Player['usergroup'], array('admin', 'global_mod'))) echo "<div align=\"right\"><a href=\"?ad=".$r['id']."&view=edit\">${Lang['Edit']} &raquo;</a> &nbsp;  <a href=\"javascript:ask('ads.php?action=remove&ad=".$r['id']."')\" class=\"minus\">${Lang['Delete']} &raquo;</a></div>";
+						if ($t['author'] == $login || in_array($Player['usergroup'], array('admin', 'global_mod'))) echo "<div align=\"right\"><a href=\"?ad=".$r['id']."&view=edit\">{$Lang['Edit']} &raquo;</a> &nbsp;  <a href=\"javascript:ask('ads.php?action=remove&ad=".$r['id']."')\" class=\"minus\">{$Lang['Delete']} &raquo;</a></div>";
 						echo '</td><td id="headerr">&nbsp;</td>
 							
 							</tr>';
@@ -256,9 +256,9 @@ else if (!$view) {
 			}			
 		}
 		
-		if (mysql_error()) echo '<tr align="center"><td colspan="15"><br /><span class="minus">'.mysql_error().'</span></td><tr>'; // whoops!
+		if ($db->error()) echo '<tr align="center"><td colspan="15"><br /><span class="minus">'.$db->error().'</span></td><tr>'; // whoops!
 		
-		if (!count($tab)) echo '<tr align="center"><td colspan="15"><br /><span class="minus">'.$Lang['NoAds'].'</span></td><tr>'; // no ads :(
+		if (!count((array)($tab))) echo '<tr align="center"><td colspan="15"><br /><span class="minus">'.$Lang['NoAds'].'</span></td><tr>'; // no ads :(
 
 		echo '</table>';
 		
@@ -284,7 +284,7 @@ else if ($view == 'add' || $view == 'edit' || $view == 'reply') {
 
 	if ($view == 'edit') {
 		$ad = getvar('ad');
-		$db->query("SELECT `expires`,`lang`,`title`,`content`,`type`,`status`,`notify` FROM `${prefix}ads` WHERE id='$ad' LIMIT 1;");
+		$db->query("SELECT `expires`,`lang`,`title`,`content`,`type`,`status`,`notify` FROM `{$prefix}ads` WHERE id='$ad' LIMIT 1;");
 		if ($row = $db->fetchrow()) {
 			$expires = $row['expires'];
 			$title = $row['title'];
@@ -293,7 +293,7 @@ else if ($view == 'add' || $view == 'edit' || $view == 'reply') {
 			$message = $row['content'];
 			$status = $row['status'];
 			$notify = $row['notify'];
-		} else echo mysql_error().'No!';
+		} else echo $db->error().'No!';
 		
 	}
 
@@ -361,7 +361,7 @@ else if ($view == 'add' || $view == 'edit' || $view == 'reply') {
 <?php
 			
 			echo '</form>';
-	tableend("<a href=\"ads.php\">${Lang['GoBack']} &raquo;</a>");
+	tableend("<a href=\"ads.php\">{$Lang['GoBack']} &raquo;</a>");
 } 
 
 require('include/footer.php');

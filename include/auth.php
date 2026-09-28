@@ -85,7 +85,7 @@ $seed = '';
 $logged = false;
 
 if (@$db && ($login = $db->safe($login)) && (($Config['AuthType'] == 'http' && $password) || ($action == 'login' && $password || ($salt && $action != 'logout')))) {
-	$db->query("SELECT password,seed,usergroup,language,style,ip,lastip,locked,banned FROM ${prefix}users WHERE login='$login' AND active=1;");
+	$db->query("SELECT password,seed,usergroup,language,style,ip,lastip,locked,banned FROM {$prefix}users WHERE login='$login' AND active=1;");
 	if ($t = $db->fetchrow()) {
 		if ($locked = $t['locked'] > $timestamp) $logged = false;
 		elseif ($action == 'login' || $Config['AuthType'] == 'http') {
@@ -95,7 +95,7 @@ if (@$db && ($login = $db->safe($login)) && (($Config['AuthType'] == 'http' && $
 				$salt = sha1($login.$unique.$seed);
 				$logged = true;
 				if ($ip != $t['ip']) { $t['lastip'] = $t['ip']; $t['ip'] = $ip; }
-				$db->query("UPDATE ${prefix}users SET seed='$seed',seen='$timestamp',online='$timestamp',ip='${t['ip']}',lastip='${t['lastip']}',locked='' WHERE login='$login';");
+				$db->query("UPDATE {$prefix}users SET seed='$seed',seen='$timestamp',online='$timestamp',ip='{$t['ip']}',lastip='{$t['lastip']}',locked='' WHERE login='$login';");
 			}
 		}
 		elseif ($salt == sha1($login.$unique.$t['seed'])) $logged = true;
@@ -103,7 +103,7 @@ if (@$db && ($login = $db->safe($login)) && (($Config['AuthType'] == 'http' && $
 
 		unset($t['password']);
 
-		if (!($banned = $t['banned'] > $timestamp) && $t['banned']) $db->query("UPDATE ${prefix}users SET banned='' WHERE login='$login';");
+		if (!($banned = $t['banned'] > $timestamp) && $t['banned']) $db->query("UPDATE {$prefix}users SET banned='' WHERE login='$login';");
 
 		if ($logged) {
 			$User = $t;
@@ -122,12 +122,12 @@ if (@$db && ($login = $db->safe($login)) && (($Config['AuthType'] == 'http' && $
 					$_SESSION['salt'] = $salt;
 					break;
 			}
-			if (!$seed) $db->query("UPDATE ${prefix}users SET online='$timestamp' WHERE login='$login';");
+			if (!$seed) $db->query("UPDATE {$prefix}users SET online='$timestamp' WHERE login='$login';");
 		}
 	}
 }
 
-if ($action == 'logout' && $login && @$db) $db->query("UPDATE ${prefix}users SET seed='',online='' WHERE login='$login';");
+if ($action == 'logout' && $login && @$db) $db->query("UPDATE {$prefix}users SET seed='',online='' WHERE login='$login';");
 
 if (!$logged) {
 	switch($Config['AuthType']) {
@@ -143,16 +143,16 @@ if (!$logged) {
 }
 
 if (@$locked) {
-	header("Location: accountlocked.php?time=${t['locked']}\r\n"); 
+	header("Location: accountlocked.php?time={$t['locked']}\r\n"); 
 	die;
 }
 elseif ($auth && !$logged) {
 	if ($Config['AuthType'] == 'http') {
-		header("WWW-Authenticate: Basic realm=\"${Config['Title']}\"");
+		header("WWW-Authenticate: Basic realm=\"{$Config['Title']}\"");
 		header('HTTP/1.0 401 Unauthorized');
 	}
 	elseif ($Config['LoginPage']) {
-		$url = "${Config['LoginPage']}?rid=$rid&back=${_SERVER['PHP_SELF']}";
+		$url = "{$Config['LoginPage']}?rid=$rid&back={$_SERVER['PHP_SELF']}";
 		if ($login) $url .= "&login=$login";
 		if ($action) $url .= "&action=$action";
 		header("Location: $url\r\n");
@@ -160,8 +160,7 @@ elseif ($auth && !$logged) {
 	die;
 }
 
-if ($logged && $action == "login") {
-	if (empty($Config['AuthPage'])) break;
+if ($logged && $action == "login" && !empty($Config['AuthPage'])) {
 	if (strtolower(substr($_SERVER['PHP_SELF'], -strlen($Config['LoginPage']))) == strtolower($Config['LoginPage'])) {
 		header('Location: '.$Config['AuthPage']."\r\n");
 		die;

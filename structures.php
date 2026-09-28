@@ -102,8 +102,8 @@ if (isset($Colony) && $Colony) {
 	else echo "&nbsp;";
 
 	if (isset($Colony[$s['id'] . 'off']))
-		if ($Colony[$s['id'] . 'off']) echo "\t\t<center><a href=\"structures.php?action=enable&name=${s['id']}\">${Lang['Enable']} &gt;&gt;</a></center><br />";
-		else echo "\t\t<center><a class=\"delete\" href=\"structures.php?action=disable&name=${s['id']}\">${Lang['Disable']} &gt;&gt;</a></center><br />";
+		if ($Colony[$s['id'] . 'off']) echo "\t\t<center><a href=\"structures.php?action=enable&name={$s['id']}\">{$Lang['Enable']} &gt;&gt;</a></center><br />";
+		else echo "\t\t<center><a class=\"delete\" href=\"structures.php?action=disable&name={$s['id']}\">{$Lang['Disable']} &gt;&gt;</a></center><br />";
 
 ?>	</td>
 	<td width="4">&nbsp;</td>

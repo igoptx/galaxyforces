@@ -32,7 +32,7 @@ if (! defined('__DOC_PHP__')) {
 	function readarticles($path, $recursive = true)
 	{
 		global $MimeType, $Lang;
-		$result = '';
+		$result = null;
 		$files = readfiles($path, $recursive);
 
 		foreach ($files as $file) {
@@ -88,4 +88,4 @@ if (! defined('__DOC_PHP__')) {
 
 	define('__DOC_PHP__', TRUE);
 }
-elseif ($Config['Debug']) error("${Lang['File']} <b>${_SERVER['PHP_SELF']}</b> ${Lang['DefinedMoreThanOnce']}");
+elseif ($Config['Debug']) error("{$Lang['File']} <b>{$_SERVER['PHP_SELF']}</b> {$Lang['DefinedMoreThanOnce']}");

@@ -13,10 +13,10 @@ $view = getvar('view');
 // ===========================================================================
 
 if ($errors) {
-	tablebegin("<font class=\"error\">${Lang['Error']}!</font>", '400');
-	echo "\t\t<h3>${Lang['ErrorProblems']}</h3><font class=\"error\">$errors</font><br />";
+	tablebegin("<font class=\"error\">{$Lang['Error']}!</font>", '400');
+	echo "\t\t<h3>{$Lang['ErrorProblems']}</h3><font class=\"error\">$errors</font><br />";
 	sound('error');
-	echo "<a href=\"javascript:history.back(1)\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
+	echo "<a href=\"javascript:history.back(1)\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
 	tableend("$pagename");
 }
 
@@ -26,8 +26,8 @@ if ($errors) {
 
 elseif ($result) {
 	tablebegin("$pagename", 400);
-	echo "\t\t<br /><font class=\"result\">$result</font><br /><a href=\"${_SERVER['PHP_SELF']}\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
-	tableend("${Lang['Clan']}$title");
+	echo "\t\t<br /><font class=\"result\">$result</font><br /><a href=\"{$_SERVER['PHP_SELF']}\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
+	tableend("{$Lang['Clan']}$title");
 }
 
 // ===========================================================================
@@ -38,7 +38,7 @@ elseif (!$errors) {
 	tablebegin($Lang['ClanHall']);
 
 	$Groups = '';
-	$db->query("SELECT * FROM `${prefix}groups` ORDER BY `score` DESC, `level` DESC, `name` ASC;");
+	$db->query("SELECT * FROM `{$prefix}groups` ORDER BY `score` DESC, `level` DESC, `name` ASC;");
 	$max = $db->numrows();
 ?>
 		<table width="100%" align="center" cellspacing="0" cellpadding="0" border="0">
@@ -80,8 +80,8 @@ elseif (!$errors) {
 
 else {
 	tablebegin('<font class="error">' . $Lang['Error'] . '!</font>', '400');
-	echo "\t\t<h3>${Lang['NotAvailable']}</h3><font class=\"capacity\">${Lang['BugHint']}</font><br /><br />";
-	tableend($back ? "<a href=\"$back\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>" : "${Lang['Error']}: ${Lang['NotAvailable']}");
+	echo "\t\t<h3>{$Lang['NotAvailable']}</h3><font class=\"capacity\">{$Lang['BugHint']}</font><br /><br />";
+	tableend($back ? "<a href=\"$back\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>" : "{$Lang['Error']}: {$Lang['NotAvailable']}");
 }
 
 require('include/footer.php');

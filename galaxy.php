@@ -23,7 +23,7 @@ locale('colony');
 
 $galaxy = getvar('galaxy');
 $object = getvar('object');
-$page = abs(getvar('page'));
+$page = abs(num(getvar('page')));
 
 $pagecount = 100;
 $MAXUSERS = 250;
@@ -33,11 +33,11 @@ $MAXUSERS = 250;
 // ===========================================================================
 
 if ($errors) {
-	tablebegin("<font class=\"error\">${Lang['Error']}!</font>", '400');
+	tablebegin("<font class=\"error\">{$Lang['Error']}!</font>", '400');
 	echotitle($Lang['ErrorProblems']);
-	echo "\t\t<font class=\"error\">$errors</font>\n\t\t<br />\n\t\t<a href=\"javascript:history.back(1)\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />\n";
+	echo "\t\t<font class=\"error\">$errors</font>\n\t\t<br />\n\t\t<a href=\"javascript:history.back(1)\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />\n";
 	sound('error');
-	tableend("<a href=\"colony.php\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>");
+	tableend("<a href=\"colony.php\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>");
 }
 
 // ===========================================================================
@@ -46,7 +46,7 @@ if ($errors) {
 
 elseif ($result) {
 	tablebegin($pagename, 400);
-	echo "\t\t<br /><font class=\"result\">$result</font><br /><a href=\"${_SERVER['PHP_SELF']}\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
+	echo "\t\t<br /><font class=\"result\">$result</font><br /><a href=\"{$_SERVER['PHP_SELF']}\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
 	tableend(anchor('admin.php', $Lang['GoBack']));
 }
 
@@ -59,54 +59,54 @@ elseif ($object) {
 	if ($t = $db->fetchrow()) {
 		$galaxy = $t['galaxy'];
 		if (! $Player['destination'] && $Player['planet'] != $object) {
-			$db->query("SELECT * FROM ${prefix}universe WHERE name='$galaxy' LIMIT 1;");
+			$db->query("SELECT * FROM {$prefix}universe WHERE name='$galaxy' LIMIT 1;");
 			$g = $db->fetchrow();
-			$db->query("SELECT * FROM `${prefix}universe` WHERE `name`='${Player['galaxy']}' LIMIT 1;");
+			$db->query("SELECT * FROM `{$prefix}universe` WHERE `name`='{$Player['galaxy']}' LIMIT 1;");
 			$gg = $db->fetchrow();
-			$db->query("SELECT * FROM `${prefix}space` WHERE `name`='${Player['planet']}' LIMIT 1;");
+			$db->query("SELECT * FROM `{$prefix}space` WHERE `name`='{$Player['planet']}' LIMIT 1;");
 			$tt = $db->fetchrow();
-			$time = round((galaxydistance($gg, $g) + planetdistance($tt, $t)) / $playerspeed);
+			$time = round(num((galaxydistance($gg, $g) + planetdistance($tt, $t)) / $playerspeed));
 		}
 
 		$db->query("SELECT id FROM {$prefix}colonies WHERE planet='$object';");
 		$max = $db->numrows();
 
-		if ($page > ($m = floor($max / $pagecount))) $page = $m;
+		if ($page > ($m = floor(num($max / $pagecount)))) $page = $m;
 		$l = $page * $pagecount;
 
 		$db->query("SELECT * FROM {$prefix}colonies WHERE planet='$object' ORDER BY base DESC,colonists DESC,name LIMIT $l,$pagecount;");
 
 		$s = '';
 
-		tablebegin("${Lang['Object']}: <b>" . strcap($t['name']) . '</b>', 540);
+		tablebegin("{$Lang['Object']}: <b>" . strcap($t['name']) . '</b>', 540);
 		subbegin('images/table-b2.jpg');
 
 		echo "\t\t<table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" align=\"center\">\n\t\t<tr valign=\"top\">\n";
 		echo "\t\t<td><b>" . $Lang['Objects[]'][$t['type']] . "</b>: <font class=\"plus\">" . strcap($t['name']) . "</font><br />";
-		echo "<br /><b>${Lang['Technology']}</b>: <font class=\"capacity\">" . $Lang['Technology[]'][$t['technology']] . "</font><br />";
-		echo "<br /><b>${Lang['SizeC']}</b>: <font class=\"result\">" . $Lang['SizeT'][$t['class']] . '</font><br />';
+		echo "<br /><b>{$Lang['Technology']}</b>: <font class=\"capacity\">" . $Lang['Technology[]'][$t['technology']] . "</font><br />";
+		echo "<br /><b>{$Lang['SizeC']}</b>: <font class=\"result\">" . $Lang['SizeT'][$t['class']] . '</font><br />';
 		
 		if ($t['type'] == 'planet') {
-			echo "<b>${Lang['Explored']}</b>: <font class=\"minus\">" . number_format($t['explored'], 2, $Lang['DecPoint'], ' ') . '%</font><br />';
+			echo "<b>{$Lang['Explored']}</b>: <font class=\"minus\">" . number_format(num($t['explored']), 2, $Lang['DecPoint'], ' ') . '%</font><br />';
 		}
 
-		if (! $Player['destination'] && $Player['planet'] != $object) echo "<br /><a href=\"control.php?action=travel&destination=${t['name']}\">${Lang['Travel']} (" . eta($time) . ')&nbsp;&gt;&gt;</a><br />';
-		if (! $Colony) echo "<br /><a href=\"colony.php?view=create&planet=${t['name']}\">${Lang['CreateColony']}&nbsp;&gt;&gt;</a><br />";
+		if (! $Player['destination'] && $Player['planet'] != $object) echo "<br /><a href=\"control.php?action=travel&destination={$t['name']}\">{$Lang['Travel']} (" . eta($time) . ')&nbsp;&gt;&gt;</a><br />';
+		if (! $Colony) echo "<br /><a href=\"colony.php?view=create&planet={$t['name']}\">{$Lang['CreateColony']}&nbsp;&gt;&gt;</a><br />";
 
 		echo "</td>\n\t\t<td>&nbsp;</td>\n";
 
-		echo "\t\t<td>" . ($t['system'] ? "<b>${Lang['PlanetSystem']}</b>: <font class=\"work\">${t['system']}</font>" : '&nbsp;') . '<br /><br />';
+		echo "\t\t<td>" . ($t['system'] ? "<b>{$Lang['PlanetSystem']}</b>: <font class=\"work\">{$t['system']}</font>" : '&nbsp;') . '<br /><br />';
 
 		if ($t['type'] == 'planet') {
-			echo "\t<b>${Lang['Colonies']}</b>: <font class=\"result\">$max</font><br />\n";
-			echo "\t".($t['abandoned'] ? "<b>${Lang['AbandonedC']}</b>: <font class=\"minus\">${t['abandoned']}</font>" : '') . "<br />\n";
-			echo "<b>${Lang['WindS']}</b>: <font class=\"capacity\">${t['wind']}%</font><br />";
-			echo "<b>${Lang['Gravity']}</b>: <font class=\"work\">" . number_format($t['gravity'], 1, $Lang['DecPoint'], ' ') . ' Q</font><br />';
+			echo "\t<b>{$Lang['Colonies']}</b>: <font class=\"result\">$max</font><br />\n";
+			echo "\t".($t['abandoned'] ? "<b>{$Lang['AbandonedC']}</b>: <font class=\"minus\">{$t['abandoned']}</font>" : '') . "<br />\n";
+			echo "<b>{$Lang['WindS']}</b>: <font class=\"capacity\">{$t['wind']}%</font><br />";
+			echo "<b>{$Lang['Gravity']}</b>: <font class=\"work\">" . number_format(num($t['gravity']), 1, $Lang['DecPoint'], ' ') . ' Q</font><br />';
 		}
 		if (! $action) echolinkbox("galaxy.php?galaxy=$galaxy&object=$object&action=scanobject", $Lang['Scan']);
 
 		echo "\t\t<td width=\"168\" height=\"168\" align=\"right\">\n";
-		tableimg('images/bw.gif', 168, 168, "gallery/space/${t['name']}.jpg", 160, 160, '', 'right');
+		tableimg('images/bw.gif', 168, 168, "gallery/space/{$t['name']}.jpg", 160, 160, '', 'right');
 		echo "\t\t</td>\n\t\t</tr>\n\t\t</table>\n";
 
 		subend();
@@ -155,7 +155,7 @@ elseif ($object) {
 			$n = $page;
 
 			if ($n) $s .= "<a href=\"galaxy.php?galaxy=$galaxy&object=$object&page=" . ($n - 1) . "\">";
-			$s .=  "&lt;&lt; ${Lang['Previous']}";
+			$s .=  "&lt;&lt; {$Lang['Previous']}";
 			if ($n) $s .= "</a>";
 
 			$s .= ' &nbsp; ';
@@ -173,20 +173,20 @@ elseif ($object) {
 			$s .= '&nbsp; ';
 
 			if ($n < $m) $s .= "<a href=\"galaxy.php?galaxy=$galaxy&object=$object&page=" . ($n + 1) . "\">";
-			$s .= "${Lang['Next']} &gt;&gt;";
+			$s .= "{$Lang['Next']} &gt;&gt;";
 			if ($n < $m) $s .= "</a>";
 
 			$s .= ' &nbsp; &nbsp ';
 		}
 
-		$db->query("SELECT login,destination,clan FROM ${prefix}users WHERE planet='$object' ORDER BY clan,level DESC LIMIT $MAXUSERS;");
+		$db->query("SELECT login,destination,clan FROM {$prefix}users WHERE planet='$object' ORDER BY clan,level DESC LIMIT $MAXUSERS;");
 		if ($l = $db->numrows()) {
 			tablebreak();
 			subbegin('images/table-b2.jpg');
 			echo "\t\t<center>\n";
 			$i = 0;
-			while (($t = $db->fetchrow()) && ++$i) echo "<a href=\"whois.php?name=${t['login']}\"" . ($t['destination'] ? ' class="work"' : '') . ">${t['login']}" . ($t['clan'] ? '(' . $t['clan'] . ')' : '') . "</a>" . ($i < $l ? ', ' : '');
-			if (++$l > $MAXUSERS) echo ", ... (<font class=\"result\">${Lang['morethan']} $MAXUSERS</font>)";
+			while (($t = $db->fetchrow()) && ++$i) echo "<a href=\"whois.php?name={$t['login']}\"" . ($t['destination'] ? ' class="work"' : '') . ">{$t['login']}" . ($t['clan'] ? '(' . $t['clan'] . ')' : '') . "</a>" . ($i < $l ? ', ' : '');
+			if (++$l > $MAXUSERS) echo ", ... (<font class=\"result\">{$Lang['morethan']} $MAXUSERS</font>)";
 			echo "\t\t</center>\n";
 			subend();
 		}
@@ -200,37 +200,37 @@ elseif ($object) {
 
 elseif ($galaxy) {
 
-	$db->query("SELECT * FROM `${prefix}universe` WHERE `name` = '${Player['galaxy']}' LIMIT 1;");
+	$db->query("SELECT * FROM `{$prefix}universe` WHERE `name` = '{$Player['galaxy']}' LIMIT 1;");
 	$tt = $db->fetchrow();
 
-	$db->query("SELECT * FROM `${prefix}space` WHERE `name` = '${Player['planet']}' LIMIT 1;");
+	$db->query("SELECT * FROM `{$prefix}space` WHERE `name` = '{$Player['planet']}' LIMIT 1;");
 	$uu = $db->fetchrow();
 
-	$db->query("SELECT * FROM `${prefix}universe` WHERE `name`='$galaxy' LIMIT 1;");
+	$db->query("SELECT * FROM `{$prefix}universe` WHERE `name`='$galaxy' LIMIT 1;");
 	if ($t = $db->fetchrow()) {
 		$galaxydistance = galaxydistance($t, $tt);
 
-		$db->query("SELECT * FROM `${prefix}space` WHERE `galaxy`='${t['name']}' AND `type`='planet' ORDER BY `system`, `name` LIMIT 0, 100;");
+		$db->query("SELECT * FROM `{$prefix}space` WHERE `galaxy`='{$t['name']}' AND `type`='planet' ORDER BY `system`, `name` LIMIT 0, 100;");
 
 		tablebegin($Lang['Galaxy'] . ': ' . strcap($t['name']), 440);
 		subbegin('images/table-b2.jpg');
 
-		tableimg('images/bw.gif', 168, 168, "gallery/galaxy/${t['name']}.jpg", 160, 160, '', 'right');
+		tableimg('images/bw.gif', 168, 168, "gallery/galaxy/{$t['name']}.jpg", 160, 160, '', 'right');
 
 		$s = $Lang['ObjectName[]'][$t['type']];
 		echo "\t<b>$s</b>: <font class=\"minus\">" . strcap($t['name']) . "</font><br />\n\t<br />\n";
 
- 		if ($galaxydistance > 0.1)  echo "\t\t<b>${Lang['Distance']}</b>: <font class=\"result\">" . number_format($galaxydistance, 1, $Lang['DecPoint'], ' ') . "</font><br /><br />\n";
+ 		if ($galaxydistance > 0.1)  echo "\t\t<b>{$Lang['Distance']}</b>: <font class=\"result\">" . number_format(num($galaxydistance), 1, $Lang['DecPoint'], ' ') . "</font><br /><br />\n";
 
-		if ($t['type'] == 'galaxy') echo "\t<b>${Lang['CPC']}</b>: <font class=\"plus\">" . $db->numrows() . "</font><br />";
+		if ($t['type'] == 'galaxy') echo "\t<b>{$Lang['CPC']}</b>: <font class=\"plus\">" . $db->numrows() . "</font><br />";
 
 		subend();
 
-		if (file_exists("flash/universe/${t['name']}.swf")) {
+		if (file_exists("flash/universe/{$t['name']}.swf")) {
 			tablebreak();
 			echo "\t<br />\n";
 			echo "\t<table background=\"images/tw.gif\" width=408 height=308 cellspacing=0 cellpadding=0 border=0><tr><td align=center>\n";
-			swf($t['name'], "flash/universe/${t['name']}.swf", 400, 300, '#000000');
+			swf($t['name'], "flash/universe/{$t['name']}.swf", 400, 300, '#000000');
 			echo "\t</td></tr></table>\n";
 			echo "\t<br />\n";
 		}
@@ -259,14 +259,14 @@ elseif ($galaxy) {
 		<b><?php echo $Lang['PlanetName']; ?></b>: <font class="plus"><?php echo strcap($u['name']); ?></font><br />
 		<br />
 		<b><?php echo $Lang['Technology']; ?></b>: <font class="capacity"><?php echo $Lang['Technology[]'][$u['technology']]; ?></font><br />
-<?php if (($distance = $galaxydistance + planetdistance($u, $uu)) > 0.1) { ?>		<b><?php echo $Lang['Distance']; ?></b>: <font class="result"><?php echo number_format($distance, 1, $Lang['DecPoint'], ' '); ?></font><br /><?php } ?>
+<?php if (($distance = $galaxydistance + planetdistance($u, $uu)) > 0.1) { ?>		<b><?php echo $Lang['Distance']; ?></b>: <font class="result"><?php echo number_format(num($distance), 1, $Lang['DecPoint'], ' '); ?></font><br /><?php } ?>
 	</td>
 	<td width="8">&nbsp;</td>
 	<td align="left">
-<?php if ($u['system']) echo "\t\t<b>${Lang['PlanetSystem']}</b>: <font class=\"work\">${u['system']}</font><br />\n"; 
+<?php if ($u['system']) echo "\t\t<b>{$Lang['PlanetSystem']}</b>: <font class=\"work\">{$u['system']}</font><br />\n"; 
 
-				echo "\t".($u['abandoned'] ? "<b>${Lang['AbandonedC']}</b>: ${u['abandoned']}" : '')."<br />\n";
-				echo "\t".($u['explored'] > 0.1 ? "<b>${Lang['Explored']}</b>: <font class=\"minus\">".number_format($u['explored'], 2, $Lang['DecPoint'], ' ').' %</font>' : '')."<br />\n";
+				echo "\t".($u['abandoned'] ? "<b>{$Lang['AbandonedC']}</b>: {$u['abandoned']}" : '')."<br />\n";
+				echo "\t".($u['explored'] > 0.1 ? "<b>{$Lang['Explored']}</b>: <font class=\"minus\">".number_format(num($u['explored']), 2, $Lang['DecPoint'], ' ').' %</font>' : '')."<br />\n";
 ?>
 		<b><?php echo $Lang['SizeC']; ?></b>: <font class="result"><?php echo $Lang['SizeT'][$u['class']]; ?></font><br />
 	</td>
@@ -279,7 +279,7 @@ elseif ($galaxy) {
 <?php
 		}
 
-		$db->query("SELECT * FROM `${prefix}space` WHERE `galaxy`='${t['name']}' AND `type`<>'planet' ORDER BY `type`,`name` LIMIT 0, 100;");
+		$db->query("SELECT * FROM `{$prefix}space` WHERE `galaxy`='{$t['name']}' AND `type`<>'planet' ORDER BY `type`,`name` LIMIT 0, 100;");
 
 		if ($db->numrows()) {
 			tablebreak();
@@ -291,20 +291,20 @@ elseif ($galaxy) {
 			foreach ($objects as $p) {
 				if (++$i % 2) {
 					echo "<tr height=\"8\"><td>&nbsp;</td></tr><tr height=\"72\" valign=\"top\"><td width=\"8\">&nbsp;</td><td width=\"72\">";
-					tableimg('images/pw.gif', 72, 72, "gallery/space/icons/${p['name']}.jpg", 64, 64, "galaxy.php?galaxy=$galaxy&object=${p['name']}");
+					tableimg('images/pw.gif', 72, 72, "gallery/space/icons/{$p['name']}.jpg", 64, 64, "galaxy.php?galaxy=$galaxy&object={$p['name']}");
 					echo "</td><td width=\"8\">&nbsp;</td><td align=\"left\">";
 					echo '<b>' . $Lang['Objects[]'][$p['type']] . "</b>: <font class=\"plus\">" . strcap($p['name']) . "</font></a><br />";
-					if ($p['system']) echo "<b>${Lang['PlanetSystem']}</b>: <font class=\"work\">${p['system']}</font><br />";
-					if (($distance = $galaxydistance + planetdistance($p, $uu)) > 0.1) echo "<b>${Lang['Distance']}</b>: " . number_format($distance, 1, $Lang['DecPoint'], ' ') . '<br />';
+					if ($p['system']) echo "<b>{$Lang['PlanetSystem']}</b>: <font class=\"work\">{$p['system']}</font><br />";
+					if (($distance = $galaxydistance + planetdistance($p, $uu)) > 0.1) echo "<b>{$Lang['Distance']}</b>: " . number_format(num($distance), 1, $Lang['DecPoint'], ' ') . '<br />';
 					echo "</td>";
 				}
 				else {
 					echo "<td width=\"8\">&nbsp;</td><td align=\"right\">";
 					echo '<b>' . $Lang['Objects[]'][$p['type']] . "</b>: <font class=\"plus\">" . strcap($p['name']) . "</font></a><br />";
-					if ($p['system']) echo "<b>${Lang['PlanetSystem']}</b>: <font class=\"work\">${p['system']}</font><br />";
-					if (($distance = $galaxydistance + planetdistance($p, $uu)) > 0.1) echo "<b>${Lang['Distance']}</b>: " . number_format($distance, 1, $Lang['DecPoint'], ' ') . '<br />';
+					if ($p['system']) echo "<b>{$Lang['PlanetSystem']}</b>: <font class=\"work\">{$p['system']}</font><br />";
+					if (($distance = $galaxydistance + planetdistance($p, $uu)) > 0.1) echo "<b>{$Lang['Distance']}</b>: " . number_format(num($distance), 1, $Lang['DecPoint'], ' ') . '<br />';
 					echo "</td><td width=\"8\">&nbsp;</td><td width=\"72\">";
-					tableimg('images/pw.gif', 72, 72, "gallery/space/icons/${p['name']}.jpg", 64, 64, "galaxy.php?galaxy=$galaxy&object=${p['name']}");
+					tableimg('images/pw.gif', 72, 72, "gallery/space/icons/{$p['name']}.jpg", 64, 64, "galaxy.php?galaxy=$galaxy&object={$p['name']}");
 					echo "</td><td width=\"8\">&nbsp;</td></tr>";
 				}
 			}
@@ -323,7 +323,7 @@ elseif ($galaxy) {
 
 else {
 
-	$db->query("SELECT * FROM `${prefix}universe` WHERE `name`='${Player['galaxy']}' LIMIT 1");
+	$db->query("SELECT * FROM `{$prefix}universe` WHERE `name`='{$Player['galaxy']}' LIMIT 1");
 	$tt = $db->fetchrow();
 
 	$db->query("SELECT * FROM `{$prefix}universe` ORDER BY `type` ASC LIMIT 0 , 100");
@@ -339,18 +339,18 @@ else {
 
 		echo "\t<td width=\"12\">&nbsp;</td>\n\t<td width=\"72\">\n";
 
-		tableimg('images/pw.gif', 72, 72, "gallery/galaxy/icons/${t['name']}.jpg", 64, 64, "galaxy.php?galaxy=${t['name']}");
+		tableimg('images/pw.gif', 72, 72, "gallery/galaxy/icons/{$t['name']}.jpg", 64, 64, "galaxy.php?galaxy={$t['name']}");
 
 		echo "\t<td width=\"12\">&nbsp;</td>\n\t<td align=\"left\">\n";
 
 		$s = $Lang['ObjectName[]'][$t['type']];
 		echo "\t<b>$s</b>: <font class=\"minus\">" . strcap($t['name']) . "</font><br />\n\t<br />\n";
 
-		$distance = round(100 * galaxydistance($t, $tt)) / 100;
+		$distance = round(num(100 * galaxydistance($t, $tt))) / 100;
 		if ($distance > 1) {
-			echo "\t<b>${Lang['Distance']}</b>: <font class=\"result\">";
-			if ($distance > 100000) echo "<font class=\"capacity\">${Lang['Unreachable']}</font>";
-			else echo number_format($distance, 2, $Lang['DecPoint'], ' ');
+			echo "\t<b>{$Lang['Distance']}</b>: <font class=\"result\">";
+			if ($distance > 100000) echo "<font class=\"capacity\">{$Lang['Unreachable']}</font>";
+			else echo number_format(num($distance), 2, $Lang['DecPoint'], ' ');
 			echo "</font><br />\n";
 		}
 		else echo "\t<br />\n";

@@ -22,8 +22,8 @@ require('include/header.php');
 // ===========================================================================
 
 if ($errors) {
-	tablebegin("<font class=\"error\">${Lang['Error']}!</font>", '400');
-	echo "\t\t<br />\n\t\t<font class=\"h3\">${Lang['ErrorProblems']}</font><br />\n\t\t<br />\n\t\t<font class=\"error\">$errors</font>\n\t\t<br />\n\t\t<a href=\"javascript:history.back(1)\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br />\n";
+	tablebegin("<font class=\"error\">{$Lang['Error']}!</font>", '400');
+	echo "\t\t<br />\n\t\t<font class=\"h3\">{$Lang['ErrorProblems']}</font><br />\n\t\t<br />\n\t\t<font class=\"error\">$errors</font>\n\t\t<br />\n\t\t<a href=\"javascript:history.back(1)\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br />\n";
 	echo "\t\t<br />\n";
 	sound('error');
 	tableend('<a href="research.php">'.$Lang['GoBack'].'&nbsp;&gt;&gt;</a>');
@@ -93,7 +93,7 @@ elseif (@$Colony && ($Colony['laboratory'] || $Colony['databank'])) {
 
 ?>	<tr height="24"<?php echo $id; ?>>
 	<td></td>
-	<td class="pw"><?php tableimg('images/pw.gif', 72, 72, "gallery/technology/".($t['completed'] ? 'completed' : 'icons')."/${t['id']}.jpg", 64, 64 /* , "description.php?type=technology&back=research.php&subject=${t['id']}" */ ); ?></td>
+	<td class="pw"><?php tableimg('images/pw.gif', 72, 72, "gallery/technology/".($t['completed'] ? 'completed' : 'icons')."/{$t['id']}.jpg", 64, 64 /* , "description.php?type=technology&back=research.php&subject=${t['id']}" */ ); ?></td>
 	<td></td>
 	<td>
 		<font class="<?php echo $t['completed'] ? 'work' : 'result'; ?>"><?php echo $t['name']; ?></font>
@@ -116,7 +116,7 @@ elseif (@$Colony && ($Colony['laboratory'] || $Colony['databank'])) {
 	<td></td>
 	<td align="center" class="capacity"><?php echo @$t['level']; ?></td>
 	<td></td>
-	<td align="center"><?php echo $t['completed'] ? '&nbsp;' : '[&nbsp;<font class="plus">' . eta(1 + round((25 / $Colony['science']) * $t['work'] / log($Colony['scienceforce']))) . '</font>&nbsp;]'; ?></td>
+	<td align="center"><?php echo $t['completed'] ? '&nbsp;' : '[&nbsp;<font class="plus">' . eta(1 + round(num((25 / $Colony['science']) * $t['work'] / log(num($Colony['scienceforce']))))) . '</font>&nbsp;]'; ?></td>
 	<td></td>
 	<td align="center"><?php echo $t['completed'] ? '<font class="work">' . $Lang['completed'] . '</font>' : '<a href="' . $_SERVER['PHP_SELF'] . '?action=initiate&name=' . $t['id'] . '">' . $Lang['initiate'] . '&nbsp;&gt;&gt;</a>'; ?></td>
 	<td></td>

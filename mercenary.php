@@ -26,7 +26,7 @@ $pagename = $Lang['Mercenary'];
 
 if ($errors) {
 	tablebegin('<font class="error">' . $Lang['Error'] . '!</font>', '400');
-	echo "\t\t<br />\n\t\t<font class=\"h3\">${Lang['ErrCantHire']}</font><br />\n\t\t<br />\n\t\t<font class=\"error\">$errors</font>\n\t\t<br />\n\t\t<a href=\"javascript:history.back(1)\">${Lang['GoBack']} &gt;&gt;</a><br />\n\t\t<br />\n";
+	echo "\t\t<br />\n\t\t<font class=\"h3\">{$Lang['ErrCantHire']}</font><br />\n\t\t<br />\n\t\t<font class=\"error\">$errors</font>\n\t\t<br />\n\t\t<a href=\"javascript:history.back(1)\">{$Lang['GoBack']} &gt;&gt;</a><br />\n\t\t<br />\n";
 	tableend($pagename);
 	sound('error');
 }
@@ -39,11 +39,11 @@ else {
 
 		tableimg('images/bw.gif', 168, 168, "gallery/places/mercenary.jpg", 160, 160, '', 'right');
 
-		echo "\t<center><font class=\"h3\">${Lang['MercenaryWelcome']}</font><br /><br />\n";
+		echo "\t<center><font class=\"h3\">{$Lang['MercenaryWelcome']}</font><br /><br />\n";
 
 ?>		<table width="300" align="left" cellspacing="0" cellpadding="0">
 <?php
-		$a = floor($Player['credits'] / ($place['parameters'] * $colonistshirecost));
+		$a = floor(num($Player['credits'] / ($place['parameters'] * $colonistshirecost)));
 		$b = 20 + 20 * $Colony['flats'] - $Colony['colonists'] - $Colony['scientists'];
 		$max = ($a < $b) ? $a : $b;
 
@@ -64,7 +64,7 @@ else {
 		</td>
 		</tr>
 <?php
-		$a = floor($Player['credits'] / ($place['parameters'] * $scientistshirecost));
+		$a = floor(num($Player['credits'] / ($place['parameters'] * $scientistshirecost)));
 		$max = ($a < $b) ? $a : $b;
 
 ?>		<tr height="8"><td>&nbsp;</td></tr>
@@ -91,7 +91,7 @@ else {
 		tablebreak();
 		module('galaxy', 'tip');
 	}
-	else echo "\t\t<br />\n\t\t${Lang['NotAvailable']}<br />\n\t\t<br />\n";
+	else echo "\t\t<br />\n\t\t{$Lang['NotAvailable']}<br />\n\t\t<br />\n";
 
 	tableend('<a href="control.php">' . $Lang['GoBack'] . ' &gt;&gt;</a>');
 }

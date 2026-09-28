@@ -39,11 +39,11 @@ function actionbuyitem()
 {
 	global $login, $db, $prefix, $Player, $Equipment, $Lang, $amount, $places, $place, $name, $errors, $result;
 	if ((checkplace('itemshop') || checkplace('gemshop')) && elementexists(explode(',', $place['parameters']), $name)) {
-		$db->query("SELECT * FROM `${prefix}items` WHERE `name`='$name';");
+		$db->query("SELECT * FROM `{$prefix}items` WHERE `name`='$name';");
 		$item = $db->fetchrow();
 		$ratio = $place['extra']; if ($ratio < 1) $ratio = 1;
 		$mod = reputationmodifier($Player['reputation']);
-		$price = round($mod * $ratio * $item['price']);
+		$price = round(num($mod * $ratio * $item['price']));
 		if ($item['count']) {
 			if (!$amount) $amount = 1;
 			$price *= $amount;
@@ -51,9 +51,9 @@ function actionbuyitem()
 		}
 		if ($Player['credits'] >= $price) {
 			$Player['credits'] -= $price;
-			$db->query("UPDATE `${prefix}users` SET `credits`='${Player['credits']}' WHERE `id`='${Player['id']}';");
+			$db->query("UPDATE `{$prefix}users` SET `credits`='{$Player['credits']}' WHERE `id`='{$Player['id']}';");
 			addequipment($item);
-			$result .= $Lang['ItemShopBought'] . ': <font class="capacity"><b>' . $Lang['items'][$item['name']]['name'] . "</b></font><br /><br />" . ($item['count'] ? "<b>${Lang['Count']}</b>: <font class=\"result\">${item['count']}</font><br /><br />" : '') . "<b>${Lang['Credits']}: <font class=\"minus\">" . div($price) . '</font> [!]</b><br />';
+			$result .= $Lang['ItemShopBought'] . ': <font class="capacity"><b>' . $Lang['items'][$item['name']]['name'] . "</b></font><br /><br />" . ($item['count'] ? "<b>{$Lang['Count']}</b>: <font class=\"result\">{$item['count']}</font><br /><br />" : '') . "<b>{$Lang['Credits']}: <font class=\"minus\">" . div($price) . '</font> [!]</b><br />';
 		}
 		else $errors .= $Lang['ErrorNotEnoughCredits'] . '<br />';
 	}
@@ -69,10 +69,10 @@ function actionsellitem() {
 		$mod = reputationmodifier($Player['reputation']);
 		if (($ratio = $place['extra']) < 1) $ratio = 1;
 		$ratio /= 5;
-		$price = round($Equipment[$id]['price'] * $ratio / $mod);
+		$price = round(num($Equipment[$id]['price'] * $ratio / $mod));
 		if ($amount = delequipment($id, $amount)) {
 			$Player['credits'] += $price * $amount;
-			$db->query("UPDATE ${prefix}users SET credits='${Player['credits']}' WHERE id='${Player['id']}';");
+			$db->query("UPDATE {$prefix}users SET credits='{$Player['credits']}' WHERE id='{$Player['id']}';");
 		}
 	}
 }
@@ -98,7 +98,7 @@ function actionuse() {
 				case 'beer': case 'darkbeer': case 'lightbeer': case 'vodka': case 'malibu': case 'czar': case 'gin': case'whisky': case 'redwine': case 'cheapwine': case 'whitewine': case 'grandredwine': case 'grandwhitewine': 
 					if ($Player['hp'] < 0.3*$Player['hpmax']) $errors .= $Lang['Drink2Weak'].'!<br />';
 					elseif (Rand(0, 99) < $item['parameters']) {
-						$Player['hpmodifier'] = -round(Rand(1, $item['parameters'])*$Player['hpmax']/100);
+						$Player['hpmodifier'] = -round(num(Rand(1, num($item['parameters']))*$Player['hpmax']/100));
 						$Player['hp'] = 0;
 						$result .= $Lang['Drunk'].' ('.$Lang['HPmod:'].$Player['hpmodifier'].')<br />';
 						if (Rand(0,99) < $item['parameters']) {
@@ -108,8 +108,8 @@ function actionuse() {
 						$db->query("UPDATE {$prefix}users SET hp='{$Player['hp']}',hpmodifier='{$Player['hpmodifier']}',alcoholism='{$Player['alcoholism']}' WHERE login='{$Player['login']}';");
 					}
 					else {	
-						$Player['strengthmodifier'] += round($Player['strength'] * Rand(1, $item['parameters']) / 100);
-						$Player['agilitymodifier'] -=  round($Player['agility'] * Rand(1, $item['parameters']) / 100);
+						$Player['strengthmodifier'] += round(num($Player['strength'] * Rand(1, num($item['parameters'])) / 100));
+						$Player['agilitymodifier'] -=  round(num($Player['agility'] * Rand(1, num($item['parameters'])) / 100));
 						$result .= $Lang['DrinkDrink'].' ('.$Lang['Smod:'].$Player['strengthmodifier'].')<br />';
 						$db->query("UPDATE {$prefix}users SET strengthmodifier='{$Player['strengthmodifier']}',agilitymodifier='{$Player['agilitymodifier']}' WHERE login='{$Player['login']}';");
 					}
@@ -176,7 +176,7 @@ function actionequip()
 
 		if (! $errors) if ($Player['mp'] < $Equipment[$id]['req_mp'] || $Player['hp'] < $Equipment[$id]['req_hp'] || $Player['level'] < $Equipment[$id]['req_level'] || $Player['strength'] < $Equipment[$id]['req_strength'] || $Player['agility'] < $Equipment[$id]['req_agility'] || $Player['force'] < $Equipment[$id]['req_force'] || $Player['psi'] < $Equipment[$id]['req_psi'] || $Player['intellect'] < $Equipment[$id]['req_intellect'] || $Player['knowledge'] < $Equipment[$id]['req_knowledge'] || $Player['pocketstealing'] < $Equipment[$id]['req_pocketstealing'] || $Player['hacking'] < $Equipment[$id]['req_hacking'] || $Player['alcoholism'] < $Equipment[$id]['req_alcoholism']) $errors .= $Lang['NEPR'] . '<br />';
 		if (! $errors) {
-			$db->query("UPDATE `${prefix}equipment` SET `active`='1' WHERE `id`='${id}' AND `owner`='${Player['login']}';");
+			$db->query("UPDATE `{$prefix}equipment` SET `active`='1' WHERE `id`='{$id}' AND `owner`='{$Player['login']}';");
 			$Equipment = readequipment($Player);
 		}
 	}
@@ -190,7 +190,7 @@ function actionunequip()
 {
 	global $db, $prefix, $Player, $Equipment;
 	if (($id = (int)getvar('id')) && $Equipment[$id]['active']) {
-		$db->query("UPDATE `${prefix}equipment` SET `active`='0' WHERE `id`='${id}' AND `owner`='${Player['login']}';");
+		$db->query("UPDATE `{$prefix}equipment` SET `active`='0' WHERE `id`='{$id}' AND `owner`='{$Player['login']}';");
 		$Equipment = readequipment($Player);
 	}
 }

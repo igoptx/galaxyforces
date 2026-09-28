@@ -13,10 +13,10 @@ $view = getvar('view');
 // ===========================================================================
 
 if ($errors) {
-	tablebegin("<font class=\"error\">${Lang['Error']}!</font>", '400');
-	echo "\t\t<h3>${Lang['ErrorProblems']}</h3><font class=\"error\">$errors</font><br />";
+	tablebegin("<font class=\"error\">{$Lang['Error']}!</font>", '400');
+	echo "\t\t<h3>{$Lang['ErrorProblems']}</h3><font class=\"error\">$errors</font><br />";
 	sound('error');
-	echo "<a href=\"javascript:history.back(1)\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
+	echo "<a href=\"javascript:history.back(1)\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
 	tableend("$pagename");
 }
 
@@ -26,8 +26,8 @@ if ($errors) {
 
 elseif ($result) {
 	tablebegin("$pagename", 400);
-	echo "\t\t<br /><font class=\"result\">$result</font><br /><a href=\"${_SERVER['PHP_SELF']}\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
-	tableend("${Lang['Clan']}$title");
+	echo "\t\t<br /><font class=\"result\">$result</font><br /><a href=\"{$_SERVER['PHP_SELF']}\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
+	tableend("{$Lang['Clan']}$title");
 }
 
 // ===========================================================================
@@ -39,7 +39,7 @@ elseif (checkplace('clanhall')) {
 
 	subbegin('images/table-b2.jpg');
 	tableimg("images/bw.gif", 168, 168, 'gallery/places/clanhall.jpg', 160, 160, '', 'right');
-	echo "<center><font class=\"h3\">${Lang['ClanHallWelcome']}</font><br /><br />";
+	echo "<center><font class=\"h3\">{$Lang['ClanHallWelcome']}</font><br /><br />";
 
 	if ($result && ($action == 'join')) {
 
@@ -56,8 +56,8 @@ elseif (checkplace('clanhall')) {
 
 	subend();
 
-	$Groups = '';
-	$db->query("SELECT * FROM `${prefix}groups` ORDER BY `score` DESC, `level` DESC, `name` ASC;");
+	$Groups = null;
+	$db->query("SELECT * FROM `{$prefix}groups` ORDER BY `score` DESC, `level` DESC, `name` ASC;");
 	$max = $db->numrows();
 	while ($t = $db->fetchrow()) $Groups[] = $t;
 
@@ -69,34 +69,34 @@ elseif (checkplace('clanhall')) {
 
 		$g = $Groups[$view - 1];
 
-		$db->query("SELECT `login`,`level` FROM `${prefix}users` WHERE `clan`='${g['name']}' ORDER BY `login` ASC;");
-		$Members = '';
+		$db->query("SELECT `login`,`level` FROM `{$prefix}users` WHERE `clan`='{$g['name']}' ORDER BY `login` ASC;");
+		$Members = null;
 		$av = 0;
 		while ($t = $db->fetchrow()) {
 			$Members[] = $t;
 			$av += $t['level'];
 		}
-		$av /= count($Members);
+		$av /= count((array)($Members));
 
 ?>		<table width="100%" cellspacing="0" cellpadding="0" border="0" align="center">
 		<tr valign="top">
 		<td>
-			<b><?php echo $Lang['ClanName']; ?></b>: <font class="capacity"><?php echo $g['name'] . $name; ?></font><?php echo $g['www'] ? " &nbsp; <a href=\"http://${g['www']}\">WWW &gt;&gt</a>" : ''; ?><br />
+			<b><?php echo $Lang['ClanName']; ?></b>: <font class="capacity"><?php echo $g['name'] . $name; ?></font><?php echo $g['www'] ? " &nbsp; <a href=\"http://{$g['www']}\">WWW &gt;&gt</a>" : ''; ?><br />
 			<br />
 			<b><?php echo $Lang['Owner']; ?></b>: <a href="whois.php?name=<?php echo $g['owner']; ?>"><?php echo $g['owner']; ?></a>
 <?php
 		if ($g['co1'] || $g['co2']) {
-			echo ", <b>${Lang['Council']}</b>: ";
-			if ($g['co1']) echo "<a href=\"whois.php?name=${g['co1']}\">${g['co1']}</a>";
+			echo ", <b>{$Lang['Council']}</b>: ";
+			if ($g['co1']) echo "<a href=\"whois.php?name={$g['co1']}\">{$g['co1']}</a>";
 			if ($g['co1'] && $g['co2']) echo ', ';
-			if ($g['co2']) echo "<a href=\"whois.php?name=${g['co2']}\">${g['co2']}</a>";
+			if ($g['co2']) echo "<a href=\"whois.php?name={$g['co2']}\">{$g['co2']}</a>";
 			echo "<br />\n";
 		}
 
-?>			<b><?php echo $Lang['Members']; ?></b>: <font class="result"><?php echo count($Members); ?></font>, <b><?php echo $Lang['AverageLevel']; ?></b>: <font class="minus"><?php echo number_format($av, 1, $Lang['DecPoint'], ' '); ?></font><br />
+?>			<b><?php echo $Lang['Members']; ?></b>: <font class="result"><?php echo count((array)($Members)); ?></font>, <b><?php echo $Lang['AverageLevel']; ?></b>: <font class="minus"><?php echo number_format(num($av), 1, $Lang['DecPoint'], ' '); ?></font><br />
 <?php
 		if ($g['www']) echo "\t\t<br />\n";
-		if ($g['description']) echo "\t\t<b>${Lang['Description']}</b>: <font class=\"result\">${g['description']}</font><br />\n";
+		if ($g['description']) echo "\t\t<b>{$Lang['Description']}</b>: <font class=\"result\">{$g['description']}</font><br />\n";
 
 ?>		</td>
 		<td width="8">&nbsp;</td>
@@ -153,7 +153,7 @@ elseif (checkplace('clanhall')) {
 		<a href="clanhall.php?view=<?php echo $i; ?>"><b><?php echo $g['name']; ?></b></a><br />
 		<b><?php echo $Lang['Level']; ?></b>: <font class="plus"><?php echo $g['level']; ?></font>, <b><?php echo $Lang['Score']; ?></b>: <font class="result"><?php echo div($g['score']); ?></font><br />
 <?php
-				if ($g['description']) echo "\t\t<br />\n\t\t<font class=\"result\">${g['description']}</font><br />\n";
+				if ($g['description']) echo "\t\t<br />\n\t\t<font class=\"result\">{$g['description']}</font><br />\n";
 
 ?>
 	</td>
@@ -166,7 +166,7 @@ elseif (checkplace('clanhall')) {
 		<a href="clanhall.php?view=<?php echo $i; ?>"><b><?php echo $g['name']; ?></b></a><br />
 		<b><?php echo $Lang['Level']; ?></b>: <font class="plus"><?php echo $g['level']; ?></font>, <b><?php echo $Lang['Score']; ?></b>: <font class="result"><?php echo div($g['score']); ?></font><br />
 <?php
-				if ($g['description']) echo "\t\t<br />\n\t\t<font class=\"result\">${g['description']}</font><br />\n";
+				if ($g['description']) echo "\t\t<br />\n\t\t<font class=\"result\">{$g['description']}</font><br />\n";
 
 ?>
 	</td>
@@ -197,8 +197,8 @@ elseif (checkplace('clanhall')) {
 
 	if (! $Group) {
 		tablebreak();
-		echo "<br /><a href=\"clandonation.php\">${Lang['ClanDonation']}&nbsp;&gt;&gt;</a><br />";
-		echo "<br /><a href=\"foundclan.php\">${Lang['FoundClan']}&nbsp;&gt;&gt;</a><br />";
+		echo "<br /><a href=\"clandonation.php\">{$Lang['ClanDonation']}&nbsp;&gt;&gt;</a><br />";
+		echo "<br /><a href=\"foundclan.php\">{$Lang['FoundClan']}&nbsp;&gt;&gt;</a><br />";
 		echo "<br />";
 	}
 
@@ -211,8 +211,8 @@ elseif (checkplace('clanhall')) {
 
 else {
 	tablebegin('<font class="error">' . $Lang['Error'] . '!</font>', '400');
-	echo "\t\t<h3>${Lang['NotAvailable']}</h3><font class=\"capacity\">${Lang['BugHint']}</font><br /><br />";
-	tableend($back ? "<a href=\"$back\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>" : "${Lang['Error']}: ${Lang['NotAvailable']}");
+	echo "\t\t<h3>{$Lang['NotAvailable']}</h3><font class=\"capacity\">{$Lang['BugHint']}</font><br /><br />";
+	tableend($back ? "<a href=\"$back\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>" : "{$Lang['Error']}: {$Lang['NotAvailable']}");
 }
 
 require('include/footer.php');

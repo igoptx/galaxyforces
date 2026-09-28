@@ -23,7 +23,7 @@ $activated = TRUE;
 if ($action == 'recover') {
 	$regid = getvar('regid');
 	if ($regid) {
-		$db->query("SELECT `login`,`email` FROM `${prefix}users` WHERE `regid`='$regid';");
+		$db->query("SELECT `login`,`email` FROM `{$prefix}users` WHERE `regid`='$regid';");
 		if ($t = $db->fetchrow()) {
 			$login = $t['login'];
 			$email = $t['email'];
@@ -41,7 +41,7 @@ if ($action == 'recover') {
 			$password = Rand(111, 999) . Rand(111, 999);
 			$backpassword = $password;
 			$password = md5($password);
-			$db->query("UPDATE `${prefix}users` SET `password`='$password' WHERE `regid`='$regid' LIMIT 1;");
+			$db->query("UPDATE `{$prefix}users` SET `password`='$password' WHERE `regid`='$regid' LIMIT 1;");
 			if ($email) {
 				$msg = $Lang['EmailDontReply'] . $Lang['EmailForgotten3'] . $Lang['EmailRegister21'] . "$login\n\n" . $Lang['EmailRegister22'] . "$backpassword\n\n" . $Lang['EmailForgotten4'];
 				sendmail($email, $Lang['EmailForgotten2Subject'], $msg);
@@ -97,7 +97,7 @@ if ($action == 'recover') {
 }
 
 elseif ($login = escapesql(getvar('login'))) {
-	$db->query("SELECT `active`, `email` FROM `${prefix}users` WHERE `login` = '$login' LIMIT 1;");
+	$db->query("SELECT `active`, `email` FROM `{$prefix}users` WHERE `login` = '$login' LIMIT 1;");
 	if (! $db->numrows()) {
 		$errors = TRUE;
 		$exists = FALSE;
@@ -112,19 +112,19 @@ elseif ($login = escapesql(getvar('login'))) {
 			$email = $tab['email'];
 			$regid = crypt($login, Rand(1111, 9999));
 			$regid = Rand(11, 99) . substr($regid, strlen($regid) - 8, 8) . Rand(11, 99);
-			$db->query("UPDATE `${prefix}users` SET `regid` = '$regid' WHERE `login` = '$login' LIMIT 1");
-			$msg = $Lang['EmailDontReply'].LF.LF.$Lang['EmailForgotten1']."\thttp://${_SERVER['HTTP_HOST']}${_SERVER['PHP_SELF']}?action=recover&regid=$regid\n\n".$Lang['Login'].": $login\n".$Lang['EmailForgotten2']."$regid\n\n".$Lang['EmailRegister4'];
+			$db->query("UPDATE `{$prefix}users` SET `regid` = '$regid' WHERE `login` = '$login' LIMIT 1");
+			$msg = $Lang['EmailDontReply'].LF.LF.$Lang['EmailForgotten1']."\thttp://{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?action=recover&regid=$regid\n\n".$Lang['Login'].": $login\n".$Lang['EmailForgotten2']."$regid\n\n".$Lang['EmailRegister4'];
 			if (sendmail($email, $Lang['EmailForgotten1Subject'], $msg)) {
 				tablebegin($Lang['LostPassword'], '400');
-				echo "\t\t<br />${Lang['ForgottenRequestSent']}<br />";
-				echo "<a href=\"lostpassword.php?action=recover&login=$login\">${Lang['Continue']}&nbsp;&gt;&gt;</a><br />";
+				echo "\t\t<br />{$Lang['ForgottenRequestSent']}<br />";
+				echo "<a href=\"lostpassword.php?action=recover&login=$login\">{$Lang['Continue']}&nbsp;&gt;&gt;</a><br />";
 				echo "<br />\n";
 				tableend($Lang['LostPassword']);
 			}
 			else {
-				tablebegin("<font class=\"error\">${Lang['Error']}</font>", '400');
-				echo "\t\t<br /><font class=\"error\">${Lang['ErrorSendmailFailed']}</font><br /><br />";
-				echo "<a href=\"lostpassword.php?login=$login\">${Lang['Continue']}&nbsp;&gt;&gt;</a><br />";
+				tablebegin("<font class=\"error\">{$Lang['Error']}</font>", '400');
+				echo "\t\t<br /><font class=\"error\">{$Lang['ErrorSendmailFailed']}</font><br /><br />";
+				echo "<a href=\"lostpassword.php?login=$login\">{$Lang['Continue']}&nbsp;&gt;&gt;</a><br />";
 				echo "<br />\n";
 				tableend($Lang['LostPassword']);
 			}

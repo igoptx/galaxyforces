@@ -42,15 +42,15 @@ if (isset($Colony) && $Colony) {
 
 		<table align="center" cellspacing="0" cellpadding="0" border="0">
 <?php
- 			if ($Cost['credits']) echo "\t<tr><td><b>${Lang['Credits']}</b>:</td><td>&nbsp;</td><td class=\"result\">".div($Cost['credits'])."</td></tr>\n";
- 			if ($Cost['energy']) echo "\t<tr><td><b>${Lang['Energy']}</b>:</td><td>&nbsp;</td><td>".div($Cost['energy'])."</td></tr>\n";
- 			if ($Cost['silicon']) echo "\t<tr><td><b>${Lang['Silicon']}</b>:</td><td>&nbsp;</td><td>".div($Cost['silicon'])."</td></tr>\n";
- 			if ($Cost['metal']) echo "\t<tr><td><b>${Lang['Metal']}</b>:</td><td>&nbsp;</td><td>".div($Cost['metal'])."</td></tr>\n";
- 			if ($Cost['uran']) echo "\t<tr><td><b>${Lang['Uran']}</b>:</td><td>&nbsp;</td><td>".div($Cost['uran'])."</td></tr>\n";
- 			if ($Cost['plutonium']) echo "\t<tr><td><b>${Lang['Plutonium']}</b>:</td><td>&nbsp;</td><td>".div($Cost['plutonium'])."</td></tr>\n";
- 			if ($Cost['deuterium']) echo "\t<tr><td><b>${Lang['Deuterium']}</b>:</td><td>&nbsp;</td><td>".div($Cost['deuterium'])."</td></tr>\n";
- 			if ($Cost['food']) echo "\t<tr><td><b>${Lang['Food']}</b>:</td><td>&nbsp;</td><td>".div($Cost['food'])."</td></tr>\n";
- 			if ($Cost['crystals']) echo "\t<tr><td><b>${Lang['Crystals']}</b>:</td><td>&nbsp;</td><td>".div($Cost['crystals'])."</td></tr>\n";
+ 			if ($Cost['credits']) echo "\t<tr><td><b>{$Lang['Credits']}</b>:</td><td>&nbsp;</td><td class=\"result\">".div($Cost['credits'])."</td></tr>\n";
+ 			if ($Cost['energy']) echo "\t<tr><td><b>{$Lang['Energy']}</b>:</td><td>&nbsp;</td><td>".div($Cost['energy'])."</td></tr>\n";
+ 			if ($Cost['silicon']) echo "\t<tr><td><b>{$Lang['Silicon']}</b>:</td><td>&nbsp;</td><td>".div($Cost['silicon'])."</td></tr>\n";
+ 			if ($Cost['metal']) echo "\t<tr><td><b>{$Lang['Metal']}</b>:</td><td>&nbsp;</td><td>".div($Cost['metal'])."</td></tr>\n";
+ 			if ($Cost['uran']) echo "\t<tr><td><b>{$Lang['Uran']}</b>:</td><td>&nbsp;</td><td>".div($Cost['uran'])."</td></tr>\n";
+ 			if ($Cost['plutonium']) echo "\t<tr><td><b>{$Lang['Plutonium']}</b>:</td><td>&nbsp;</td><td>".div($Cost['plutonium'])."</td></tr>\n";
+ 			if ($Cost['deuterium']) echo "\t<tr><td><b>{$Lang['Deuterium']}</b>:</td><td>&nbsp;</td><td>".div($Cost['deuterium'])."</td></tr>\n";
+ 			if ($Cost['food']) echo "\t<tr><td><b>{$Lang['Food']}</b>:</td><td>&nbsp;</td><td>".div($Cost['food'])."</td></tr>\n";
+ 			if ($Cost['crystals']) echo "\t<tr><td><b>{$Lang['Crystals']}</b>:</td><td>&nbsp;</td><td>".div($Cost['crystals'])."</td></tr>\n";
 
 ?>		</table>
 		<br />
@@ -87,7 +87,7 @@ if (isset($Colony) && $Colony) {
 	<td>&nbsp; &nbsp;</td>
 	<td><b><?php echo $Lang['Amount']; ?></b>: <font class="plus"><?php echo div($s['amount']); ?></font></td>
 	<td>&nbsp; &nbsp;</td>
-	<td><?php echo $Lang['FullETA']; ?>: <font class="value"><?php echo eta($s['end'] - $stardate); ?></font><?php if ($s['end'] - $stardate > 0) echo ' ('.round(100 * ($stardate - $s['begin']) / $s['time']).'%)'; ?></td>
+	<td><?php echo $Lang['FullETA']; ?>: <font class="value"><?php echo eta($s['end'] - $stardate); ?></font><?php if ($s['end'] - $stardate > 0) echo ' ('.round(num(100 * ($stardate - $s['begin']) / $s['time'])).'%)'; ?></td>
 	<td>&nbsp; &nbsp;</td>
 	<td><a href="javascript:ask('<?php echo $_SERVER['PHP_SELF']; ?>?action=cancelproduction&id=<?php echo $s['id']; ?>')" class="delete"><?php echo $Lang['ProductC']; ?> &gt;&gt;</a></td>
 	</tr>
@@ -156,8 +156,8 @@ if (isset($Colony) && $Colony) {
 	<td width="80" align="center">
 <?php
 	if ($Colony['military']) {
-		echo '[ <font class="plus">'.eta(1 + round((50 / $Colony['military']) * ($s['work'] / log($Colony['workforce']) / ($Colony['factory'] + $Colony['tron'])))).'</b></font> ]<br /><br />';
-		echo '[ <font class="work">'.eta(1 + round((50 / $Colony['military']) * (100 * $s['work'] / log($Colony['workforce']) / ($Colony['factory'] + $Colony['tron'])))).'</b></font> ]<br />';
+		echo '[ <font class="plus">'.eta(1 + round(num((50 / $Colony['military']) * ($s['work'] / log(num($Colony['workforce'])) / ($Colony['factory'] + $Colony['tron']))))).'</b></font> ]<br /><br />';
+		echo '[ <font class="work">'.eta(1 + round(num((50 / $Colony['military']) * (100 * $s['work'] / log(num($Colony['workforce'])) / ($Colony['factory'] + $Colony['tron']))))).'</b></font> ]<br />';
 	}
 	else echo $Lang['NotAvailable'];
 	

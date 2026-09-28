@@ -31,7 +31,7 @@ $pagecount = 50;
 if (isset($fight) && $fight) {
 	tablebegin($Lang['BattleArena'], 500);
 
-	if ($n = ($a = count($attackers)) > ($d = count($defenders)) ? $a : $d) {
+	if ($n = ($a = count((array)($attackers))) > ($d = count((array)($defenders))) ? $a : $d) {
 		subbegin();
 
 		echo "\t\t<table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\">\n";
@@ -41,12 +41,12 @@ if (isset($fight) && $fight) {
 
 			if ($i < $a) {
 				$t = $attackers[$i];
-				tableimg('images/pw.gif', 72, 72, ($t['avatar'] ? $t['avatar'] : 'gallery/avatars/icons/noavatar.gif'), 64, 64, "whois.php?name=${t['login']}");
+				tableimg('images/pw.gif', 72, 72, ($t['avatar'] ? $t['avatar'] : 'gallery/avatars/icons/noavatar.gif'), 64, 64, "whois.php?name={$t['login']}");
 				echo "\t\t<td align=\"left\" width=\"8\">&nbsp;</td>\n\t\t<td align=\"left\">";
-				echo "\t\t<font class=\"plus\"><b>${t['login']}</b></font><br />\n";
-				echo "\t\t<font class=\"result\">${t['clan']}</font><br />\n";
-				echo "\t\t<b>${Lang['Level']}</b>: <font class=\"result\">${t['level']}</font><br />\n";
-				echo "\t\t<b>${Lang['Strength']}</b>: <font class=\"result\">" . div($t['strength']) . "</font>, <b>${Lang['Agility']}</b>: <font class=\"work\">" . div($t['agility']) . "</font><br />\n";
+				echo "\t\t<font class=\"plus\"><b>{$t['login']}</b></font><br />\n";
+				echo "\t\t<font class=\"result\">{$t['clan']}</font><br />\n";
+				echo "\t\t<b>{$Lang['Level']}</b>: <font class=\"result\">{$t['level']}</font><br />\n";
+				echo "\t\t<b>{$Lang['Strength']}</b>: <font class=\"result\">" . div($t['strength']) . "</font>, <b>{$Lang['Agility']}</b>: <font class=\"work\">" . div($t['agility']) . "</font><br />\n";
 				echo "\t\t</td>\n";
 			}
 			else echo "\t\t</td>\n\t\t<td colspan=\"2\" align=\"left\">&nbsp;</td>\n";
@@ -56,12 +56,12 @@ if (isset($fight) && $fight) {
 			if ($i < $d) {
 				$t = $defenders[$i];
 				echo "\t\t<td align=\"right\">\n";
-				echo "\t\t<font class=\"capacity\"><b>${t['login']}</b></font><br />\n";
-				echo "\t\t<font class=\"result\">${t['clan']}</font><br />\n";
-				echo "\t\t<b>${Lang['Level']}</b>: <font class=\"result\">${t['level']}</font><br />\n";
-				echo "\t\t<b>${Lang['Strength']}</b>: <font class=\"result\">" . div($t['strength']) . "</font>, <b>${Lang['Agility']}</b>: <font class=\"work\">" . div($t['agility']) . "</font><br />\n";
+				echo "\t\t<font class=\"capacity\"><b>{$t['login']}</b></font><br />\n";
+				echo "\t\t<font class=\"result\">{$t['clan']}</font><br />\n";
+				echo "\t\t<b>{$Lang['Level']}</b>: <font class=\"result\">{$t['level']}</font><br />\n";
+				echo "\t\t<b>{$Lang['Strength']}</b>: <font class=\"result\">" . div($t['strength']) . "</font>, <b>{$Lang['Agility']}</b>: <font class=\"work\">" . div($t['agility']) . "</font><br />\n";
 				echo "\t\t</td>\n\t\t<td align=\"left\" width=\"8\">&nbsp;</td>\n\t\t<td width=\"72\">\n";
-				tableimg('images/pw.gif', 72, 72, ($defenders[$i]['avatar'] ? $defenders[$i]['avatar'] : 'gallery/avatars/icons/noavatar.gif'), 64, 64, "whois.php?name=${t['login']}");
+				tableimg('images/pw.gif', 72, 72, ($defenders[$i]['avatar'] ? $defenders[$i]['avatar'] : 'gallery/avatars/icons/noavatar.gif'), 64, 64, "whois.php?name={$t['login']}");
 			}
 			else echo "\t\t</td>\n\t\t<td>&nbsp;</td>\n";
 
@@ -84,11 +84,11 @@ if (isset($fight) && $fight) {
 
 	if (($Player['hp'] < $Player['hpmax']) && checkplace('healer')) {
 		echo "\t<br />\n";
-		echo "\t<a href=\"healer.php?action=heal&back=arena&page=$page\">${Lang['GalacticHospital']}&nbsp;&gt;&gt;</a><br />\n";
+		echo "\t<a href=\"healer.php?action=heal&back=arena&page=$page\">{$Lang['GalacticHospital']}&nbsp;&gt;&gt;</a><br />\n";
 	}
 
 	echo "\t<br />\n";
-	echo "\t<a href=\"arena.php?rid=$rid&page=$page\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br />\n";
+	echo "\t<a href=\"arena.php?rid=$rid&page=$page\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br />\n";
 	echo "\t<br />\n";
 
 	if ($winner) sound('fightwin');
@@ -161,7 +161,7 @@ else {
 		$db->query("SELECT `id` FROM `{$prefix}users` WHERE (`planet`='$planet' AND `destination`='' or `destination`='$planet') AND (`thicks`<$stardate-20 OR `hp`>0.1*`hpmax`) AND `login`<>'$login';");
 		$max = $db->numrows();
 
-		if ($page > ($m = floor($max / $pagecount))) $page = $m;
+		if ($page > ($m = floor(num($max / $pagecount)))) $page = $m;
 		$l = $page * $pagecount;
 
 		$db->query("SELECT `destination`,`login`,`clan`,`level`,`online` FROM `{$prefix}users` WHERE (`planet` = '$planet' AND `destination`='' or `destination`='$planet') AND (`thicks`<$stardate-20 OR `hp`>0.1*`hpmax`) AND `login`<>'$login' ORDER BY `level` DESC,`login` ASC LIMIT $l,$pagecount;");
@@ -232,7 +232,7 @@ else {
 		}
 	}
 	else {
-		echo "\t\t<br />\n\t\t${Lang['NotAvailable']}<br />\n\t\t<br />\n";
+		echo "\t\t<br />\n\t\t{$Lang['NotAvailable']}<br />\n\t\t<br />\n";
 		$s = '<a href="control.php">'.$Lang['GoBack'].'&nbsp;&gt;&gt;</a>';
 	}
 

@@ -26,7 +26,7 @@ elseif ($action == 'prepare') {
 ?>		<center>
 			<b><?php echo $Lang['AttackM1']; ?></b><br />
 			<br />
-			<?php echo $Lang['Target']; ?>: <font class="result"><?php echo $name; ?></font>, <?php echo $Lang['Distance']; ?>: <font class="plus"><?php echo round(100 * $distance) / 100; ?></font><br />
+			<?php echo $Lang['Target']; ?>: <font class="result"><?php echo $name; ?></font>, <?php echo $Lang['Distance']; ?>: <font class="plus"><?php echo round(num(100 * $distance)) / 100; ?></font><br />
 		</center>
 
 		<p><?php echo $Lang['AttackCosts']; ?><br />

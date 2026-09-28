@@ -2,7 +2,7 @@
 
 require('include/header.php');
 
-tablebegin("GF ${Lang['MenuPropaganda']}", 500);
+tablebegin("GF {$Lang['MenuPropaganda']}", 500);
 
 ?>	<script>
 	<!--

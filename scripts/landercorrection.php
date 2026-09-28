@@ -7,7 +7,7 @@
 $LOGIN=3;
 $EXP=20;
 
-if ( ($f = fopen($argv[1], "r")) || die("Nie mogê otworzyæ ${argv[1]}!") )  {
+if ( ($f = fopen($argv[1], "r")) || die("Nie mogê otworzyæ {$argv[1]}!") )  {
 	flock($f, LOCK_SH);
 
 	while (! feof($f)) {
@@ -23,7 +23,7 @@ if ( ($f = fopen($argv[1], "r")) || die("Nie mogê otworzyæ ${argv[1]}!") )  {
 		($login = $t[$LOGIN]) &&
 		($exp = $t[$EXP]) &&
 		($exp > 2000000000) &&
-		($exp = round($exp * 1.2))
+		($exp = round(num($exp * 1.2)))
 	) 
 	echo "UPDATE galaxy_users SET exp=$exp WHERE login=$login;\n";
 

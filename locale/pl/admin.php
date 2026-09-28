@@ -85,3 +85,5 @@ $Lang['UserName']='Nazwa użytkownika';
 $Lang['NewUserName']='Nowa nazwa użytkownika';
 $Lang['ColonyName']='Nazwa koloni';
 $Lang['NewColonyName']='Nowa nazwa koloni';
+$Lang['AdminConfirmPassword']='Haslo potwierdzajace';
+$Lang['ErrorAdminConfirm']='Bledne lub brak hasla potwierdzajacego (GALAXY_ADMIN_CONFIRM). Nic nie zostalo usuniete.';

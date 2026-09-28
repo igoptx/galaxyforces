@@ -11,14 +11,14 @@ include('include/style.php');
 // HEAD
 // ---------------------------------------------------------------------------
 
-echo "<html>\n<head>\n\t<title>[ ${Config['Title']}" . (@$title ? " - $title" : '') . " ]</title>\n";
-if (@$Lang['Charset']) echo "\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=${Lang['Charset']}\">\n";
-if (@$Config['Refresh']) echo "\t<meta http-equiv=\"refresh\" content=\"${Config['Refresh']}; url=${_SERVER['PHP_SELF']}\" />\n";
-if (@$Config['Cache']) echo "\t<meta name=\"pragma\" content=\"${Config['Cache']}\" />\n";
-if (@$Config['Author']) echo "\t<meta name=\"author\" content=\"${Config['Author']}\" />\n";
-if (@$Config['Description']) echo "\t<meta name=\"description\" content=\"${Config['Description']}\" />\n";
-if (@$Config['Generator']) echo "\t<meta name=\"generator\" content=\"${Config['Generator']}\" />\n";
-if (@$Config['Keywords']) echo "\t<meta name=\"keywords\" content=\"${Config['Keywords']}\" />\n";
+echo "<html>\n<head>\n\t<title>[ {$Config['Title']}" . (@$title ? " - $title" : '') . " ]</title>\n";
+if (@$Lang['Charset']) echo "\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset={$Lang['Charset']}\">\n";
+if (@$Config['Refresh']) echo "\t<meta http-equiv=\"refresh\" content=\"{$Config['Refresh']}; url={$_SERVER['PHP_SELF']}\" />\n";
+if (@$Config['Cache']) echo "\t<meta name=\"pragma\" content=\"{$Config['Cache']}\" />\n";
+if (@$Config['Author']) echo "\t<meta name=\"author\" content=\"{$Config['Author']}\" />\n";
+if (@$Config['Description']) echo "\t<meta name=\"description\" content=\"{$Config['Description']}\" />\n";
+if (@$Config['Generator']) echo "\t<meta name=\"generator\" content=\"{$Config['Generator']}\" />\n";
+if (@$Config['Keywords']) echo "\t<meta name=\"keywords\" content=\"{$Config['Keywords']}\" />\n";
 if (@$Config['Stylesheet']||@$Style['Stylesheet']) {
 	foreach (array_merge(array(@$Style['Stylesheet']), array(@$Config['Stylesheet'])) as $css) {
 		if (empty($css)) continue;
@@ -26,7 +26,7 @@ if (@$Config['Stylesheet']||@$Style['Stylesheet']) {
 <?php
 	}
 }
-if (@$Config['ShortcutIcon']) echo "\t<link rel=\"shortcut icon\" href=\"${Config['ShortcutIcon']}\" />\n";
+if (@$Config['ShortcutIcon']) echo "\t<link rel=\"shortcut icon\" href=\"{$Config['ShortcutIcon']}\" />\n";
 
 // ---------------------------------------------------------------------------
 // CUSTOM STUFF
@@ -46,7 +46,7 @@ if (@$Config['ShortcutIcon']) echo "\t<link rel=\"shortcut icon\" href=\"${Confi
 
 if (!empty($JS)) {
 	$JS=is_array($JS)?array_unique($JS):array($JS);
-	for ($i = 0; $i < count($JS); $i++) {
+	for ($i = 0; $i < count((array)($JS)); $i++) {
 ?>
 <script language="javascript" src="js/<?php echo htmlspecialchars($JS[$i]); ?>.js"></script>
 

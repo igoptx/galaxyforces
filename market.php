@@ -31,10 +31,10 @@ if (!$Colony) $errors .= $Lang['NotAvailable'].'<br />';
 // ===========================================================================
 
 if ($errors) {
-	tablebegin("<font class=\"error\">${Lang['Error']}!</font>", '400');
-	echo "\t<br /><font class=\"h3\">${Lang['ErrorProblems']}</font><br /><br />\n\t<font class=\"error\">$errors</font>\n\t<br /><a href=\"javascript:history.back(1)\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />\n";
+	tablebegin("<font class=\"error\">{$Lang['Error']}!</font>", '400');
+	echo "\t<br /><font class=\"h3\">{$Lang['ErrorProblems']}</font><br /><br />\n\t<font class=\"error\">$errors</font>\n\t<br /><a href=\"javascript:history.back(1)\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />\n";
 	sound('error');
-	tableend("<a href=\"control.php?rid=$rid\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>");
+	tableend("<a href=\"control.php?rid=$rid\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>");
 }
 
 // ===========================================================================
@@ -43,8 +43,8 @@ if ($errors) {
 
 elseif ($result) {
 	tablebegin($pagename, 400);
-	echo "\t\t<br /><font class=\"result\">$result</font><br /><a href=\"${_SERVER['PHP_SELF']}\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
-	tableend("<a href=\"market.php?rid=$rid\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>");
+	echo "\t\t<br /><font class=\"result\">$result</font><br /><a href=\"{$_SERVER['PHP_SELF']}\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
+	tableend("<a href=\"market.php?rid=$rid\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>");
 }
 
 // ===========================================================================
@@ -54,7 +54,7 @@ elseif ($result) {
 elseif (checkplace('market')) {
 	tablebegin($Lang['Market'], 500);
 
-	echo "\t<br /><center><font class=\"h3\">${Lang['MarketWelcome']}</font>";
+	echo "\t<br /><center><font class=\"h3\">{$Lang['MarketWelcome']}</font>";
 	if ($action) sound('thankyou'); else sound('market');
 	echo "</center>\n";
 
@@ -94,8 +94,8 @@ elseif (checkplace('market')) {
 			if ($place[$s.'buy']) {
 				if (isset($Colony[$s.'capacity'])) {
 					$m = $Colony[$s.'capacity'] - $Colony[$s];
-					$c = floor($Player['credits'] / $place[$s.'buy']);
-					if (($max = $c < $m ? $c : $m) < 0) $max = 0; else $max = floor($max);
+					$c = floor(num($Player['credits'] / $place[$s.'buy']));
+					if (($max = $c < $m ? $c : $m) < 0) $max = 0; else $max = floor(num($max));
 				}
 				else $max = 0;
 
@@ -109,7 +109,7 @@ elseif (checkplace('market')) {
 			echo '</td><td width="12">&nbsp;</td><td align="center">';
 
 			if ($place[$s.'sell']) {
-				$max = floor($Colony[$s]);
+				$max = floor(num($Colony[$s]));
 				echo '<form action="market.php" method="POST">';
 				echo '<input type="hidden" name="action" value="sell">';
 				echo '<input type="hidden" name="name" value="'.$s.'">';
@@ -123,7 +123,7 @@ elseif (checkplace('market')) {
 
 	echo TAB.'<tr height="8"><td>&nbsp;</td></tr>'.LF.TAB.'</table>'.LF;
 
-	tableend("<a href=\"control.php?rid=$rid\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>");
+	tableend("<a href=\"control.php?rid=$rid\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>");
 }
 
 // ===========================================================================
@@ -133,8 +133,8 @@ elseif (checkplace('market')) {
 else {
 	tablebegin('<font class="error">' . $Lang['Error'] . '!</font>', '400');
 	echotitle($Lang['NotAvailable']);
-	echo "<font class=\"capacity\">${Lang['PlaceNotAvailable']}</font><br /><br />";
-	tableend($back ? "<a href=\"$back\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>" : "${Lang['Error']}: ${Lang['NotAvailable']}");
+	echo "<font class=\"capacity\">{$Lang['PlaceNotAvailable']}</font><br /><br />";
+	tableend($back ? "<a href=\"$back\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>" : "{$Lang['Error']}: {$Lang['NotAvailable']}");
 }
 
 require('include/footer.php');

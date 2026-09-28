@@ -37,7 +37,7 @@ if ($action == 'deleteaccount') {
 	<a href="control.php"><?php echo $Lang['GoBack']; ?> &gt;&gt;</a><br />
 	<br />
 <?php
-		tableend("<a href=\"control.php\">${Lang['GoBack']} &gt;&gt;</a>");
+		tableend("<a href=\"control.php\">{$Lang['GoBack']} &gt;&gt;</a>");
 	}
 	else {
 		tablebegin('<font class="work">' . $Lang['Confirmation'] . '</font>', 500);
@@ -65,7 +65,7 @@ elseif ($action == 'changepassword') {
 	if ($new != $reenter) $errors .= $Lang['ErrorPasswordAndReenter'] . '<br />';
 	if (! $errors) {
 		$new = md5($new);
-		$db->query("UPDATE `${prefix}users` SET `password`='$new' WHERE `login`='$login' LIMIT 1;");
+		$db->query("UPDATE `{$prefix}users` SET `password`='$new' WHERE `login`='$login' LIMIT 1;");
 
 	 	tablebegin($Lang['Profile'], '400');
 ?>	<br />
@@ -76,7 +76,7 @@ elseif ($action == 'changepassword') {
 	<a href="profile.php"><?php echo $Lang['GoBack']; ?> &gt;&gt;</a><br />
 	<br />
 <?php
-		tableend("<a href=\"control.php\">${Lang['GoBack']} &gt;&gt;</a>");
+		tableend("<a href=\"control.php\">{$Lang['GoBack']} &gt;&gt;</a>");
 	}
 }
 
@@ -97,7 +97,7 @@ elseif ($action == 'validate') {
 	if ($User['usergroup'] != 'wheel') if (!$email || $email != $reemail) $errors .= $Lang['ErrorEmailMustBeValid'] . '<br />';
 
 	if (!$errors) {
-		$db->query("UPDATE ${prefix}users SET email='$email',language='$language',gg='$gg',ggpublic='$ggpublic',www='$www',soundsoff='$soundsoff',antispam='$antispam' WHERE login='$login';");
+		$db->query("UPDATE {$prefix}users SET email='$email',language='$language',gg='$gg',ggpublic='$ggpublic',www='$www',soundsoff='$soundsoff',antispam='$antispam' WHERE login='$login';");
 		$User['email'] = $email;
 		$User['language'] = $language;
 		$User['gg'] = $gg;
@@ -114,12 +114,12 @@ elseif ($action == 'validate') {
 	<a href="profile.php"><?php echo $Lang['GoBack']; ?> &gt;&gt;</a><br />
 	<br />
 <?php
-		tableend("<a href=\"control.php\">${Lang['GoBack']} &gt;&gt;</a>");
+		tableend("<a href=\"control.php\">{$Lang['GoBack']} &gt;&gt;</a>");
 	}
 }
 
 if ($errors) {
-	tablebegin("<font class=\"error\">${Lang['Error']}!</font>", '400');
+	tablebegin("<font class=\"error\">{$Lang['Error']}!</font>", '400');
 
 ?>		<br />
 		<font class="error"><?php echo $errors; ?></font>
@@ -240,7 +240,7 @@ elseif (($action != 'changepassword') && ($action != 'validate') && ($action != 
 	<a class="delete" href="profile.php?action=deleteaccount"><?php echo $Lang['DeleteAccount']; ?> &gt;&gt;</a><br />
 	<br />
 <?php
-	tableend("<a href=\"control.php\">${Lang['GoBack']} &gt;&gt;</a>");
+	tableend("<a href=\"control.php\">{$Lang['GoBack']} &gt;&gt;</a>");
 
 ?>	</form>
 

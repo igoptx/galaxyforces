@@ -624,12 +624,12 @@ CREATE TABLE `galaxy_researches` (
 --
 CREATE TABLE `galaxy_space` (
   `id` int(11) NOT NULL auto_increment,
-  `name` varchar(11) NOT NULL default '',
+  `name` varchar(32) NOT NULL default '',
   `type` enum('planet','asteroid','meteor') NOT NULL default 'planet',
   `class` enum('small','medium','big','huge','giant') NOT NULL default 'medium',
   `technology` enum('none','human','tron','ami','cyber','necro','unknown') NOT NULL default 'human',
-  `galaxy` varchar(6) NOT NULL default '',
-  `system` varchar(11) NOT NULL default '',
+  `galaxy` varchar(32) NOT NULL default '',
+  `system` varchar(32) NOT NULL default '',
   `x` int(11) NOT NULL default '0',
   `y` int(11) NOT NULL default '0',
   `z` int(11) NOT NULL default '0',
