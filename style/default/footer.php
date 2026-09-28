@@ -30,11 +30,11 @@ if (@$modules) modules($modules, 'right');
 <?php
 if ($Config['Debug']) {
 	$timing_stop = explode(' ', microtime());
-	$rendertime = number_format((($timing_stop[0]+$timing_stop[1])-($timing_start[0]+$timing_start[1])), 4, $Lang['DecPoint'], ' ');
-	echo "\t<td class=\"left\"><img class=\"spacer\" src=\"images/0.gif\" /></td><td class=\"bg\"><acronym title=\"${Lang['RenderTime']} [R]\"><img class=\"icon\" src=\"images/render.gif\" align=\"left\" alt=\"[R]\" /></acronym>&nbsp;<font class=\"capacity\">$rendertime</font>&nbsp;/&nbsp;<font class=\"result\">".$db->queries."</font></td><td class=\"right\"><img class=\"spacer\" src=\"images/0.gif\" /></td><td class=\"div\">&nbsp;</td>";
+	$rendertime = number_format(num((($timing_stop[0]+$timing_stop[1])-($timing_start[0]+$timing_start[1]))), 4, $Lang['DecPoint'], ' ');
+	echo "\t<td class=\"left\"><img class=\"spacer\" src=\"images/0.gif\" /></td><td class=\"bg\"><acronym title=\"{$Lang['RenderTime']} [R]\"><img class=\"icon\" src=\"images/render.gif\" align=\"left\" alt=\"[R]\" /></acronym>&nbsp;<font class=\"capacity\">$rendertime</font>&nbsp;/&nbsp;<font class=\"result\">".$db->queries."</font></td><td class=\"right\"><img class=\"spacer\" src=\"images/0.gif\" /></td><td class=\"div\">&nbsp;</td>";
 }
 
-if ($logged && @$stardate) echo "\t<td class=\"left\"><img class=\"spacer\" src=\"images/0.gif\"></td><td class=\"bg\"><acronym title=\"${Lang['CSD']} [T]\"><img class=\"icon\" src=\"images/time.jpg\" align=\"left\" alt=\"[T]\"></acronym>&nbsp;<a href=\"stardate.php\">".div($stardate)."</a></td><td class=\"right\"><img class=\"spacer\" src=\"images/0.gif\"></td><td class=\"div\">&nbsp;</td>";
+if ($logged && @$stardate) echo "\t<td class=\"left\"><img class=\"spacer\" src=\"images/0.gif\"></td><td class=\"bg\"><acronym title=\"{$Lang['CSD']} [T]\"><img class=\"icon\" src=\"images/time.jpg\" align=\"left\" alt=\"[T]\"></acronym>&nbsp;<a href=\"stardate.php\">".div($stardate)."</a></td><td class=\"right\"><img class=\"spacer\" src=\"images/0.gif\"></td><td class=\"div\">&nbsp;</td>";
 
 ?>	</table>
 </td>

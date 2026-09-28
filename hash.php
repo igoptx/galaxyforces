@@ -7,10 +7,10 @@ require('include/header.php');
 // ===========================================================================
 
 if ($errors) {
-	tablebegin("<font class=\"error\">${Lang['Error']}!</font>", '400');
-	echo "\t\t<h3>${Lang['ErrorProblems']}</h3><font class=\"error\">$errors</font><br />";
+	tablebegin("<font class=\"error\">{$Lang['Error']}!</font>", '400');
+	echo "\t\t<h3>{$Lang['ErrorProblems']}</h3><font class=\"error\">$errors</font><br />";
 	sound('error');
-	echo "<a href=\"javascript:history.back(1)\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
+	echo "<a href=\"javascript:history.back(1)\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
 	tableend("$pagename");
 }
 
@@ -27,11 +27,11 @@ if ($action == 'generate') {
 	print_r(generateitem('item'));
 	echo "\t</textarea>\n\t</center>\n";
 
-	echo "\t<center><a href=\"${_SERVER['PHP_SELF']}?action=generate\">Refresh&nbsp;&gt;&gt;</a></center>\n";
+	echo "\t<center><a href=\"{$_SERVER['PHP_SELF']}?action=generate\">Refresh&nbsp;&gt;&gt;</a></center>\n";
 
 	echo "\t<br />\n";
 
-	tableend("<a href=\"control.php\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>");
+	tableend("<a href=\"control.php\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>");
 }
 
 // ===========================================================================
@@ -47,15 +47,15 @@ else {
 
 
 	for ($i = 1; $i < 50; $i++) {
-		echo $i, ' - ', round(1000000 * (Rand(0, 5) / 1000 / (35 + $i))), ' : ', round(1000000 * (Rand(0, 5) / 1000 / (50)));
+		echo $i, ' - ', round(num(1000000 * (Rand(0, 5) / 1000 / (35 + $i)))), ' : ', round(num(1000000 * (Rand(0, 5) / 1000 / (50))));
 		echo "<br >";
 	}
 
-	echo "\t<center><a href=\"${_SERVER['PHP_SELF']}?action=generate\">Generate&nbsp;&gt;&gt;</a></center>\n";
+	echo "\t<center><a href=\"{$_SERVER['PHP_SELF']}?action=generate\">Generate&nbsp;&gt;&gt;</a></center>\n";
 
 	echo "\t<br />\n";
 
-	tableend("<a href=\"control.php\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>");
+	tableend("<a href=\"control.php\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>");
 }
 
 require('include/footer.php');

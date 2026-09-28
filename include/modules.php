@@ -65,7 +65,7 @@ function modules($list=array(), $section='include')
 				elseif (isset($module['pages'])) {
 					$allowed = 0;
 					if (! is_array($pages = $module['pages'])) $pages = explode(',', $module['pages']);
-					for ($i = 0; ($i < count($pages)) && !$allowed; $i++) {
+					for ($i = 0; ($i < count((array)($pages))) && !$allowed; $i++) {
 						if ($page = strtolower(trim($pages[$i]))) {
 							if (($page[0] == '!') && ($page = trim(substr($page, 1))) && ($me == $page)) break;
 							elseif ($page == '*' || $page == $me) $allowed++;
@@ -85,7 +85,7 @@ function modules($list=array(), $section='include')
 if (@$db && $db->query("SELECT * FROM {$prefix}modules WHERE module_enabled=1 ORDER BY module_order;")) {
 	while ($r = $db->fetchrow() and $m = $r['module_name']) {
 		$allowed = true;
-		for ($t = explode(',', @$r["module_groups"]), $i = 0; $i < count($t); $i++) {
+		for ($t = explode(',', @$r["module_groups"]), $i = 0; $i < count((array)($t)); $i++) {
 			$allowed = false;
 			$g = trim($t[$i]);
 			if ($g == '' || $g == @$User['usergroup']) { $allowed = true; break; }
@@ -100,7 +100,7 @@ if (@$db && $db->query("SELECT * FROM {$prefix}modules WHERE module_enabled=1 OR
 
 if (is_array(@$Modules)) {
 	foreach ($Modules as $key => $module) {
-		if (@$module['section']) $Sections[$module['section']][] = $key;
+		if (is_array($module) && @$module['section']) $Sections[$module['section']][] = $key;
 	}
 }
 

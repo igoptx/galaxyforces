@@ -57,7 +57,7 @@ else {
 <?php
 		subend();
 	}
-	else echo "\t\t<br />\n\t\t${Lang['NotAvailable']}<br />\n\t\t<br />\n";
+	else echo "\t\t<br />\n\t\t{$Lang['NotAvailable']}<br />\n\t\t<br />\n";
 
 	tableend('<a href="control.php">' . $Lang['GoBack'] . ' &gt;&gt;</a>');
 }

@@ -47,7 +47,7 @@ elseif (checkplace('gambler')) {
 }
 else {
 	tablebegin($Lang['GamblersHouse'], 500);
-	echo "\t\t<br />\n\t\t${Lang['NotAvailable']}<br />\n\t\t<br />\n";
+	echo "\t\t<br />\n\t\t{$Lang['NotAvailable']}<br />\n\t\t<br />\n";
 	tableend('<a href="control.php">' . $Lang['GoBack'] . ' &gt;&gt;</a>');
 }
 

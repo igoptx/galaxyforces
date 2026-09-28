@@ -64,7 +64,7 @@ if ($Config['Debug']) error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
 
 function strdiv($x=0, $n=0, $d='.')
 {
-	return str_replace(' ', '&nbsp;', ($x < 1e8 ? number_format($x, $n, $d, ' ') : ($x < 1e14 ? number_format($x / 1e6, $n, $d, ' ').' M' : ($x < 1e20 ? number_format($x / 1e12, $n, $d, ' ').' G' : number_format($x / 1e18, $n, $d, ' ').' T'))));
+	return str_replace(' ', '&nbsp;', ($x < 1e8 ? number_format(num($x), $n, $d, ' ') : ($x < 1e14 ? number_format(num($x / 1e6), $n, $d, ' ').' M' : ($x < 1e20 ? number_format(num($x / 1e12), $n, $d, ' ').' G' : number_format(num($x / 1e18), $n, $d, ' ').' T'))));
 }
 
 function strcap($s)
@@ -113,17 +113,18 @@ function timestamptime($timestamp)
 
 function elementexists($array, $element)
 {
-	for ($i=0; $i < count($array); $i++) if ($array[$i] == $element) return true;
+	for ($i=0; $i < count((array)($array)); $i++) if ($array[$i] == $element) return true;
 	return false;
 }
 
 function sgn($x)
 {
+	$x = num($x);
 	return ($x < 0 ? -1 : ($x > 0 ? 1 : 0));
 }
 
 function is_assoc($var) {
-	return is_array($var) && array_keys($var)!==range(0,sizeof($var)-1);
+	return is_array($var) && array_keys($var)!==range(0,sizeof((array)($var))-1);
 }
 
 function array_delete($array, $item) {
@@ -161,10 +162,20 @@ function trace($die=true)
 // Variables
 // -------------------------------------------------------------------
 
+// Converte para número como o PHP 5 fazia em contas ('' -> 0, '5x' -> 5).
+// No PHP 8 fazer contas com strings não numéricas dá TypeError.
+function num($v)
+{
+	if (is_int($v) || is_float($v)) return $v;
+	if (is_numeric($v)) return $v + 0;
+	$f = (float)$v;
+	return $f == (int)$f ? (int)$f : $f;
+}
+
 function getvar($name)
 {
 	global $_POST, $_COOKIE, $_GET, $_SESSION;
-	return isset($_POST[$name]) ? $_POST[$name] : (isset($_GET[$name]) ? $_GET[$name] : (isset($_COOKIE[$name]) ? $_COOKIE[$name] : (isset($_SESSION[$name]) ? $_SESSION[$name] : '')));
+	return isset($_POST[$name]) ? $_POST[$name] : (isset($_GET[$name]) ? $_GET[$name] : (isset($_COOKIE[$name]) ? $_COOKIE[$name] : (isset($_SESSION[$name]) ? $_SESSION[$name] : null)));
 }
 
 function postvar($var, $default='')
@@ -194,7 +205,7 @@ function readfiles($path = '.', $recursive = true, $hidden = false) {
 		while ($i = readdir($d)) {
 			if (! $i || $i == ".." || $i == "." || (! $hidden && ($i[0] == '.'))) continue;
 			if (is_dir("$path/$i")) {
-				if ($recursive && ($list = readfiles("$path/$i", $recursive))) for ($i = 0; $i < count($list); $i++) $files[] = $list[$i];
+				if ($recursive && ($list = readfiles("$path/$i", $recursive))) for ($i = 0; $i < count((array)($list)); $i++) $files[] = $list[$i];
 			}
 			else $files[] = "$path/$i";
 		}
@@ -232,7 +243,7 @@ function phpvar($var, $prefix='')
 {
 	if (is_array($var)) {
 		$result='array(';
-		if (count($var)) {
+		if (count((array)($var))) {
 			$prev = 0;
 			foreach ($var as $key => $value) {
 				$result .= "\n$prefix\t";
@@ -314,7 +325,7 @@ $action = getvar('action');
 $back = getvar('back');
 
 if (!isset($view)) $view = getvar('view');
-if (!isset($page)) $page = abs(getvar('page'));
+if (!isset($page)) $page = abs(num(getvar('page')));
 
 $TIMESTAMP = $timestamp = date('YmdHis');
 $RID = $rid = substr(md5(Rand(11111, 99999).time()), 16);
@@ -328,7 +339,7 @@ setcookie('RID', $RID, time()+3600);
 if (@$Database) {
 	include(@$ROOT."include/db.php");
 	if (!@$db && !@$Config['Internal'] && $Config['Debug']) die('<b>Error</b>: Connection to database failed!');
-	if (@$db && $db->query("SELECT * FROM ${prefix}config;")) while ($t = $db->fetchrow()) $Config[$t['config_key']] = $t['config_value'];
+	if (@$db && $db->query("SELECT * FROM {$prefix}config;")) while ($t = $db->fetchrow()) $Config[$t['config_key']] = $t['config_value'];
 	if (@$Config['Messages']) include(@$ROOT."include/messages.php");
 }
 else {

@@ -27,10 +27,10 @@ if (!$User['usergroup'] || $action == 'give' && $User['usergroup'] != $Config['A
 if ($action == 'give' && ($id = (int)getvar('id')) && $name) {
 	$db->query("SELECT * FROM {$prefix}items WHERE `id`='$id';");
 	if ($item = $db->fetchrow()) {
-		if ($count = abs(getvar('count'))) $item['count'] = $count;
+		if ($count = abs(num((int)getvar('count')))) $item['count'] = $count;
 		addequipment($item, $name);
 		tablebegin();
-		echo "<br /><b>" . $Lang['items'][$item['name']]['name'] . "</b> ${Lang['given2']} <a href=\"whois.php?name=$name\">$name</a><br /><br />";
+		echo "<br /><b>" . $Lang['items'][$item['name']]['name'] . "</b> {$Lang['given2']} <a href=\"whois.php?name=$name\">$name</a><br /><br />";
 		tableend();
 		echo "\t<br />\n";
 	}
@@ -41,7 +41,7 @@ if ($action == 'give' && ($id = (int)getvar('id')) && $name) {
 // ===========================================================================
 
 $category = getvar('category');
-$page = abs(getvar('page'));
+$page = abs(num(getvar('page')));
 
 $pagecount = 10;
 
@@ -51,14 +51,14 @@ switch ($category) {
 	default: $order = "`type` ASC, `name` ASC"; break;
 }
 
-$db->query("SHOW TABLE STATUS FROM `" . $Config['Database']['Name'] . "` LIKE '${prefix}items';");
+$db->query("SHOW TABLE STATUS FROM `" . $Config['Database']['Name'] . "` LIKE '{$prefix}items';");
 if ($t = $db->fetchrow()) $max = $t['Rows'];
 else $max = 0;
 
-if ($page > $m = floor($max / $pagecount)) $page = $m;
+if ($page > $m = floor(num($max / $pagecount))) $page = $m;
 $l = $page * $pagecount;
 
-$db->query("SELECT * FROM `${prefix}items` ORDER BY $order LIMIT $l,$pagecount;");
+$db->query("SELECT * FROM `{$prefix}items` ORDER BY $order LIMIT $l,$pagecount;");
 
 tablebegin($Lang['Items']);
 
@@ -76,23 +76,23 @@ foreach ($tab as $t) {
 
 	if ($i % 2) {
 		echo "\t<tr height=\"84\"$id>\n\t<td width=\"80\">";
-		tableimg('images/pw.gif', 72, 72, "gallery/items/${t['name']}.jpg", 64, 64, "description.php?type=items&back=items.php&subject=${t['name']}&id=${t['id']}");
+		tableimg('images/pw.gif', 72, 72, "gallery/items/{$t['name']}.jpg", 64, 64, "description.php?type=items&back=items.php&subject={$t['name']}&id={$t['id']}");
 		echo "</td>\n\t<td>&nbsp;</td>\n\t<td>\n";
 	}
 	else {
 		echo "\t</td>\n\t<td width=\"8\">&nbsp;</td>\n\t<td align=\"right\">\n";
 	}
 
-	echo "\t\t<b>${Lang['Name']}</b>: <font class=\"plus\">" . $Lang['items'][$t['name']]['name'] . "</font><br />\n";
-	echo "\t\t<b>${Lang['Type']}</b>: <font class=\"capacity\">" . $Lang['ItemType[]'][$t['type']] . "</font><br />\n";
-	echo "\t\t<b>${Lang['Class']}</b>: <font class=\"result\">" . $Lang['ItemClasses[]'][$t['class']] . "</font><br />\n";
+	echo "\t\t<b>{$Lang['Name']}</b>: <font class=\"plus\">" . $Lang['items'][$t['name']]['name'] . "</font><br />\n";
+	echo "\t\t<b>{$Lang['Type']}</b>: <font class=\"capacity\">" . $Lang['ItemType[]'][$t['type']] . "</font><br />\n";
+	echo "\t\t<b>{$Lang['Class']}</b>: <font class=\"result\">" . $Lang['ItemClasses[]'][$t['class']] . "</font><br />\n";
 
 	if ($i % 2) {
 		echo "\t</td>\n<td width=\"8\">&nbsp;</td>\n";
 	}
 	else {
 		echo "\t</td>\n<td width=\"8\">&nbsp;</td>\n\t<td width=\"80\">\n";
-		tableimg('images/pw.gif', 72, 72, "gallery/items/${t['name']}.jpg", 64, 64, "description.php?type=items&back=items.php&subject=${t['name']}&id=${t['id']}");
+		tableimg('images/pw.gif', 72, 72, "gallery/items/{$t['name']}.jpg", 64, 64, "description.php?type=items&back=items.php&subject={$t['name']}&id={$t['id']}");
 		echo "</td>\n\t</tr>\n";
 	}
 }

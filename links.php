@@ -7,7 +7,7 @@ locale('website/links');
 tablebegin('Galaxy Forces', 500);
 
 
-echo "\t<h3>${Lang['FriendsInCrime']}</h3>\n\n";
+echo "\t<h3>{$Lang['FriendsInCrime']}</h3>\n\n";
 
 //echo "\t<a href=\"http://galaxy.help.prv.pl/\"><img src=\"propaganda/banners/galaxyhelp.200x60.gif\"></a><br />\n\t<br />\n";
 //echo "\t<a href=\"http://sfm.galaxy.prv.pl/\"><img src=\"propaganda/banners/sfm.200x60.gif\"></a><br />\n\t<br />\n";
@@ -20,7 +20,7 @@ echo "\t<a href=\"http://www.auralplanet.com/\"><img src=\"propaganda/banners/au
 tablebreak();
 
 
-echo "\t<h3>${Lang['OtherStuff']}</h3>\n\n";
+echo "\t<h3>{$Lang['OtherStuff']}</h3>\n\n";
 
 echo "\t<a href=\"http://www.scansoft.com/\"><img src=\"propaganda/banners/scansoft.100x30.gif\"></a><br />\n\t<br />\n";
 echo "\t<a href=\"http://www.ivo.pl/\"><img src=\"propaganda/banners/ivona.80x30.gif\"></a><br />\n\t<br />\n";

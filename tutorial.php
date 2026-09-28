@@ -70,14 +70,14 @@ foreach ($Help as $help => $h) {
     case 'break':
       echo '<br />';
       break;
-    case 'header';
+    case 'header':
       echo '<b class="plus">'.$Lang[strcap(@$h['name'])].'</b><br>';
       break;
-    case 'link';
+    case 'link':
       $class = (@$h['class'] ? 'class="'.$h['name'].'"' : '');
       echo '<a href="'.$h['url'].'"'.$class.'">'.$Lang[strcap(@$h['name'])].'  &raquo;</a><br />';
       break;
-    default;
+    default:
       $class = (@$h['class'] ? 'class="'.$h['name'].'"' : '');
       echo '<a href="?subject='.$help.'"'.$class.'">'.$Lang[strcap(@$h['name'])].'  &raquo;</a><br />';
       break;

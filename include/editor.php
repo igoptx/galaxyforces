@@ -55,4 +55,4 @@ if (! defined('__EDITOR_PHP__')) {
 
 	define('__EDITOR_PHP__', TRUE);
 }
-elseif ($Config['Debug']) error("${Lang['File']} <b>${_SERVER['PHP_SELF']}</b> ${Lang['DefinedMoreThanOnce']}");
+elseif ($Config['Debug']) error("{$Lang['File']} <b>{$_SERVER['PHP_SELF']}</b> {$Lang['DefinedMoreThanOnce']}");

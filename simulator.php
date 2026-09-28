@@ -113,8 +113,8 @@ switch (@$category) {
 // ===========================================================================
 
 if ($errors) {
-	tablebegin("<font class=\"error\">${Lang['Error']}!</font>", '400');
-	echo "\t\t<br />\n\t\t<font class=\"h3\">${Lang['ErrorProblems']}</font><br />\n\t\t<br />\n\t\t<font class=\"error\">$errors</font>\n\t\t<br />\n\t\t<a href=\"javascript:history.back(1)\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br />\n";
+	tablebegin("<font class=\"error\">{$Lang['Error']}!</font>", '400');
+	echo "\t\t<br />\n\t\t<font class=\"h3\">{$Lang['ErrorProblems']}</font><br />\n\t\t<br />\n\t\t<font class=\"error\">$errors</font>\n\t\t<br />\n\t\t<a href=\"javascript:history.back(1)\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br />\n";
 	echo "\t\t<br />\n";
 	sound('error');
 	tableend('<a href="simulator.php">'.$Lang['GoBack'].'&nbsp;&gt;&gt;</a>');
@@ -138,7 +138,7 @@ elseif ($view == 'changename') {
 	if ($Player['login'] != $Group['owner']) {
 		tablebegin($pagename);
 		echo '<br />'.$Lang['NotAvailable'].'<br /><br />';
-		tableend($back ? "<a href=\"$back\">${Lang['GoBack']} &gt;&gt;</a>" : $Lang['Clan']);
+		tableend($back ? "<a href=\"$back\">{$Lang['GoBack']} &gt;&gt;</a>" : $Lang['Clan']);
 	}
 	else {
 		tablebegin($pagename, 500);
@@ -152,7 +152,7 @@ elseif ($view == 'changename') {
 		subbreak();
 		tableimg("images/bw.gif", 168, 168, $Group['avatar'] ? $Group['avatar'] : 'gallery/avatars/noavatar.gif', 160, 160, '', 'right');
 		subend();
-		tableend("<a href=\"$back\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>");
+		tableend("<a href=\"$back\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>");
 	}
 }
 
@@ -165,9 +165,9 @@ elseif ($Colony['tron'] > 1 || $Colony['militarytechnology']) {
 
 	echo '<h3>'.$Lang['SimulatorTitle'].'</h3>';
 	
-	echo "\t\t<br />\n\t\t${Lang['NotAvailable']}<br />\n\t\t<br />\n";
+	echo "\t\t<br />\n\t\t{$Lang['NotAvailable']}<br />\n\t\t<br />\n";
 
-	tableend($back ? "<a href=\"$back\">${Lang['GoBack']} &gt;&gt;</a>" : $Lang['Clan']);
+	tableend($back ? "<a href=\"$back\">{$Lang['GoBack']} &gt;&gt;</a>" : $Lang['Clan']);
 }
 
 // ===========================================================================
@@ -177,9 +177,9 @@ elseif ($Colony['tron'] > 1 || $Colony['militarytechnology']) {
 else {
 	tablebegin($Lang['Simulator']);
 
-	echo "\t\t<br />\n\t\t${Lang['NotAvailable']}<br />\n\t\t<br />\n";
+	echo "\t\t<br />\n\t\t{$Lang['NotAvailable']}<br />\n\t\t<br />\n";
 
-	tableend($back ? "<a href=\"$back\">${Lang['GoBack']} &gt;&gt;</a>" : $Lang['Clan']);
+	tableend($back ? "<a href=\"$back\">{$Lang['GoBack']} &gt;&gt;</a>" : $Lang['Clan']);
 }
 
 require('include/footer.php');

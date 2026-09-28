@@ -8,7 +8,7 @@ require('include/doc.php');
 
 tablebegin($Lang['Download'], 500);
 
-echo "\t<br /><font class=\"h3\">${Lang['Sources']}</h3><br />";
+echo "\t<br /><font class=\"h3\">{$Lang['Sources']}</h3><br />";
 
 $files = readfiles('src', false);
 
@@ -27,7 +27,7 @@ if ($files) {
 
 		echo "\t<tr height=\"24\" valign=\"middle\"$id><td width=\"8\">&nbsp;</td>";
 		echo "<td><font class=\"result\">" . substr($file, strrpos($file, '/') + 1) . "</font></td>";
-		echo "<td width=\"8\">&nbsp;</td><td align=\"right\"><a href=\"${file}\">${Lang['Download']}&nbsp;&gt;&gt;</a></td>";
+		echo "<td width=\"8\">&nbsp;</td><td align=\"right\"><a href=\"{$file}\">{$Lang['Download']}&nbsp;&gt;&gt;</a></td>";
 		echo "<td width=\"8\">&nbsp;</td></tr>\n";
 	}
 
@@ -40,12 +40,12 @@ if ($files) {
 // ---------------------------------------------------------------------------
 
 else {
-	echo "<h3>Empty Page</h3>If you think this is a problem, please <a href=\"mailto:${Config['Administrator']}\">send</a> a bug report!<br /><br />";
+	echo "<h3>Empty Page</h3>If you think this is a problem, please <a href=\"mailto:{$Config['Administrator']}\">send</a> a bug report!<br /><br />";
 }
 
 tablebreak();
 
-echo "\t<br /><font class=\"h3\">${Lang['Stuff']}</h3><br />";
+echo "\t<br /><font class=\"h3\">{$Lang['Stuff']}</h3><br />";
 
 $files = readfiles('src/stuff', false);
 
@@ -64,7 +64,7 @@ if ($files) {
 
 		echo "\t<tr height=\"24\" valign=\"middle\"$id><td width=\"8\">&nbsp;</td>";
 		echo "<td><font class=\"result\">" . substr($file, strrpos($file, '/') + 1) . "</font></td>";
-		echo "<td width=\"8\">&nbsp;</td><td align=\"right\"><a href=\"${file}\">${Lang['Download']}&nbsp;&gt;&gt;</a></td>";
+		echo "<td width=\"8\">&nbsp;</td><td align=\"right\"><a href=\"{$file}\">{$Lang['Download']}&nbsp;&gt;&gt;</a></td>";
 		echo "<td width=\"8\">&nbsp;</td></tr>\n";
 	}
 

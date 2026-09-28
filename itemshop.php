@@ -27,9 +27,9 @@ $pagename = $Lang['ItemShop'];
 // ===========================================================================
 
 if ($errors) {
-	tablebegin("<font class=\"error\">${Lang['Error']}!</font>", '400');
-	echo "\t\t<h3>${Lang['ErrorProblems']}</h3><font class=\"error\">$errors</font><br />";
-	echo "<a href=\"javascript:history.back(1)\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
+	tablebegin("<font class=\"error\">{$Lang['Error']}!</font>", '400');
+	echo "\t\t<h3>{$Lang['ErrorProblems']}</h3><font class=\"error\">$errors</font><br />";
+	echo "<a href=\"javascript:history.back(1)\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
 	tableend("$pagename");
 	sound('error');
 }
@@ -40,7 +40,7 @@ if ($errors) {
 
 elseif ($result) {
 	tablebegin("$pagename", 400);
-	echo "\t\t<br /><font class=\"result\">$result</font><br /><a href=\"${_SERVER['PHP_SELF']}\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
+	echo "\t\t<br /><font class=\"result\">$result</font><br /><a href=\"{$_SERVER['PHP_SELF']}\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
 	tableend("$pagename");
 	sound('thankyou');
 }
@@ -54,23 +54,23 @@ elseif (checkplace('itemshop')) {
 
 	subbegin('images/table-b2.jpg');
 	tableimg("images/bw.gif", 168, 168, 'gallery/places/itemshop.jpg', 160, 160, '', 'right');
-	echo "\t\t<center><font class=\"h3\">${Lang['ItemShopWelcome']}</font><br /><br />\n";
-	echo "\t\t<font class=\"result\">${Lang['ItemShopInformation']}</font><br />\n";
+	echo "\t\t<center><font class=\"h3\">{$Lang['ItemShopWelcome']}</font><br /><br />\n";
+	echo "\t\t<font class=\"result\">{$Lang['ItemShopInformation']}</font><br />\n";
 	subend();
 
 	$ratio = $place['extra']; if ($ratio < 1) $ratio = 1;
 
 	$query = '';
 
-	for ($i = 0; $i < count($list = explode(',', $place['parameters'])); $i++) {
+	for ($i = 0; $i < count((array)($list = explode(',', $place['parameters']))); $i++) {
 		if ($query) $query .= ' OR ';
-		$query .= "name='${list[$i]}'";
+		$query .= "name='{$list[$i]}'";
 	}
 
 	$Items = array();
 
 	if ($query) {
-		$db->query("SELECT * FROM ${prefix}items WHERE $query;");
+		$db->query("SELECT * FROM {$prefix}items WHERE $query;");
 		while ($t = $db->fetchrow()) $Items[] = $t;
 	}
 
@@ -88,7 +88,7 @@ elseif (checkplace('itemshop')) {
 		foreach ($Items as $t) {
 			$b = ! $b;
 
-			$icon = "gallery/items/icons/${t['name']}.jpg";
+			$icon = "gallery/items/icons/{$t['name']}.jpg";
 
 			if ($b) {
 				$align = 'left';
@@ -96,7 +96,7 @@ elseif (checkplace('itemshop')) {
 				if ($c) echo "\t\t<tr valign=\"middle\"><td colspan=\"7\">&nbsp;</td></tr>\n"; else $c = TRUE;
 				echo "\t\t<tr valign=\"middle\">\n";
 				echo "\t\t<td width=\"72\">\n";
-				tableimg('images/pw.gif', 72, 72, $icon, 64, 64, "description.php?type=items&back=itemshop.php&subject=${t['name']}&id=${t['id']}");
+				tableimg('images/pw.gif', 72, 72, $icon, 64, 64, "description.php?type=items&back=itemshop.php&subject={$t['name']}&id={$t['id']}");
 				echo "\t\t</td>\n";
 			}
 			else {
@@ -111,24 +111,24 @@ elseif (checkplace('itemshop')) {
 			echo '</b></font><br />';
 
 			$r = '';
-			if ($t['min'] || $t['max']) $r .= ($r ? ', ' : '') . "<b>${Lang['Damage']}</b>: <font class=\"plus\">${t['min']}-${t['max']}</font>";
-			if ($t['armor']) $r .= ($r ? ', ' : '') . "<b>${Lang['Armor']}</b>: <font class=\"minus\">${t['armor']}</font>";
+			if ($t['min'] || $t['max']) $r .= ($r ? ', ' : '') . "<b>{$Lang['Damage']}</b>: <font class=\"plus\">{$t['min']}-{$t['max']}</font>";
+			if ($t['armor']) $r .= ($r ? ', ' : '') . "<b>{$Lang['Armor']}</b>: <font class=\"minus\">{$t['armor']}</font>";
 
 			echo "$r<br />";
 
-			$price = round($t['price'] * $ratio * $mod);
+			$price = round(num($t['price'] * $ratio * $mod));
 
-			echo "<b>${Lang['Price']}</b>: <font class=\"result\">" . div($price) . "</font> <b>[!]</b> ";
-			echo "<form action=\"${_SERVER['PHP_SELF']}\" method=\"POST\"><input type=\"hidden\" name=\"action\" value=\"buyitem\" /><input type=\"hidden\" name=\"name\" value=\"${t['name']}\" />";
-			if ($t['count']) echo "${Lang['Amount']}: <input type=\"text\" name=\"amount\" value=\"1\" /> ";
-			echo "<input type=\"submit\" value=\"${Lang['Buy']}\" /></form>";
+			echo "<b>{$Lang['Price']}</b>: <font class=\"result\">" . div($price) . "</font> <b>[!]</b> ";
+			echo "<form action=\"{$_SERVER['PHP_SELF']}\" method=\"POST\"><input type=\"hidden\" name=\"action\" value=\"buyitem\" /><input type=\"hidden\" name=\"name\" value=\"{$t['name']}\" />";
+			if ($t['count']) echo "{$Lang['Amount']}: <input type=\"text\" name=\"amount\" value=\"1\" /> ";
+			echo "<input type=\"submit\" value=\"{$Lang['Buy']}\" /></form>";
 			echo "</td>\n";
 
 			echo "\t\t<td width=\"8\">&nbsp;</td>\n";
 
 			if (! $b) {
 				echo "\t\t<td width=\"72\">\n";
-				tableimg('images/pw.gif', 72, 72, $icon, 64, 64, "description.php?type=items&back=itemshop.php&subject=${t['name']}&id=${t['id']}");
+				tableimg('images/pw.gif', 72, 72, $icon, 64, 64, "description.php?type=items&back=itemshop.php&subject={$t['name']}&id={$t['id']}");
 				echo "\t\t</td>\n\t\t</tr>\n";
 			}
 		}
@@ -151,8 +151,8 @@ elseif (checkplace('itemshop')) {
 else {
 	tablebegin('<font class="error">' . $Lang['Error'] . '!</font>', '400');
 	echotitle($Lang['NotAvailable']);
-	echo "<font class=\"capacity\">${Lang['PlaceNotAvailable']}</font><br /><br />";
-	tableend($back ? "<a href=\"$back\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>" : "${Lang['Error']}: ${Lang['NotAvailable']}");
+	echo "<font class=\"capacity\">{$Lang['PlaceNotAvailable']}</font><br /><br />";
+	tableend($back ? "<a href=\"$back\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>" : "{$Lang['Error']}: {$Lang['NotAvailable']}");
 }
 
 require('include/footer.php');

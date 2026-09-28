@@ -89,24 +89,24 @@ echo "\t\t<table id=\"menu\" cellspacing=\"0\" cellpadding=\"0\">\n";
 echo "\t\t<tr class=\"spacer\"><td></td></tr>\n";
 
 if ($logged & $auth) {
-	echo "\t\t<tr><td><a href=\"control.php?rid=$rid\">${Lang['MenuControl']}</a></td></tr>\n";
-	echo "\t\t<tr><td><a href=\"equipment.php?rid=$rid\">${Lang['MenuEquipment']}</a></td></tr>\n";
-	echo "\t\t<tr><td><a href=\"messages.php?rid=$rid\">${Lang['MenuMessages']}</a></td></tr>\n";
-	echo "\t\t<tr><td><a href=\"ads.php?rid=$rid\">${Lang['MenuAds']}</a></td></tr>\n";
-	echo "\t\t<tr><td><a href=\"galaxy.php?rid=$rid\">${Lang['MenuGalaxyMap']}</a></td></tr>\n";
-	if (@$Player['clan']) echo "\t\t<tr><td><a href=\"clan.php?rid=$rid\">${Lang['MenuClan']}</a></td></tr>\n";
-	if (@$Player['usergroup']) echo "\t\t<tr><td><a href=\"admin.php?rid=$rid\">${Lang['MenuAdministration']}</a></td></tr>\n";
+	echo "\t\t<tr><td><a href=\"control.php?rid=$rid\">{$Lang['MenuControl']}</a></td></tr>\n";
+	echo "\t\t<tr><td><a href=\"equipment.php?rid=$rid\">{$Lang['MenuEquipment']}</a></td></tr>\n";
+	echo "\t\t<tr><td><a href=\"messages.php?rid=$rid\">{$Lang['MenuMessages']}</a></td></tr>\n";
+	echo "\t\t<tr><td><a href=\"ads.php?rid=$rid\">{$Lang['MenuAds']}</a></td></tr>\n";
+	echo "\t\t<tr><td><a href=\"galaxy.php?rid=$rid\">{$Lang['MenuGalaxyMap']}</a></td></tr>\n";
+	if (@$Player['clan']) echo "\t\t<tr><td><a href=\"clan.php?rid=$rid\">{$Lang['MenuClan']}</a></td></tr>\n";
+	if (@$Player['usergroup']) echo "\t\t<tr><td><a href=\"admin.php?rid=$rid\">{$Lang['MenuAdministration']}</a></td></tr>\n";
 	echo "\t\t<tr class=\"spacer\"><td></td></tr>\n\t\t</table>\n";
 
 	tablebreak();
 
 	echo "\t\t<table id=\"menu\" cellspacing=\"0\" cellpadding=\"0\">\n";
 	echo "\t\t<tr class=\"spacer\"><td></td></tr>\n";
-	echo "\t\t<tr><td><a href=\"colony.php?rid=$rid\">${Lang['MenuColony']}</a></td></tr>\n";
+	echo "\t\t<tr><td><a href=\"colony.php?rid=$rid\">{$Lang['MenuColony']}</a></td></tr>\n";
 
 	if ($Colony) {
-		echo "\t\t<tr><td><a href=\"structures.php?rid=$rid\">${Lang['MenuStructures']}</a></td></tr>\n";
-		echo "\t\t<tr><td><a href=\"units.php?rid=$rid\">${Lang['MenuUnits']}</a></td></tr>\n";
+		echo "\t\t<tr><td><a href=\"structures.php?rid=$rid\">{$Lang['MenuStructures']}</a></td></tr>\n";
+		echo "\t\t<tr><td><a href=\"units.php?rid=$rid\">{$Lang['MenuUnits']}</a></td></tr>\n";
 		echo "\t\t<tr class=\"spacer\"><td></td></tr>\n";
 		echo "\t\t</table>\n";
 
@@ -114,11 +114,11 @@ if ($logged & $auth) {
 
 		echo "\t\t<table id=\"menu\" cellspacing=\"0\" cellpadding=\"0\">\n";
 		echo "\t\t<tr class=\"spacer\"><td></td></tr>\n";
-		if ($Colony['scout'] || $Colony['base']) echo "\t\t<tr><td><a href=\"explore.php?rid=$rid\">${Lang['MenuExplore']}</a></td></tr>\n";
-		if ($Colony['worker'] || $Colony['base']) echo "\t\t<tr><td><a href=\"build.php?rid=$rid\">${Lang['MenuBuild']}</a></td></tr>\n";
-		if ($Colony['factory'] || $Colony['tron']) echo "\t\t<tr><td><a href=\"production.php?rid=$rid\">${Lang['MenuProduction']}</a></td></tr>\n";
-		if ($Player['level'] > 4 && ($Colony['base'] || $Colony['tacticstechnology'])) echo "\t\t<tr><td><a href=\"attack.php?rid=$rid\">${Lang['MenuAttack']}</a></td></tr>\n";
-		if ($Colony['laboratory'] || $Colony['databank'] && $Colony['mmu']) echo "\t\t<tr><td><a href=\"research.php?rid=$rid\">${Lang['MenuResearch']}</a></td></tr>\n";
+		if ($Colony['scout'] || $Colony['base']) echo "\t\t<tr><td><a href=\"explore.php?rid=$rid\">{$Lang['MenuExplore']}</a></td></tr>\n";
+		if ($Colony['worker'] || $Colony['base']) echo "\t\t<tr><td><a href=\"build.php?rid=$rid\">{$Lang['MenuBuild']}</a></td></tr>\n";
+		if ($Colony['factory'] || $Colony['tron']) echo "\t\t<tr><td><a href=\"production.php?rid=$rid\">{$Lang['MenuProduction']}</a></td></tr>\n";
+		if ($Player['level'] > 4 && ($Colony['base'] || $Colony['tacticstechnology'])) echo "\t\t<tr><td><a href=\"attack.php?rid=$rid\">{$Lang['MenuAttack']}</a></td></tr>\n";
+		if ($Colony['laboratory'] || $Colony['databank'] && $Colony['mmu']) echo "\t\t<tr><td><a href=\"research.php?rid=$rid\">{$Lang['MenuResearch']}</a></td></tr>\n";
 	}
 
 	echo "\t\t<tr class=\"spacer\"><td></td></tr>\n";
@@ -129,18 +129,18 @@ if ($logged & $auth) {
 	echo "\t\t<table id=\"menu\" cellspacing=\"0\" cellpadding=\"0\">\n";
 	echo "\t\t<tr class=\"spacer\"><td></td></tr>\n";
 
-	echo "\t\t<tr><td><a href=\"whois.php?rid=$rid\">${Lang['MenuWhois']}</a></td></tr>\n";
-	echo "\t\t<tr><td><a href=\"highscores.php?rid=$rid\">${Lang['MenuHighScores']}</a></td></tr>\n";
-	echo "\t\t<tr><td><a href=\"profile.php?rid=$rid\">${Lang['MenuProfile']}</a></td></tr>\n";
-	echo "\t\t<tr><td><a href=\"http://galaxy.game-host.org/forum/\">${Lang['MenuForum']}</a></td></tr>\n";
+	echo "\t\t<tr><td><a href=\"whois.php?rid=$rid\">{$Lang['MenuWhois']}</a></td></tr>\n";
+	echo "\t\t<tr><td><a href=\"highscores.php?rid=$rid\">{$Lang['MenuHighScores']}</a></td></tr>\n";
+	echo "\t\t<tr><td><a href=\"profile.php?rid=$rid\">{$Lang['MenuProfile']}</a></td></tr>\n";
+	echo "\t\t<tr><td><a href=\"http://galaxy.game-host.org/forum/\">{$Lang['MenuForum']}</a></td></tr>\n";
 	echo "\t\t<tr><td><a href=\"irc?login=$login\">IRC</a></td></tr>\n";
-	echo "\t\t<tr><td><a href=\"welcome.php?rid=$rid&action=logout\">${Lang['MenuLogout']}</a></td></tr>\n";
+	echo "\t\t<tr><td><a href=\"welcome.php?rid=$rid&action=logout\">{$Lang['MenuLogout']}</a></td></tr>\n";
 }
 else {
-	echo "\t\t<tr><td><a href=\"welcome.php?rid=$rid\">${Lang['MenuWelcome']}</a></td></tr>\n";
-	echo "\t\t<tr><td><a href=\"news.php?rid=$rid\">${Lang['MenuNews']}</a></td></tr>\n";
-	echo "\t\t<tr><td><a href=\"control.php?rid=$rid\">${Lang['MenuLogin']}</a></td></tr>\n";
-	echo "\t\t<tr><td><a href=\"register.php?rid=$rid\">${Lang['MenuRegister']}</a></td></tr>\n";
+	echo "\t\t<tr><td><a href=\"welcome.php?rid=$rid\">{$Lang['MenuWelcome']}</a></td></tr>\n";
+	echo "\t\t<tr><td><a href=\"news.php?rid=$rid\">{$Lang['MenuNews']}</a></td></tr>\n";
+	echo "\t\t<tr><td><a href=\"control.php?rid=$rid\">{$Lang['MenuLogin']}</a></td></tr>\n";
+	echo "\t\t<tr><td><a href=\"register.php?rid=$rid\">{$Lang['MenuRegister']}</a></td></tr>\n";
 
 	echo "\t\t<tr class=\"spacer\"><td></td></tr>\n";
 	echo "\t\t</table>\n";
@@ -150,9 +150,9 @@ else {
 	echo "\t\t<table id=\"menu\" cellspacing=\"0\" cellpadding=\"0\">\n";
 	echo "\t\t<tr class=\"spacer\"><td></td></tr>\n";
 
-	echo "\t\t<tr><td><a href=\"propaganda.php?rid=$rid\">${Lang['MenuPropaganda']}</a></td></tr>\n";
-	echo "\t\t<tr><td><a href=\"links.php?rid=$rid\">${Lang['MenuLinks']}</a></td></tr>\n";
-	echo "\t\t<tr><td><a href=\"http://galaxy.game-host.org/forum/\">${Lang['MenuForum']}</a></td></tr>\n";
+	echo "\t\t<tr><td><a href=\"propaganda.php?rid=$rid\">{$Lang['MenuPropaganda']}</a></td></tr>\n";
+	echo "\t\t<tr><td><a href=\"links.php?rid=$rid\">{$Lang['MenuLinks']}</a></td></tr>\n";
+	echo "\t\t<tr><td><a href=\"http://galaxy.game-host.org/forum/\">{$Lang['MenuForum']}</a></td></tr>\n";
 
 	echo "\t\t<tr class=\"spacer\"><td></td></tr>\n";
 	echo "\t\t</table>\n";
@@ -163,7 +163,7 @@ else {
 	echo "\t\t<tr class=\"spacer\"><td></td></tr>\n";
 
 	echo "\t\t<tr><td><a href=\"irc\">IRC</a></td></tr>\n";
-	echo "\t\t<tr><td><a href=\"contact.php\">${Lang['MenuContact']}</a></td></tr>\n";
+	echo "\t\t<tr><td><a href=\"contact.php\">{$Lang['MenuContact']}</a></td></tr>\n";
 }
 
 echo "\t\t<tr class=\"spacer\"><td></td></tr>\n";
@@ -178,9 +178,9 @@ if (!$logged) {
 	echo "\t\t<table id=\"menu\" cellspacing=\"0\" cellpadding=\"0\">\n";
 	echo "\t\t<tr class=\"spacer\"><td></td></tr>\n";
 
-	echo "\t\t<tr><td><a href=\"documentation.php?rid=$rid\">${Lang['MenuDocumentation']}</a></td></tr>\n";
-	echo "\t\t<tr><td><a href=\"http://www.sourceforge.net/projects/galaxyforces\">${Lang['MenuDownload']}</a></td></tr>\n";
-	echo "\t\t<tr><td><a href=\"licence.php?rid=$rid\">${Lang['MenuLicence']}</a></td></tr>\n";
+	echo "\t\t<tr><td><a href=\"documentation.php?rid=$rid\">{$Lang['MenuDocumentation']}</a></td></tr>\n";
+	echo "\t\t<tr><td><a href=\"http://www.sourceforge.net/projects/galaxyforces\">{$Lang['MenuDownload']}</a></td></tr>\n";
+	echo "\t\t<tr><td><a href=\"licence.php?rid=$rid\">{$Lang['MenuLicence']}</a></td></tr>\n";
 
 	echo "\t\t<tr class=\"spacer\"><td></td></tr>\n";
 	echo "\t\t</table>\n";

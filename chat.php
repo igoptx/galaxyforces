@@ -15,7 +15,7 @@ if (isset($_GET['popup'])) {
 	<link rel="stylesheet" href="style/default/chat.css" />
 <?php
 
-	if (@$Lang['Charset']) echo "\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=${Lang['Charset']}\">\n";
+	if (@$Lang['Charset']) echo "\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset={$Lang['Charset']}\">\n";
 
 ?></head>
 <body>
@@ -42,7 +42,7 @@ settimeout("reload()", 10000);
 	die;
 }
 else {
-	for ($i = 0; $i < count($Modules); $i++) if ($Modules[$i] == 'chat') unset ($Modules[$i]);
+	for ($i = 0; $i < count((array)($Modules)); $i++) if ($Modules[$i] == 'chat') unset ($Modules[$i]);
 
 	$Config['IgnoreFrames'] = 1;
 	

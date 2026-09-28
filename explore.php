@@ -68,7 +68,7 @@ if (isset($Colony) && $Colony) {
 ?>		<center>
 			<b><?php echo $Lang['ExploreM1']; ?></b><br />
 			<br />
-			<font class="result"><?php echo $Lang['ExploreM2']; ?> <?php echo round(100 * $Planet['explored']) / 100; ?>%.</font><?php if ($Planet['explored'] == 100) echo " <font class=\"warning\">${Lang['ExploreM3']}</font>" ?><br />
+			<font class="result"><?php echo $Lang['ExploreM2']; ?> <?php echo round(num(100 * $Planet['explored'])) / 100; ?>%.</font><?php if ($Planet['explored'] == 100) echo " <font class=\"warning\">{$Lang['ExploreM3']}</font>" ?><br />
 		</center>
 
 		<p><?php echo $Lang['ExploreC']; ?><br />

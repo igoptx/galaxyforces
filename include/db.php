@@ -75,7 +75,7 @@ function sql_parse($filename, $prefix='', $layer='', $source='')
 	$s = str_replace('TABLE #', "TABLE $prefix", $s);
 	$s = str_replace('FROM #', "FROM $prefix", $s);
 	$s = str_replace('INTO #', "INTO $prefix", $s);
-	$s = ereg_replace('--([ A-Za-z:0-9.]{0,})', '', $s);
+	$s = preg_replace('/--([ A-Za-z:0-9.]{0,})/', '', $s);
 	return $s;
 }
 
@@ -85,10 +85,10 @@ function sql_explode($sql)
 	$b=0;
 	$q='';
 	for ($i=0; $i<strlen($sql); $i++) {
-		switch($sql{$i}) {
+		switch($sql[$i]) {
 		case '`': if ($q == '`') $q = ''; elseif (!$q) $q = '`'; break;
 		case "'": if ($q == "'") $q = ''; elseif (!$q) $q = "'"; break;
-		case '"': if (@$sql{$i-1} != '\\' && $q == '"') $q = ''; elseif (!$q) $q = '"'; break;
+		case '"': if (($i ? $sql[$i-1] : '') != '\\' && $q == '"') $q = ''; elseif (!$q) $q = '"'; break;
 		case '(': if (!$q) $b++; break;
 		case ')': if (!$q) $b--; break;
 		case ';': if (!($b || $q)) {
@@ -112,7 +112,7 @@ function sql_schema($name, $dir='')
 
 function str_sqlsafe($s)
 {
-	return trim(!get_magic_quotes_gpc()?addslashes($s):$s);	
+	return trim(addslashes((string)$s));	
 }
 
 define('__DATABASE__', 1);
@@ -126,7 +126,7 @@ define('__DATABASE__', 1);
 if (@$Database && !isset($db)) {
 	$layer = @$Database['layer'];
 	$prefix = @$Database['prefix'];
-	$driver = !empty($Database['driver']) ? $Database['driver'] : $layer ? $layer : 'null';
+	$driver = !empty($Database['driver']) ? $Database['driver'] : ($layer ? $layer : 'null');
 	include(@$ROOT."db/{$driver}.php");
 	if (class_exists($CLASSNAME))
 	{
@@ -137,7 +137,7 @@ if (@$Database && !isset($db)) {
 		}
 		if (@$Config['Security']) {
 			unset($Database['password']);
-			if (!is_object($db)) unset($db->password);
+			if (isset($db) && is_object($db)) unset($db->password);
 		}
 	}
 }

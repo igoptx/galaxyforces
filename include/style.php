@@ -25,7 +25,7 @@ function swf($id, $path, $width, $height, $bgcolor = 'none', $prefix = "\t\t", $
 	else $param = '';
 	echo "$prefix<object classid=\"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000\" codebase=\"http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,79,0\" id=\"$id\" width=\"$width\" height=\"$height\">\n";
 	echo "$prefix<param name=\"movie\" value=\"$path\"><param name=\"quality\" value=\"high\">$param<param name=\"bgcolor\" value=\"$bgcolor\">\n";
-	echo "$prefix<embed name=\"$id\" src=\"$path\" quality=\"high\" ${wmode}bgcolor=\"$bgcolor\" width=\"$width\" height=\"$height\" type=\"application/x-shockwave-flash\" swLiveConnect=\"true\" pluginspage=\"http://www.macromedia.com/go/getflashplayer\"></embed>\n";
+	echo "$prefix<embed name=\"$id\" src=\"$path\" quality=\"high\" {$wmode}bgcolor=\"$bgcolor\" width=\"$width\" height=\"$height\" type=\"application/x-shockwave-flash\" swLiveConnect=\"true\" pluginspage=\"http://www.macromedia.com/go/getflashplayer\"></embed>\n";
 	echo "$prefix</object>\n";
 }
 
@@ -91,7 +91,7 @@ function style_menu_galaxy()
 	ob_start();
 	
 	$i=0;
-	while ($i<count($Menu))
+	while ($i<count((array)($Menu)))
 	{
 		$m=$Menu[$i];
 		$x=++$i;
@@ -187,7 +187,7 @@ function style_module_section($elements, $id="", $section="box")
 	global $Style, $Lang;
 	
 	if (!is_array($elements)) $elements=array($elements);
-	if (!count($elements)) continue;
+	if (!count((array)($elements))) return;
 
 	$content="";
 	

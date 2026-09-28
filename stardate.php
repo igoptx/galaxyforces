@@ -30,16 +30,16 @@ $year = $stardate % 3456;
 $y = $date / 12;
 $y = ($y -= ($d = $y % 6)) / 6;
 $y = ($y -= ($w = $y % 4)) / 4;
-$y = round(($y -= ($m = $y % 12)) / 12);
+$y = round(num(($y -= ($m = $y % 12)) / 12));
 
 $d += $w * 6;
 $d++;
 $w++;
-$q=floor($m/3);
+$q=floor(num($m/3));
 $m++;
 $y++;
 
-echo "<h3>${Lang['UGC']}</h3>";
+echo "<h3>{$Lang['UGC']}</h3>";
 
 echo '<form action="stardate.php" method="GET">';
 echo '<table>';
@@ -64,7 +64,7 @@ for ($j = 0; $j < 12; $j++) {
 	echo '<tr' . ($b ? ' class="calendar1"' : '') . '>';
 	echo '<td><font class="result">' . ($b ? '<b>' : '') . $Lang['CalendarM'][$j] . ($b ? '</b>' : '') . "</font></td>";
 	if (! ($j % 3)) {
-		echo '<td rowspan="3"' . ($q == round(($j + 1) / 3) ? ' class="calendar1"' : '') . '><font class="capacity"><i>' . ($Lang['CalendarQ'][$j / 3]) . '</i></font></td>';
+		echo '<td rowspan="3"' . ($q == round(num(($j + 1) / 3)) ? ' class="calendar1"' : '') . '><font class="capacity"><i>' . ($Lang['CalendarQ'][$j / 3]) . '</i></font></td>';
 	}
 	for ($i = 1; $i <= 24; $i++) {
 		$s = ($y - 1) * 3456 + $j * 288 + ($i - 1) * 12;

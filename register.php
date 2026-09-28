@@ -54,7 +54,7 @@ if ($action == 'register') {
 
 	if (!$agree) $errors .= $Lang['ErrorAgreement'] . '<br />';
 	if (!$login) $errors .= $Lang['ErrorEmptyLogin'] . '!<br />';
-	elseif (ereg("[<'&,;>]", $login) || (@$wynik[0]) || ($login == 'admin') || ($login == 'system') || ($login == 'root') || ($login == 'administrator') || (strrpos($login, ' ') > strlen($login) - 2) || (strpos($login, ' ') == ' ')) $errors .= $Lang['ErrorLoginInvalid'] .'<br />';
+	elseif (preg_match("/[<'&,;>]/", $login) || (@$wynik[0]) || ($login == 'admin') || ($login == 'system') || ($login == 'root') || ($login == 'administrator') || (strrpos($login, ' ') > strlen($login) - 2) || (strpos($login, ' ') == ' ')) $errors .= $Lang['ErrorLoginInvalid'] .'<br />';
 	if (strlen($password) < 6) $errors .= $Lang['ErrorPasswordTooShort'] . ' (' . $Lang['mustcontainatleast'] . ' 6 ' . $Lang['chars'] . ')' . '<br />';
 	if ($password != $reenter) $errors .= $Lang['ErrorPasswordAndReenter'] . '<br />';
 //	if (! $name) $errors .= $Lang['ErrorEmptyName'] . '!<br />';
@@ -63,8 +63,8 @@ if ($action == 'register') {
 //	if (($birth > $year - 3) || ($birth < $year - 100)) $errors .= $Lang['ErrorBirthYear'] . '!<br />';
 
 	if (! $errors) {
-		$db->query("DELETE FROM `${prefix}users` WHERE `active` = '0' AND `registered` < '" . date('Y-m-d', mktime(0, 0, 0, date("m"), date("d") - 2, date("Y"))) . "';");
-		$db->query("SELECT (`id`) FROM `${prefix}users` WHERE `login`='$login' LIMIT 1;");
+		$db->query("DELETE FROM `{$prefix}users` WHERE `active` = '0' AND `registered` < '" . date('Y-m-d', mktime(0, 0, 0, date("m"), date("d") - 2, date("Y"))) . "';");
+		$db->query("SELECT (`id`) FROM `{$prefix}users` WHERE `login`='$login' LIMIT 1;");
 		if ($db->numrows()) $errors .= $Lang['ErrorLoginExists'] . '!<br />';
 		else {
 			$backpassword = $password;
@@ -72,36 +72,36 @@ if ($action == 'register') {
 			$regid = crypt($login, Rand(1111, 9999));
 			$regid = Rand(11, 99) . substr($regid, strlen($regid) - 8, 8) . Rand(11, 99);
 
-			if ($Config['Registration'] == 'auto') $sql = "INSERT INTO `${prefix}users` (`login`,`password`,`email`,`gg`,`www`,`language`,`active`,`registered`) VALUES ('$login','$password','$email','$gg','$www','$language',1,'$today');";
-			else $sql = "INSERT INTO `${prefix}users` (`login`,`password`,`email`,`gg`,`www`,`language`,`regid`,`registered`) VALUES ('$login','$password','$email','$gg','$www','$language','$regid','$today');"; 
+			if ($Config['Registration'] == 'auto') $sql = "INSERT INTO `{$prefix}users` (`login`,`password`,`email`,`gg`,`www`,`language`,`active`,`registered`) VALUES ('$login','$password','$email','$gg','$www','$language',1,'$today');";
+			else $sql = "INSERT INTO `{$prefix}users` (`login`,`password`,`email`,`gg`,`www`,`language`,`regid`,`registered`) VALUES ('$login','$password','$email','$gg','$www','$language','$regid','$today');"; 
 
 			if (! $db->query($sql)) $errors .= $Lang['ErrorRegistering'] . '<br />';
 			else {
 				if ($Config['Registration'] == 'auto') {
 					tablebegin($Lang['Completed'], '400');
-					echo "\t<br />${Lang['RegistrationCompleted']}<br /><br />\n";
-					echo "\t<a href=\"welcome.php\">${Lang['MainPage']}&nbsp;&gt;&gt;</a><br /><br />\n";
+					echo "\t<br />{$Lang['RegistrationCompleted']}<br /><br />\n";
+					echo "\t<a href=\"welcome.php\">{$Lang['MainPage']}&nbsp;&gt;&gt;</a><br /><br />\n";
 					tableend($Lang['Registration']);
 				}
 				else {
-					$link = "http://${_SERVER['HTTP_HOST']}${_SERVER['PHP_SELF']}?action=activate&regid=$regid";
+					$link = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?action=activate&regid=$regid";
 					if ($Config['Registration'] == 'admin') {
 						locale('messages', $Config['DefaultLanguage']);
-						$msg = "${Lang['EmailRegister8']} ${Config['Title']} \n\n\t${Lang['Login']}: $login\n\t${Lang['Email']}: $email\n\t${Lang['Language']}: $language\n\n\t${Lang['RegistrationID']}: $regid\n\n${Lang['EmailRegister3']}:\n\n\t$link\n\n";
+						$msg = "{$Lang['EmailRegister8']} {$Config['Title']} \n\n\t{$Lang['Login']}: $login\n\t{$Lang['Email']}: $email\n\t{$Lang['Language']}: $language\n\n\t{$Lang['RegistrationID']}: $regid\n\n{$Lang['EmailRegister3']}:\n\n\t$link\n\n";
 						$email = $Config['Administrator'];
 					}
 					else {
 						locale('messages', $language);
-						$msg = "${Lang['EmailDontReply']}\n\n${Lang['EmailRegister1']}\n\n\t${Lang['Login']}:$login\n\t${Lang['Password']}: $backpassword\n\n\t${Lang['RegistrationID']}: $regid\n\n${Lang['EmailRegister3']}:\n\n\t$link\n\n${Lang['EmailRegister4']}";
+						$msg = "{$Lang['EmailDontReply']}\n\n{$Lang['EmailRegister1']}\n\n\t{$Lang['Login']}:$login\n\t{$Lang['Password']}: $backpassword\n\n\t{$Lang['RegistrationID']}: $regid\n\n{$Lang['EmailRegister3']}:\n\n\t$link\n\n{$Lang['EmailRegister4']}";
 					}
 					if (! sendmail($email, $Lang['EmailRegister1Subject'], $msg)) {
 						$errors .= $Lang['ErrorSendmailFailed'] . '<br />';
-						$db->query("DELETE FROM `${prefix}users` WHERE `login`='$login' LIMIT 1;");
+						$db->query("DELETE FROM `{$prefix}users` WHERE `login`='$login' LIMIT 1;");
 					}
 					else {				
 						tablebegin($Lang['Completed'], '400');
-						echo "\t<br />${Lang['RegistrationCompleted']}<br /><br />${Lang['RegistrationEmailSent']}<br /><br />\n";
-						echo "\t<a href=\"welcome.php\">${Lang['MainPage']}&nbsp;&gt;&gt;</a><br /><br />\n";
+						echo "\t<br />{$Lang['RegistrationCompleted']}<br /><br />{$Lang['RegistrationEmailSent']}<br /><br />\n";
+						echo "\t<a href=\"welcome.php\">{$Lang['MainPage']}&nbsp;&gt;&gt;</a><br /><br />\n";
 						tableend($Lang['Registration']);
 					}
 				}
@@ -111,9 +111,9 @@ if ($action == 'register') {
 
 	if ($errors) {
 		tablebegin('<font class="error">' . $Lang['Error'] . '</font>', '400');
-		echo "\t<br />${Lang['FormErrorList']}<br /><br />\n";
+		echo "\t<br />{$Lang['FormErrorList']}<br /><br />\n";
 		echo "\t<font class=\"error\">$errors</font><br />\n";
-		echo "\t<a href=\"javascript:history.back(1)\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />\n";
+		echo "\t<a href=\"javascript:history.back(1)\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />\n";
 		tableend($Lang['Registration']);
 	}
 }
@@ -125,7 +125,7 @@ if ($action == 'register') {
 elseif ($action == 'activate') {
 	$regid = getvar('regid');
 	if ($regid) {
-		$db->query("SELECT `login`,`email` FROM `${prefix}users` WHERE `regid`='$regid' LIMIT 1;");
+		$db->query("SELECT `login`,`email` FROM `{$prefix}users` WHERE `regid`='$regid' LIMIT 1;");
 		if ($t = $db->fetchrow()) {
 			$login = $t['login'];
 			$email = $t['email'];
@@ -134,21 +134,21 @@ elseif ($action == 'activate') {
 		if (! $login) {
 			tablebegin('<font color="red" class="error">' . $Lang['Error'] . '</font>', '400');
 			echo "\t<br />\n\t<center>\n";
-			echo "\t<font color=\"red\" class=\"error\">${Lang['ErrorBadRegID']}</font><br />\n";
-			echo "\t<br /><a href=\"javascript:history.back(1)\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br />\n";
+			echo "\t<font color=\"red\" class=\"error\">{$Lang['ErrorBadRegID']}</font><br />\n";
+			echo "\t<br /><a href=\"javascript:history.back(1)\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br />\n";
 			echo "\t</center>\n\t<br />\n";
 			tableend($Lang['Activation']);
 		}
 		else {
-			$db->query("UPDATE `${prefix}users` SET `active`='1' WHERE `regid`='$regid' LIMIT 1;");
+			$db->query("UPDATE `{$prefix}users` SET `active`='1' WHERE `regid`='$regid' LIMIT 1;");
 			if ($email) {
 				$msg = $Lang['EmailDontReply'] . $Lang['EmailRegister5'];
 				sendmail($email, $Lang['EmailRegister2Subject'], $msg);
 			}
 			tablebegin($Lang['Activation'], '400');
 			echo "\t<br />\n\t<center>\n";
-			echo "\t${Lang['ActivatedAccount']}<br /><br />\n";
-			echo "\t<br /><a href=\"control.php?rid=$rid&login=$login\">${Lang['Login']}&nbsp;&gt;&gt;</a><br />\n";
+			echo "\t{$Lang['ActivatedAccount']}<br /><br />\n";
+			echo "\t<br /><a href=\"control.php?rid=$rid&login=$login\">{$Lang['Login']}&nbsp;&gt;&gt;</a><br />\n";
 			echo "\t</center>\n\t<br />\n";
 			tableend($Lang['Activation']);
 		}

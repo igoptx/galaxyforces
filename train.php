@@ -34,7 +34,7 @@ elseif ($Colony && $Colony['academy']) {
 <?php
 	}
 	else {
-		$max = $Player['credits'] / $soldierstraincost < $Colony['colonistsfree'] ? floor($Player['credits'] / $soldierstraincost) : $Colony['colonistsfree'];
+		$max = $Player['credits'] / $soldierstraincost < $Colony['colonistsfree'] ? floor(num($Player['credits'] / $soldierstraincost)) : $Colony['colonistsfree'];
 		$max = $Colony['barracks'] * 50 - $Colony['soldiers'] < $max ? $Colony['barracks'] * 50 - $Colony['soldiers'] : $max;
 
 		if ($max) {
@@ -61,7 +61,7 @@ elseif ($Colony && $Colony['academy']) {
 }
 else {
 	tablebegin($Lang['TrainingS'], 500);
-	echo "\t\t<br />\n\t\t${Lang['NotAvailable']}<br />\n\t\t<br />\t\t<font class=\"result\">${Lang['UDNA']}</font><br />\n\t\t<br />\n";
+	echo "\t\t<br />\n\t\t{$Lang['NotAvailable']}<br />\n\t\t<br />\t\t<font class=\"result\">{$Lang['UDNA']}</font><br />\n\t\t<br />\n";
 	tableend('<a href="control.php">' . $Lang['GoBack'] . ' &gt;&gt;</a>');
 }
 

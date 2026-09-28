@@ -15,9 +15,9 @@ $pagename = $Lang['ClanDonation'];
 // ===========================================================================
 
 if ($errors) {
-	tablebegin("<font class=\"error\">${Lang['Error']}!</font>", '400');
-	echo "\t\t<h3>${Lang['ErrorProblems']}</h3><font class=\"error\">$errors</font><br />";
-	echo "<a href=\"javascript:history.back(1)\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
+	tablebegin("<font class=\"error\">{$Lang['Error']}!</font>", '400');
+	echo "\t\t<h3>{$Lang['ErrorProblems']}</h3><font class=\"error\">$errors</font><br />";
+	echo "<a href=\"javascript:history.back(1)\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
 	tableend("$pagename");
 	sound('error');	
 }
@@ -28,7 +28,7 @@ if ($errors) {
 
 elseif ($result) {
 	tablebegin("$pagename", 400);
-	echo "\t\t<br /><font class=\"result\">$result</font><br /><a href=\"${_SERVER['PHP_SELF']}\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
+	echo "\t\t<br /><font class=\"result\">$result</font><br /><a href=\"{$_SERVER['PHP_SELF']}\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br /><br />";
 	tableend($Lang['Clan']);
 }
 
@@ -40,9 +40,9 @@ else {
 	tablebegin($pagename, 500);
 
 	subbegin('images/table-b2.jpg');
-	echo "\t\t<center><font class=\"h3\">${Lang['ClanDonation']}</font><br /><br />";
+	echo "\t\t<center><font class=\"h3\">{$Lang['ClanDonation']}</font><br /><br />";
 
-	$db->query("SELECT `name` from `${prefix}groups` ORDER BY `name`;");
+	$db->query("SELECT `name` from `{$prefix}groups` ORDER BY `name`;");
 	if ($db->numrows()) {
 
 ?>	<br />
@@ -53,9 +53,9 @@ else {
 	<td align="right"><select name="name"><option value=""></option><?php
 
 		while ($t = $db->fetchrow()) {
-			echo "<option value=\"${t['name']}\"";
+			echo "<option value=\"{$t['name']}\"";
 			if (($name == $t['name']) || (! $name && $Group && ($t['name'] == $Group['name']))) echo ' selected';
-			echo ">${t['name']}</option>";
+			echo ">{$t['name']}</option>";
 		}
 
 ?></select></td>
@@ -79,7 +79,7 @@ else {
 	tableimg("images/bw.gif", 168, 168, 'gallery/places/bank.jpg', 160, 160, '', 'right');
 	subend();
 
-	tableend("<a href=\"$back\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>");
+	tableend("<a href=\"$back\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>");
 }
 
 require('include/footer.php');

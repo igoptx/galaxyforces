@@ -2,7 +2,7 @@
 
 global $db, $prefix, $logged, $Lang, $Config;
 
-if (@$db && $logged && $db->query("SELECT login,usergroup,clan FROM ${prefix}users WHERE online>'".date('YmdHis', time() - 300)."' ORDER BY login;")) {
+if (@$db && $logged && $db->query("SELECT login,usergroup,clan FROM {$prefix}users WHERE online>'".date('YmdHis', time() - 300)."' ORDER BY login;")) {
 	tablebegin($Lang['Online']);
 
 	echo '<br />';
@@ -29,5 +29,5 @@ if (@$db && $logged && $db->query("SELECT login,usergroup,clan FROM ${prefix}use
  	
  	echo $i ? ($break ? '<br />' : '<br /><br />') : $Lang['NoUsers'].'<br /><br />';
 
-	tableend("$i ${Lang['User(s)']}");
+	tableend("$i {$Lang['User(s)']}");
 }

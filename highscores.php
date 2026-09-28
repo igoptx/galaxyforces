@@ -21,7 +21,7 @@ require("include/header.php");
 require("include/functions.php");
 
 $category = getvar('category');
-$page = abs(getvar('page'));
+$page = abs(num(getvar('page')));
 
 $pagecount = 100;
 
@@ -43,13 +43,13 @@ switch ($category) {
 
 if ($max = $db->rows("{$prefix}users")) $max--; // administrator account (id=0) is not counted
 
-if ($page > $m = floor($max / $pagecount)) $page = $m;
+if ($page > $m = floor(num($max / $pagecount))) $page = $m;
 $l = $page * $pagecount;
 $clan = $Player['clan'];
 
-if (!$db->query("SELECT login,clan,level,score,voyaged,ip,lastip FROM ${prefix}users WHERE id>0 ORDER BY $order LIMIT $l,$pagecount;")) {
+if (!$db->query("SELECT login,clan,level,score,voyaged,ip,lastip FROM {$prefix}users WHERE id>0 ORDER BY $order LIMIT $l,$pagecount;")) {
 //if (!$db->query("SELECT ${prefix}users.login,refs,usergroup,clan,level,score,voyaged,ip,lastip, ${prefix}colonies.name AS colony, ${prefix}diplomacy.type FROM ${prefix}users LEFT JOIN ${prefix}colonies ON ${prefix}users.login = ${prefix}colonies.owner LEFT JOIN ${prefix}diplomacy ON (${prefix}diplomacy.clan1 = '$clan' AND ${prefix}diplomacy.clan2 = ${prefix}users.clan) OR (${prefix}diplomacy.clan1 = ${prefix}users.clan AND ${prefix}diplomacy.clan2 = '$clan') WHERE ${prefix}users.id>0 ORDER BY ${prefix}users.$order LIMIT $l,$pagecount;")); {
-	echo $errors = '<br /><span class="error">'.$Lang['ErrorQueryFailed'].'!<br />'.mysql_error().'!<br /><br />';
+	echo $errors = '<br /><span class="error">'.$Lang['ErrorQueryFailed'].'!<br />'.$db->error().'!<br /><br />';
 	$s = $Lang['Error'];
 }
 else {
@@ -61,24 +61,24 @@ echo "\t<br />\n";
 echo "\t<table id=\"sub\" cellspacing=\"0\" cellpadding=\"0\">\n";
 echo "\t".'<tr id="header"><td width="12" id="headerl">&nbsp;</td><td width="8">&nbsp;</td><td width="8">&nbsp;</td><td align="left">';
 
-echo '<a'.($category == 'login' ? ' class="result"' : ($category == 'logindesc' ? ' class="minus"' : '')).' href="highscores.php?category='.($category == 'login' ? 'logindesc' : 'login')."&page=$page\" onmouseover=\"self.status='${Lang['ReverseOrder']}'; return true\" onmouseout=\"self.status=''; return true\">${Lang['Login']}</a>";
+echo '<a'.($category == 'login' ? ' class="result"' : ($category == 'logindesc' ? ' class="minus"' : '')).' href="highscores.php?category='.($category == 'login' ? 'logindesc' : 'login')."&page=$page\" onmouseover=\"self.status='{$Lang['ReverseOrder']}'; return true\" onmouseout=\"self.status=''; return true\">{$Lang['Login']}</a>";
 echo ':</td><td width="8">&nbsp;</td><td align="left">'.$Lang['Colony'].':</td><td width="8">&nbsp;</td><td align="left">';
 
-echo '<a'.($category == 'clan' ? ' class="result"' : ($category == 'clandesc' ? ' class="minus"' : '')).' href="highscores.php?category='.($category == 'clan' ? 'clandesc' : 'clan')."&page=$page\" onMouseOver=\"self.status='${Lang['ReverseOrder']}'; return true\" onMouseOut=\"self.status=''; return true\">${Lang['Clan']}</a>";
+echo '<a'.($category == 'clan' ? ' class="result"' : ($category == 'clandesc' ? ' class="minus"' : '')).' href="highscores.php?category='.($category == 'clan' ? 'clandesc' : 'clan')."&page=$page\" onMouseOver=\"self.status='{$Lang['ReverseOrder']}'; return true\" onMouseOut=\"self.status=''; return true\">{$Lang['Clan']}</a>";
 echo ':</td><td width="8">&nbsp;</td><td align="center">';
 
 if ($User['usergroup'] == 'wheel' || $User['usergroup'] == 'moderators')
 {
-	echo '<a'.($category == 'ip' ? ' class="result"' : ($category == 'ipdesc' ? ' class="minus"' : '')).' href="highscores.php?category='.($category == 'ip' ? 'ipdesc' : 'ip')."&page=$page\" onMouseOver=\"self.status='${Lang['ReverseOrder']}'; return true\" onMouseOut=\"self.status=''; return true\">IP</a>";
+	echo '<a'.($category == 'ip' ? ' class="result"' : ($category == 'ipdesc' ? ' class="minus"' : '')).' href="highscores.php?category='.($category == 'ip' ? 'ipdesc' : 'ip')."&page=$page\" onMouseOver=\"self.status='{$Lang['ReverseOrder']}'; return true\" onMouseOut=\"self.status=''; return true\">IP</a>";
 	echo '</td><td width="8">&nbsp;</td><td align="center">';
 }
 
-echo '<a'.($category == 'level' ? ' class="result"' : ($category == 'leveldesc' ? ' class="minus"' : '')).' href="highscores.php?category='.($category == 'level' ? 'leveldesc' : 'level')."&page=$page\" onMouseOver=\"self.status='${Lang['ReverseOrder']}'; return true\" onMouseOut=\"self.status=''; return true\">${Lang['Level']}</a>";
+echo '<a'.($category == 'level' ? ' class="result"' : ($category == 'leveldesc' ? ' class="minus"' : '')).' href="highscores.php?category='.($category == 'level' ? 'leveldesc' : 'level')."&page=$page\" onMouseOver=\"self.status='{$Lang['ReverseOrder']}'; return true\" onMouseOut=\"self.status=''; return true\">{$Lang['Level']}</a>";
 echo ':</td><td width=\"8\">&nbsp;</td><td align="center">';
 
-echo '<a'.($category == 'voyaged' ? ' class="result"' : ($category == 'voyageddesc' ? ' class="minus"' : '')).' href="highscores.php?category='.($category == 'voyaged' ? 'voyageddesc' : 'voyaged')."&page=$page\" onMouseOver=\"self.status='${Lang['ReverseOrder']}'; return true\" onMouseOut=\"self.status=''; return true\">${Lang['Voyaged']}</a>";
+echo '<a'.($category == 'voyaged' ? ' class="result"' : ($category == 'voyageddesc' ? ' class="minus"' : '')).' href="highscores.php?category='.($category == 'voyaged' ? 'voyageddesc' : 'voyaged')."&page=$page\" onMouseOver=\"self.status='{$Lang['ReverseOrder']}'; return true\" onMouseOut=\"self.status=''; return true\">{$Lang['Voyaged']}</a>";
 echo ':</td><td width="8">&nbsp;</td><td align="center">';
-echo '<a href="highscores.php?category='.($category == 'score' ? 'scoredesc' : 'score')."&page=$page\" onMouseOver=\"self.status='${Lang['ReverseOrder']}'; return true\" onMouseOut=\"self.status=''; return true\">${Lang['Score']}</a>";
+echo '<a href="highscores.php?category='.($category == 'score' ? 'scoredesc' : 'score')."&page=$page\" onMouseOver=\"self.status='{$Lang['ReverseOrder']}'; return true\" onMouseOut=\"self.status=''; return true\">{$Lang['Score']}</a>";
 echo ':</td><td width="12" id="headerr">&nbsp;</td></tr>'."\n";
 
 $i = 0;
@@ -114,7 +114,7 @@ foreach ($tab as $t) {
 
 ?>	<td align="center"><font class="plus"><?php echo $t['level']; ?></font></td>
 	<td>&nbsp;</td>
-	<td align="center"><font class="capacity"><?php echo str_replace(' ', '&nbsp;', number_format($t['voyaged'], 2, $Lang['DecPoint'], ' ')); ?></font></td>
+	<td align="center"><font class="capacity"><?php echo str_replace(' ', '&nbsp;', number_format(num($t['voyaged']), 2, $Lang['DecPoint'], ' ')); ?></font></td>
 	<td>&nbsp;</td>
 	<td align="center"><font class="result"><?php echo str_replace(' ', '&nbsp;', div($t['score'])); ?></font></td>
 	<td>&nbsp;</td>

@@ -28,8 +28,8 @@ function chat($author, $message)
 {
 	global $db, $prefix, $login, $timestamp, $Config;
 	if (@$db) {
-		$db->query("INSERT INTO ${prefix}chat (timestamp,author,message) VALUES ('$timestamp','$author','$message');");
-		if ($Config['ChatLife']) $db->query("UPDATE ${prefix}chat SET `hidden`=1 WHERE timestamp<'".date('YmdHis', time() - $Config['ChatLife'])."';");
+		$db->query("INSERT INTO {$prefix}chat (timestamp,author,message) VALUES ('$timestamp','$author','$message');");
+		if ($Config['ChatLife']) $db->query("UPDATE {$prefix}chat SET `hidden`=1 WHERE timestamp<'".date('YmdHis', time() - $Config['ChatLife'])."';");
 		if ($Config['ChatHistory']) echolog("$login: $message", 'chat');
 	}
 }
@@ -38,13 +38,13 @@ function chatbox($last=30,$verbose=1,$break=1)
 {
 	global $db, $prefix, $Lang, $User, $RID;
 	if (@$db) {
-		$db->query("SELECT * FROM ${prefix}chat WHERE `hidden`=0 ORDER BY timestamp DESC LIMIT $last;");
+		$db->query("SELECT * FROM {$prefix}chat WHERE `hidden`=0 ORDER BY timestamp DESC LIMIT $last;");
 		while ($t = $db->fetchrow()) {
-			echo '<b><a href="whois.php?name='.strip_tags($t['author'])."\" onmouseover=\"self.status='${Lang['ChatSent']}: ".timestampdate($t['timestamp']).' '.timestamptime($t['timestamp'])."'; return true\" onmouseout=\"self.status=''; return true\">${t['author']}</a></b>: ".emoticons($t['message']).'<br />';
-			if ($User['usergroup'] == 'wheel' || $User['usergroup'] == 'moderators') echo '<a class="delete" href="admin.php?action=chatdelete&view=chat&id='.$t['id']."&RID=".$RID.'">'.$Lang['Delete'].'</a><br />';
+			echo '<b><a href="whois.php?name='.strip_tags($t['author'])."\" onmouseover=\"self.status='{$Lang['ChatSent']}: ".timestampdate($t['timestamp']).' '.timestamptime($t['timestamp'])."'; return true\" onmouseout=\"self.status=''; return true\">{$t['author']}</a></b>: ".emoticons($t['message']).'<br />';
+			if (@$User['usergroup'] == 'wheel' || @$User['usergroup'] == 'moderators') echo '<a class="delete" href="admin.php?action=chatdelete&view=chat&id='.$t['id']."&RID=".$RID.'">'.$Lang['Delete'].'</a><br />';
 			if (@++$i < $db->numrows() && $break) echo '<hr size="1">';
 		}
-		if (!@$i && $verbose) echo "\t\t<center>${Lang['ChatNoMessages']}</center>\n";
+		if (!@$i && $verbose) echo "\t\t<center>{$Lang['ChatNoMessages']}</center>\n";
 	}
 }
 

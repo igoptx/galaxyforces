@@ -1,4 +1,4 @@
-<?
+<?php 
 
 $action = isset($_POST['action']) ? $_POST['action'] : (isset($_GET['action']) ? $_GET['action'] : '');
 $string = isset($_POST['string']) ? $_POST['string'] : (isset($_GET['string']) ? $_GET['string'] : '');
@@ -25,11 +25,11 @@ $key = isset($_POST['key']) ? $_POST['key'] : (isset($_GET['key']) ? $_GET['key'
 <center>
 
 <h3>md5</h3>
-<?
+<?php 
 
 if ($action) {
 	echo '<table>';
-	echo '<tr><td>Crypt (random salt):</td><td><i>crypt($string)</i></td><td><b>' . crypt($string) . '</b></td></tr>'; 
+	echo '<tr><td>Crypt (random salt):</td><td><i>crypt($string)</i></td><td><b>' . crypt($string, '$1$' . substr(md5(uniqid()), 0, 8)) . '</b></td></tr>'; 
 	echo '<tr><td>Crypt (constant salt):</td><td><i>crypt($string, "' . $key . '")</td><td><b>' . crypt($string, $key) . '</b></td></tr>'; 
 	echo '<tr><td>Crypt:</td><td><i>crypt($string, $string)</td><td><b>' . crypt($string, $string) . '</b></td></tr>'; 
 	echo '<tr><td colspan="3">&nbsp;</td></tr>';

@@ -61,7 +61,7 @@ if ($action == 'clanadmin') {
 			}	
 			if ($db->query($sql." WHERE name='".$Group['name']."';")) {
 				$result .= $Lang['UpdateComplete'].'<br />';
-				$db->query("INSERT INTO {$prefix}clanmessages (`type`,`time`,`clan`,`from`,`to`) VALUES ('statuschange','$stardate','${Group['name']}','$login','');");
+				$db->query("INSERT INTO {$prefix}clanmessages (`type`,`time`,`clan`,`from`,`to`) VALUES ('statuschange','$stardate','{$Group['name']}','$login','');");
 			}
 			else {
 				echo($sql." WHERE name='".$Group['name']."';");
@@ -111,8 +111,8 @@ switch ($category) {
 // ===========================================================================
 
 if ($errors) {
-	tablebegin("<font class=\"error\">${Lang['Error']}!</font>", '400');
-	echo "\t\t<br />\n\t\t<font class=\"h3\">${Lang['ErrorProblems']}</font><br />\n\t\t<br />\n\t\t<font class=\"error\">$errors</font>\n\t\t<br />\n\t\t<a href=\"javascript:history.back(1)\">${Lang['GoBack']}&nbsp;&gt;&gt;</a><br />\n";
+	tablebegin("<font class=\"error\">{$Lang['Error']}!</font>", '400');
+	echo "\t\t<br />\n\t\t<font class=\"h3\">{$Lang['ErrorProblems']}</font><br />\n\t\t<br />\n\t\t<font class=\"error\">$errors</font>\n\t\t<br />\n\t\t<a href=\"javascript:history.back(1)\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a><br />\n";
 	echo "\t\t<br />\n";
 	sound('error');
 	tableend('<a href="clan.php">'.$Lang['GoBack'].'&nbsp;&gt;&gt;</a>');
@@ -136,7 +136,7 @@ elseif ($view == 'changename') {
 	if ($Player['login'] != $Group['owner']) {
 		tablebegin($pagename);
 		echo '<br />'.$Lang['NotAvailable'].'<br /><br />';
-		tableend($back ? "<a href=\"$back\">${Lang['GoBack']} &gt;&gt;</a>" : $Lang['Clan']);
+		tableend($back ? "<a href=\"$back\">{$Lang['GoBack']} &gt;&gt;</a>" : $Lang['Clan']);
 	}
 	else {
 		tablebegin($pagename, 500);
@@ -150,7 +150,7 @@ elseif ($view == 'changename') {
 		subbreak();
 		tableimg("images/bw.gif", 168, 168, $Group['avatar'] ? $Group['avatar'] : 'gallery/avatars/noavatar.gif', 160, 160, '', 'right');
 		subend();
-		tableend("<a href=\"$back\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>");
+		tableend("<a href=\"$back\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>");
 	}
 }
 
@@ -162,13 +162,13 @@ elseif ($view == 'admin') {
 	if (!$Player['privileged']) {
 		tablebegin($pagename);
 		echo '<br />'.$Lang['NotAvailable'].'<br /><br />';
-		tableend($back ? "<a href=\"$back\">${Lang['GoBack']} &gt;&gt;</a>" : $Lang['Clan']);
+		tableend($back ? "<a href=\"$back\">{$Lang['GoBack']} &gt;&gt;</a>" : $Lang['Clan']);
 	}
 	else {
 		tablebegin($pagename, 500);
 
 		subbegin('images/table-b2.jpg');
-		echo "\t\t<center><font class=\"h3\">${Lang['Administration']}</font><br /><br />";
+		echo "\t\t<center><font class=\"h3\">{$Lang['Administration']}</font><br /><br />";
 
 ?>	<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
 	<table width="100%" align="center" border="0" cellspacing="0" cellpadding="0">
@@ -236,7 +236,7 @@ elseif ($view == 'admin') {
 			echo '<br />';
 		}
 
-		tableend("<a href=\"$back\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>");
+		tableend("<a href=\"$back\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>");
 	}
 }
 
@@ -247,9 +247,9 @@ elseif ($view == 'admin') {
 elseif ($view == 'list') {
 	tablebegin($pagename);
 
-	echo "<h3>${Lang['Members']}</h3>";
+	echo "<h3>{$Lang['Members']}</h3>";
 
-	$db->query("SELECT `login`,`level`,`score`,`credits`,`bank` FROM `${prefix}users` WHERE `clan`='${Group['name']}' ORDER BY `level` DESC, `login` ASC;");
+	$db->query("SELECT `login`,`level`,`score`,`credits`,`bank` FROM `{$prefix}users` WHERE `clan`='{$Group['name']}' ORDER BY `level` DESC, `login` ASC;");
 	while ($t = $db->fetchrow()) $tab[] = $t;
 
 ?>	<form action="messages.php" name="form" method="POST"><input type="hidden" name="view" value="compose" />
@@ -277,7 +277,7 @@ elseif ($view == 'list') {
 	foreach ($tab as $t) {
 		$i++;
 		$t['cash'] = $t['credits'] + $t['bank'];
-		$db->query("SELECT `name`,`planet`,`colonists`,`scientists`,`soldiers` FROM `${prefix}colonies` WHERE `owner` = '${t['login']}' LIMIT 1;");
+		$db->query("SELECT `name`,`planet`,`colonists`,`scientists`,`soldiers` FROM `{$prefix}colonies` WHERE `owner` = '{$t['login']}' LIMIT 1;");
 		if ($u = $db->fetchrow()) {
 			$colony = $u['name'];
 			$population = $u['colonists'] + $u['scientists'] + $u['soldiers'];
@@ -320,7 +320,7 @@ elseif ($view == 'list') {
 	<br />
 	<br />
 <?php
-	tableend("<a href=\"clan.php?rid=$rid\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>");
+	tableend("<a href=\"clan.php?rid=$rid\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>");
 }
 
 // ===========================================================================
@@ -330,11 +330,11 @@ elseif ($view == 'list') {
 elseif ($view == 'recultivation') {
 	tablebegin($pagename);
 
-	echo "<h3>${Lang['PlanetRecultivation']}</h3>";
-	echo "<font class=\"result\">${Lang['RecultDesc']}</font><br /><br />";
+	echo "<h3>{$Lang['PlanetRecultivation']}</h3>";
+	echo "<font class=\"result\">{$Lang['RecultDesc']}</font><br /><br />";
 	tablebreak();
 	$p = '';
-	$db->query("SELECT * FROM `${prefix}space` WHERE `explored`>50 ORDER BY `explored` DESC,`galaxy`,`name`");
+	$db->query("SELECT * FROM `{$prefix}space` WHERE `explored`>50 ORDER BY `explored` DESC,`galaxy`,`name`");
 	echo "<br />";
 	if ($db->numrows()) {
 		echo "<table width=\"100%\">";
@@ -368,7 +368,7 @@ elseif ($view == 'recultivation') {
 	</td>
 	<td width="12">&nbsp;</td>
 	<td align="left">
-		<b><?php echo $Lang['Explored']; ?></b>: <font class="minus"><?php echo round(100 * $u['explored']) / 100; ?> %</font><br />
+		<b><?php echo $Lang['Explored']; ?></b>: <font class="minus"><?php echo round(num(100 * $u['explored'])) / 100; ?> %</font><br />
 		<b><?php echo $Lang['SizeC']; ?></b>: <font class="result"><?php echo $Lang['SizeT'][$u['class']]; ?></font><br />
 		<b><?php echo $Lang['LifeSigns']; ?></b>: <?php echo $lifesigns; ?><br />
 	</td>
@@ -391,8 +391,8 @@ elseif ($view == 'recultivation') {
 		}
 		echo "\t</table>\n";
 	}
-	else echo "<font class=\"error\">${Lang['Ta_NR']}</font><br /><br />";
-	tableend("<a href=\"clan.php?rid=$rid\">${Lang['GoBack']}&nbsp;&gt;&gt;</a>");
+	else echo "<font class=\"error\">{$Lang['Ta_NR']}</font><br /><br />";
+	tableend("<a href=\"clan.php?rid=$rid\">{$Lang['GoBack']}&nbsp;&gt;&gt;</a>");
 }
 
 // ===========================================================================
@@ -400,37 +400,37 @@ elseif ($view == 'recultivation') {
 // ===========================================================================
 
 elseif ($Player['clan']) {
-	$db->query("SELECT `id`,`login`,`online`,`level` FROM `{$prefix}users` WHERE `clan`='${Player['clan']}';");
+	$db->query("SELECT `id`,`login`,`online`,`level` FROM `{$prefix}users` WHERE `clan`='{$Player['clan']}';");
 	$av = 0;
 	while ($t = $db->fetchrow()) {
 		$Members[] = $t;
 		$av += $t['level'];
 	}
-	$av = round(10 * $av / count($Members)) / 10;
+	$av = round(num(10 * $av / count((array)($Members)))) / 10;
 
 	tablebegin($pagename);
 
 	subbegin('images/table-b2.jpg');
 
 	echo "\t<table id=\"sub\" cellspacing=\"0\" cellpadding=\"0\" name=\"form\">\n\t<tr valign=\"top\">\n\t<td>\n";
-	echo "\t<b>${Lang['ClanName']}</b>: <font class=\"capacity\">${Group['name']}</font><br /><br />\n";
-	echo "\t<b>${Lang['Owner']}</b>: <a href=\"whois.php?rid=$rid&name=${Group['owner']}\">${Group['owner']}</a>";
+	echo "\t<b>{$Lang['ClanName']}</b>: <font class=\"capacity\">{$Group['name']}</font><br /><br />\n";
+	echo "\t<b>{$Lang['Owner']}</b>: <a href=\"whois.php?rid=$rid&name={$Group['owner']}\">{$Group['owner']}</a>";
 
 	if ($Group['co1'] || $Group['co2']) {
-		echo ", <b>${Lang['Council']}</b>: ";
-		if ($Group['co1']) echo "<a href=\"whois.php?name=${Group['co1']}\">${Group['co1']}</a>";
+		echo ", <b>{$Lang['Council']}</b>: ";
+		if ($Group['co1']) echo "<a href=\"whois.php?name={$Group['co1']}\">{$Group['co1']}</a>";
 		if ($Group['co1'] && $Group['co2']) echo ', ';
-		if ($Group['co2']) echo "<a href=\"whois.php?name=${Group['co2']}\">${Group['co2']}</a>";
+		if ($Group['co2']) echo "<a href=\"whois.php?name={$Group['co2']}\">{$Group['co2']}</a>";
 		echo "<br />\n";
 	}
 
 ?>			<br />
-			<b><?php echo $Lang['Members']; ?></b>: <font class="result"><?php echo count($Members); ?></font><?php if ($view != 'list') { ?> &nbsp; <a href="clan.php?view=list"><?php echo $Lang['List']; ?> &gt;&gt;</a><?php } ?><br />
-			<b><?php echo $Lang['AverageLevel']; ?></b>: <font class="minus"><?php echo number_format($av, 1, $Lang['DecPoint'], ' '); ?></font><br />
+			<b><?php echo $Lang['Members']; ?></b>: <font class="result"><?php echo count((array)($Members)); ?></font><?php if ($view != 'list') { ?> &nbsp; <a href="clan.php?view=list"><?php echo $Lang['List']; ?> &gt;&gt;</a><?php } ?><br />
+			<b><?php echo $Lang['AverageLevel']; ?></b>: <font class="minus"><?php echo number_format(num($av), 1, $Lang['DecPoint'], ' '); ?></font><br />
 <?php
-		if ($Group['www']) echo "\t\t<b>WWW</b>: <a href=\"http://${Group['www']}\">${Group['www']}</a><br />\n";
+		if ($Group['www']) echo "\t\t<b>WWW</b>: <a href=\"http://{$Group['www']}\">{$Group['www']}</a><br />\n";
 		if ($Group['www']) echo "\t\t<br />\n";
-		if ($Group['description']) echo "\t\t<b>${Lang['Description']}</b>: <font class=\"result\">${Group['description']}</font><br />\n";
+		if ($Group['description']) echo "\t\t<b>{$Lang['Description']}</b>: <font class=\"result\">{$Group['description']}</font><br />\n";
 
 ?>		</td>
 		<td width="8">&nbsp;</td>
@@ -453,10 +453,10 @@ elseif ($Player['clan']) {
 
 	tablebreak();
 
-	echo "\t<br /><a href=\"clandonation.php?name=${Group['name']}\">${Lang['Donation']} &gt;&gt;</a><br />\n";
+	echo "\t<br /><a href=\"clandonation.php?name={$Group['name']}\">{$Lang['Donation']} &gt;&gt;</a><br />\n";
 
 	if ($Player['privileged']) {
-		if ($view != 'recultivation') echo "\t<br /><a href=\"clan.php?view=recultivation\">${Lang['PlanetRecultivation']}&nbsp;&gt;&gt;</a><br />\n";
+		if ($view != 'recultivation') echo "\t<br /><a href=\"clan.php?view=recultivation\">{$Lang['PlanetRecultivation']}&nbsp;&gt;&gt;</a><br />\n";
 		echo '<br /><a href="userdonation.php">'.$Lang['ClanSupport'].'&nbsp;&gt;&gt</a><br />';
 		echo '<br /><a class="capacity" href="clan.php?view=admin">'.$Lang['Administration'].'&nbsp;&gt;&gt;</a><br />';
 	}
@@ -466,20 +466,20 @@ elseif ($Player['clan']) {
 	else echo $Lang['LeaveGroup'];
 	echo "&nbsp;&gt;&gt;</a><br />\n\t<br />\n";
 
-	$db->query("SELECT `id` FROM `${prefix}clanmessages` WHERE `clan`='${Group['name']}';");
+	$db->query("SELECT `id` FROM `{$prefix}clanmessages` WHERE `clan`='{$Group['name']}';");
 	$max = $db->numrows();
 
-	if ($page > $m = floor($max / $pagecount)) $page = $m;
+	if ($page > $m = floor(num($max / $pagecount))) $page = $m;
 	$l = $page * $pagecount;
 
-	$db->query("SELECT * FROM `${prefix}clanmessages` WHERE `clan`='${Group['name']}' ORDER BY $order LIMIT $l,$pagecount;");
+	$db->query("SELECT * FROM `{$prefix}clanmessages` WHERE `clan`='{$Group['name']}' ORDER BY $order LIMIT $l,$pagecount;");
 
 	if ($db->numrows()) {
 		tablebreak();
 		echo "\t<br />\n<table id=\"sub\" cellspacing=\"0\" cellpadding=\"0\">\n\t<tr id=\"header\"><td id=\"headerl\" width=\"12\">&nbsp;</td>";
-		echo "<td align=\"center\">".'<a'.($category == 'type' ? ' class="minus"' : ($category == 'typedesc' ? ' class="result"': ''))." href=\"clan.php?rid=$rid&page=$page&category=".($category == 'type' ? 'typedesc' : 'type')."\" onmouseover=\"self.status='${Lang['ReverseOrder']}'; return true\" onMouseOut=\"self.status=''; return true\">${Lang['Message']}</a>:</td>";
+		echo "<td align=\"center\">".'<a'.($category == 'type' ? ' class="minus"' : ($category == 'typedesc' ? ' class="result"': ''))." href=\"clan.php?rid=$rid&page=$page&category=".($category == 'type' ? 'typedesc' : 'type')."\" onmouseover=\"self.status='{$Lang['ReverseOrder']}'; return true\" onMouseOut=\"self.status=''; return true\">{$Lang['Message']}</a>:</td>";
 		echo "<td width=\"12\">&nbsp;</td>";
-		echo "<td width=\"120\" align=\"center\">".'<a'.($category == 'time' ? ' class="minus"' : ($category == 'timedesc' ? ' class="result"': ''))." href=\"clan.php?rid=$rid&page=$page&category=".($category == 'time' ? 'timedesc' : 'time')."\" onmouseover=\"self.status='${Lang['ReverseOrder']}'; return true\" onMouseOut=\"self.status=''; return true\">${Lang['Time']}</a>:</td>";
+		echo "<td width=\"120\" align=\"center\">".'<a'.($category == 'time' ? ' class="minus"' : ($category == 'timedesc' ? ' class="result"': ''))." href=\"clan.php?rid=$rid&page=$page&category=".($category == 'time' ? 'timedesc' : 'time')."\" onmouseover=\"self.status='{$Lang['ReverseOrder']}'; return true\" onMouseOut=\"self.status=''; return true\">{$Lang['Time']}</a>:</td>";
 		echo "<td id=\"headerr\" width=\"12\">&nbsp;</td></tr>\n";
 
 		$i = 0;
@@ -488,55 +488,55 @@ elseif ($Player['clan']) {
 			switch($t['type']) {
 				case 'statuschange':
 					$id = '';
-					$msg = "<a href=\"whois.php?name=${t['from']}\">${t['from']}</a> ${Lang['cmStatusChange']}";
+					$msg = "<a href=\"whois.php?name={$t['from']}\">{$t['from']}</a> {$Lang['cmStatusChange']}";
 					break;
 				case 'namechange':
 					$id = '';
-					$msg = "<a href=\"whois.php?name=${t['from']}\">${t['from']}</a> ${Lang['cmNameChange']}";
+					$msg = "<a href=\"whois.php?name={$t['from']}\">{$t['from']}</a> {$Lang['cmNameChange']}";
 					break;
 				case 'recultivation':
 					$id = '';
-					$msg = "<a href=\"whois.php?name=${t['from']}\">${t['from']}</a> ${Lang['cmRecultivation']} <font class=\"plus\">${t['to']}</font>, <b>${Lang['Score']}:</b> <font class=\"result\">" . div($t['credits']) . "</font>";
+					$msg = "<a href=\"whois.php?name={$t['from']}\">{$t['from']}</a> {$Lang['cmRecultivation']} <font class=\"plus\">{$t['to']}</font>, <b>{$Lang['Score']}:</b> <font class=\"result\">" . div($t['credits']) . "</font>";
 					break;
 				case 'counciladmit':
 					$id = 'admit';
-					$msg = "<a href=\"whois.php?name=${t['to']}\">${t['to']}</a> ${Lang['cmCouncilAdmit']} <a href=\"whois.php?name=${t['from']}\">${t['from']}</a>";
+					$msg = "<a href=\"whois.php?name={$t['to']}\">{$t['to']}</a> {$Lang['cmCouncilAdmit']} <a href=\"whois.php?name={$t['from']}\">{$t['from']}</a>";
 					break;
 				case 'ownerchange':
 					$id = 'admit';
-					$msg = "<a href=\"whois.php?name=${t['to']}\">${t['to']}</a> ${Lang['cmOwnerChange']} <a href=\"whois.php?name=${t['from']}\">${t['from']}</a>";
+					$msg = "<a href=\"whois.php?name={$t['to']}\">{$t['to']}</a> {$Lang['cmOwnerChange']} <a href=\"whois.php?name={$t['from']}\">{$t['from']}</a>";
 					break;
 				case 'join':
 					$id = 'join';
-					$msg = "<a href=\"whois.php?name=${t['from']}\">${t['from']}</a> ${Lang['cmJoin']}...";
+					$msg = "<a href=\"whois.php?name={$t['from']}\">{$t['from']}</a> {$Lang['cmJoin']}...";
 					break;
 				case 'leave':
 					$id = 'minus';
-					$msg = "<a href=\"whois.php?name=${t['from']}\">${t['from']}</a> ${Lang['cmLeave']}...";
+					$msg = "<a href=\"whois.php?name={$t['from']}\">{$t['from']}</a> {$Lang['cmLeave']}...";
 					break;
 				case 'attack':
 					$id = 'alert';
-					$msg = "<a href=\"whois.php?name=${t['to']}\">${t['to']}</a> ${Lang['cmAttack']} <a href=\"whois.php?name=${t['from']}\">${t['from']}</a>!";
+					$msg = "<a href=\"whois.php?name={$t['to']}\">{$t['to']}</a> {$Lang['cmAttack']} <a href=\"whois.php?name={$t['from']}\">{$t['from']}</a>!";
 					break;
 				case 'councildismiss':
 					$id = 'here';
-					$msg = "<a href=\"whois.php?name=${t['to']}\">${t['to']}</a> ${Lang['cmCouncilDismiss']} <a href=\"whois.php?name=${t['from']}\">${t['from']}</a>!";
+					$msg = "<a href=\"whois.php?name={$t['to']}\">{$t['to']}</a> {$Lang['cmCouncilDismiss']} <a href=\"whois.php?name={$t['from']}\">{$t['from']}</a>!";
 					break;
 				case 'reject':
 					$id = 'here';
-					$msg = "<a href=\"whois.php?name=${t['to']}\">${t['to']}</a> ${Lang['cmReject']} <a href=\"whois.php?name=${t['from']}\">${t['from']}</a>!";
+					$msg = "<a href=\"whois.php?name={$t['to']}\">{$t['to']}</a> {$Lang['cmReject']} <a href=\"whois.php?name={$t['from']}\">{$t['from']}</a>!";
 					break;
 				case 'admit':
 					$id = 'admit';
-					$msg = "<a href=\"whois.php?name=${t['to']}\">${t['to']}</a> ${Lang['cmAdmit']} <a href=\"whois.php?name=${t['from']}\">${t['from']}</a>!";
+					$msg = "<a href=\"whois.php?name={$t['to']}\">{$t['to']}</a> {$Lang['cmAdmit']} <a href=\"whois.php?name={$t['from']}\">{$t['from']}</a>!";
 					break;
 				case 'donate':
 					$id = '';
-					if ($t['to']) $msg = "<a href=\"whois.php?name=${t['from']}\">${t['from']}</a> ${Lang['cmDonateUser']} <a href=\"whois.php?name=${t['to']}\">${t['to']}</a> - ";
-					else $msg = "<a href=\"whois.php?name=${t['from']}\">${t['from']}</a> ${Lang['cmDonate']} - ";
-					if ($t['credits']) $msg .= "<b>${Lang['Credits']}:</b> <font class=\"result\">" . div($t['credits']) . "</font> <b>[!]</b>";
+					if ($t['to']) $msg = "<a href=\"whois.php?name={$t['from']}\">{$t['from']}</a> {$Lang['cmDonateUser']} <a href=\"whois.php?name={$t['to']}\">{$t['to']}</a> - ";
+					else $msg = "<a href=\"whois.php?name={$t['from']}\">{$t['from']}</a> {$Lang['cmDonate']} - ";
+					if ($t['credits']) $msg .= "<b>{$Lang['Credits']}:</b> <font class=\"result\">" . div($t['credits']) . "</font> <b>[!]</b>";
 					if ($t['credits'] && $t['crystals']) $msg .= ', ';
-					if ($t['crystals']) $msg .= "<b>${Lang['Crystals']}:</b> <font class=\"capacity\">" . div($t['crystals']) . "</font> <b>[C]</b>";
+					if ($t['crystals']) $msg .= "<b>{$Lang['Crystals']}:</b> <font class=\"capacity\">" . div($t['crystals']) . "</font> <b>[C]</b>";
 					break;
 			}
 
@@ -544,7 +544,7 @@ elseif ($Player['clan']) {
 			echo "\t\t<td width=\"12\">&nbsp;</td>\n";
 			echo "\t\t<td align=\"center\">$msg</td>\n";
 			echo "\t\t<td width=\"12\">&nbsp;</td>\n";
-			echo "\t\t<td align=\"center\"><a href=\"stardate.php?date=${t['time']}\">" . div($t['time']) . "</a></td>\n";
+			echo "\t\t<td align=\"center\"><a href=\"stardate.php?date={$t['time']}\">" . div($t['time']) . "</a></td>\n";
 			echo "\t\t<td width=\"12\">&nbsp;</td>\n";
 			echo "\t\t</tr>\n";
 
@@ -578,18 +578,18 @@ elseif ($Player['clan']) {
 
 	tableend($s);
 
-	echo "\t<script>\n\t<!--\n\tfunction ask(\$url) {\n\t\tif (confirm('${Lang['AreYouSure?']}')) location.href = \$url;\n\t}\n\n\tfunction avatar() {\n\t\t\$msg = prompt('${Lang['EnterAvatarURL']}', '');\n\t\tif (\$msg > '') {\n\t\t\t\$url = '${_SERVER['PHP_SELF']}?rid=$rid&action=changeclanavatar&url=' + \$msg;\n\t\t\t	document.location.href = \$url;\n\t\t}\n";
-	if ($Group['avatar']) echo "\t\telse if (\$msg != null) {\n\t\t\t\$url = '${_SERVER['PHP_SELF']}?rid=$rid&action=changeclanavatar';\n\t\t\tdocument.location.href = \$url;\n\t\t}\n";
-	echo "\t}\n\n\tfunction description() {\n\t\t\$msg = prompt('${Lang['EnterDescription']}:', '');\n\t\t\$msg = \$msg.replace(/\\+/g,\"%2B\"); // code: kot\n\t\t\$msg = \$msg.replace(/\\&/g,\"%26\");\n\t\t\$msg = \$msg.replace(/\\#/g,\"%23\");\n\t\tif (\$msg > '') {\n\t\t\t\$url = '${_SERVER['PHP_SELF']}?rid=$rid&action=changeclandescription&description=' + \$msg;\n\t\t\tdocument.location.href = \$url;\n\t\t}\n";
-	if ($Group['description']) echo "\t\telse if (\$msg != null) {\n\t\t\t\$url = '${_SERVER['PHP_SELF']}?rid=$rid&action=changeclandescription';\n\t\t\tdocument.location.href = \$url;\n\t\t}\n";
+	echo "\t<script>\n\t<!--\n\tfunction ask(\$url) {\n\t\tif (confirm('{$Lang['AreYouSure?']}')) location.href = \$url;\n\t}\n\n\tfunction avatar() {\n\t\t\$msg = prompt('{$Lang['EnterAvatarURL']}', '');\n\t\tif (\$msg > '') {\n\t\t\t\$url = '{$_SERVER['PHP_SELF']}?rid=$rid&action=changeclanavatar&url=' + \$msg;\n\t\t\t	document.location.href = \$url;\n\t\t}\n";
+	if ($Group['avatar']) echo "\t\telse if (\$msg != null) {\n\t\t\t\$url = '{$_SERVER['PHP_SELF']}?rid=$rid&action=changeclanavatar';\n\t\t\tdocument.location.href = \$url;\n\t\t}\n";
+	echo "\t}\n\n\tfunction description() {\n\t\t\$msg = prompt('{$Lang['EnterDescription']}:', '');\n\t\t\$msg = \$msg.replace(/\\+/g,\"%2B\"); // code: kot\n\t\t\$msg = \$msg.replace(/\\&/g,\"%26\");\n\t\t\$msg = \$msg.replace(/\\#/g,\"%23\");\n\t\tif (\$msg > '') {\n\t\t\t\$url = '{$_SERVER['PHP_SELF']}?rid=$rid&action=changeclandescription&description=' + \$msg;\n\t\t\tdocument.location.href = \$url;\n\t\t}\n";
+	if ($Group['description']) echo "\t\telse if (\$msg != null) {\n\t\t\t\$url = '{$_SERVER['PHP_SELF']}?rid=$rid&action=changeclandescription';\n\t\t\tdocument.location.href = \$url;\n\t\t}\n";
 	echo "\t}\n\t//-->\n\t</script>\n";
 }
 else {
 	tablebegin($Lang['Clan']);
 
-	echo "\t\t<br />\n\t\t${Lang['NotAvailable']}<br />\n\t\t<br />\n";
+	echo "\t\t<br />\n\t\t{$Lang['NotAvailable']}<br />\n\t\t<br />\n";
 
-	tableend($back ? "<a href=\"$back\">${Lang['GoBack']} &gt;&gt;</a>" : $Lang['Clan']);
+	tableend($back ? "<a href=\"$back\">{$Lang['GoBack']} &gt;&gt;</a>" : $Lang['Clan']);
 }
 
 require('include/footer.php');

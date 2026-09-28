@@ -5,8 +5,8 @@ global $ROOT, $Censorship, $Swearword;
 function import_censorship_data($file)
 {
 	global $Censorship, $Swearword;
-	if (!count($a=explode("\n", @file_get_contents($file)))) return;
-	for ($i=0; $i<count($a); $i+=2) {
+	if (!count((array)($a=explode("\n", @file_get_contents($file))))) return;
+	for ($i=0; $i<count((array)($a)); $i+=2) {
 		if (!$k=trim($a[$i])) continue;
 		if (!$v=trim(@$a[$i+1])) $Swearword[]=$k;
 		else $Censorship[$k]=$v;

@@ -104,5 +104,5 @@ $Descriptions = array(
 	'itemshop' => array('picture' => 'places/itemshop.jpg', 'type' => $Lang['Place'], 'name' => $Lang['ItemShop'], 'description' => $Lang['ItemShopDescription']),
 );
 
-foreach ($Lang['items'] as $key => $array) $Descriptions[$key] = array('picture'=>"items/${key}.jpg",'type'=>$Lang['ItemType[]'][$array['type']],'name'=>$array['name'],'description'=>'<p />' . $array['description']);
-foreach ($Lang['units'] as $key => $array) $Descriptions[$key] = array('picture'=>"units/${key}.jpg",'type'=>$Lang['UnitType[]'][$Var['units'][$key]['type']],'name'=>$array['name'],'description'=>'<p />'.(@$array['full'] ? $array['full'] : $array['description']));
+foreach ($Lang['items'] as $key => $array) $Descriptions[$key] = array('picture'=>"items/{$key}.jpg",'type'=>$Lang['ItemType[]'][$array['type']],'name'=>$array['name'],'description'=>'<p />' . $array['description']);
+foreach ($Lang['units'] as $key => $array) $Descriptions[$key] = array('picture'=>"units/{$key}.jpg",'type'=>$Lang['UnitType[]'][$Var['units'][$key]['type']],'name'=>$array['name'],'description'=>'<p />'.(@$array['full'] ? $array['full'] : $array['description']));

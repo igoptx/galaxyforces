@@ -7,10 +7,10 @@ if (@$db) {
 
 	echo '<div class="chatbox">';
 	chatbox(10);
-	if ($logged) echo "<hr size=\"1\"><center><a href=\"album.php\" class=\"result\">&raquo&nbsp;${Lang['Emoticons']}&nbsp;&laquo;</a></center>"; // lander & jaco
+	if ($logged) echo "<hr size=\"1\"><center><a href=\"album.php\" class=\"result\">&raquo&nbsp;{$Lang['Emoticons']}&nbsp;&laquo;</a></center>"; // lander & jaco
 	echo '</div>';
 
-	tableend(($banned ? "<a href=\"javascript:alert('${Lang['ChatBanned']}')\">${Lang['Banned']}&nbsp;&gt;&gt;</a>" : ($logged ? "<a href=\"javascript:chat()\">" : "<a href=\"javascript:alert('${Lang['ChatCannotPost']}')\">") . "${Lang['ChatPost']}&nbsp;&gt;&gt;</a>"));
+	tableend(($banned ? "<a href=\"javascript:alert('{$Lang['ChatBanned']}')\">{$Lang['Banned']}&nbsp;&gt;&gt;</a>" : ($logged ? "<a href=\"javascript:chat()\">" : "<a href=\"javascript:alert('{$Lang['ChatCannotPost']}')\">") . "{$Lang['ChatPost']}&nbsp;&gt;&gt;</a>"));
 
 ?>
 <br />

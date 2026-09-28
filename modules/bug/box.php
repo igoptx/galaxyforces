@@ -28,7 +28,7 @@ function style_table_sheet($table, $id=null)
 <tbody>
 <?php
 	ksort($table);
-	for ($row=0; $row<count($table); $row++) {
+	for ($row=0; $row<count((array)($table)); $row++) {
 		ksort($table[$row]);
 		echo '<tr class="row'.(1+$row%2).'">';
 		foreach ($table[$row] as $column=>$value)
@@ -115,7 +115,7 @@ foreach (array('User', 'Lang', 'Config', 'Player', 'Colony', 'Equipment') as $gl
 {
 	if (!isset($$global)) continue;
 	$table = (array)$$global;
-	if (!count($table)) continue;
+	if (!count((array)($table))) continue;
 ?>
 <div id="dump<?php echo $global; ?>" class="chapter" onclick="toggleVisibility('table<?php echo $global; ?>', true, false);">
 <?php
@@ -123,7 +123,7 @@ foreach (array('User', 'Lang', 'Config', 'Player', 'Colony', 'Equipment') as $gl
 
 	echo '&nbsp;(';
 
-	$n=count($table);
+	$n=count((array)($table));
 	if ($n==0) echo $Lang["no elements"];
 	elseif ($n == 1) echo $Lang["one element"];
 	elseif ($n < 5) echo sprintf($Lang["%d elements{2}"], $n);
