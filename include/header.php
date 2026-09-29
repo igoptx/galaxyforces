@@ -11,6 +11,8 @@ include('include/style.php');
 // HEAD
 // ---------------------------------------------------------------------------
 
+// o tema pode pedir modo standards (DOCTYPE) e acrescentar meta tags ao <head>
+if (!empty($Style['Doctype'])) echo $Style['Doctype'] . "\n";
 echo "<html>\n<head>\n\t<title>[ {$Config['Title']}" . (@$title ? " - $title" : '') . " ]</title>\n";
 if (@$Lang['Charset']) echo "\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset={$Lang['Charset']}\">\n";
 if (@$Config['Refresh']) echo "\t<meta http-equiv=\"refresh\" content=\"{$Config['Refresh']}; url={$_SERVER['PHP_SELF']}\" />\n";
@@ -26,6 +28,7 @@ if (@$Config['Stylesheet']||@$Style['Stylesheet']) {
 <?php
 	}
 }
+if (!empty($Style['Head'])) echo $Style['Head'];
 if (@$Config['ShortcutIcon']) echo "\t<link rel=\"shortcut icon\" href=\"{$Config['ShortcutIcon']}\" />\n";
 
 // ---------------------------------------------------------------------------

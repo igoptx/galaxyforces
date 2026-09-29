@@ -49,6 +49,7 @@ Tudo se configura no ficheiro `.env`. Depois de o alterar, aplique as mudanças 
 | `GALAXY_ADMIN_CONFIRM` | vazio | Palavra-passe pedida para apagar contas antigas ou clãs no painel de administração. Vazio desativa essas ações |
 | `MILKYWAY_TICK` / `ANDROMEDA_TICK` | `300` / `60` | Segundos por ciclo de jogo em cada universo |
 | `GALAXY_DEFAULT_LANGUAGE` | `pt` | Idioma para quem o browser não indica um idioma disponível (`en`, `pl`, `pt`) |
+| `GALAXY_STYLE` | `nova` | Tema visual: `nova` (moderno, também em telemóvel) ou `galaxy` (o original de 2010) |
 
 As variáveis do administrador e do MySQL só têm efeito quando os universos são criados, ou seja, no primeiro
 arranque. Mudá-las depois não altera contas que já existem.
@@ -73,6 +74,10 @@ browser ── proxy ────┤                                    ├─�
 - **db**: um MySQL com uma base de dados por universo, em `utf8mb4`. No primeiro arranque,
   [docker/mysql/00-universes.sh](docker/mysql/00-universes.sh) cria cada universo listado em
   `GALAXY_UNIVERSES`.
+
+O aspeto vem do tema em `style/<tema>/`: `header.php` e `footer.php` desenham a estrutura da página
+(barra de recursos, menu, colunas), `style.php` as caixas e `style.css` o resto. As páginas do jogo não
+dependem do tema.
 
 Os dados ficam em volumes do Docker: `db-data-mysql8` (base de dados), `log-milkyway` e `log-andromeda`.
 
