@@ -45,3 +45,4 @@ $Lang['Expenses']='Despesas';
 $Lang['Infrastructure']='Infraestrutura';
 $Lang['Science']='Ciência';
 $Lang['Military']='Militar';
+$Lang['ErrorAlreadyHaveColony']='Já tem uma colónia. Abandone-a primeiro para fundar uma nova.';

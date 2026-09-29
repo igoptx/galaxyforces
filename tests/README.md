@@ -8,6 +8,7 @@ biblioteca padrão do Python 3; falam com o jogo por HTTP e leem o estado com
 python3 tests/scenario.py            # cenário de jogo com verificações (milkyway)
 python3 tests/scenario.py andromeda
 python3 tests/smoke.py               # visita todas as páginas e formulários à procura de erros PHP
+python3 tests/rules.py               # regras de jogo que já estiveram partidas
 ```
 
 - **scenario.py**: dois jogadores fazem um jogo completo (colónia, construção,
@@ -23,3 +24,6 @@ python3 tests/smoke.py               # visita todas as páginas e formulários �
 
 Os dois scripts criam jogadores e dados de teste. Para voltar a um estado limpo:
 `docker compose down -v && docker compose up -d`.
+- **rules.py**: verifica, com jogo normal, regras que estiveram partidas: uma colónia por
+  jogador, a academia cobra os soldados, quantidades fracionárias contam como inteiras, as
+  percentagens de gestão têm mínimo e abandonar uma colónia custa experiência.

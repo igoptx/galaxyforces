@@ -39,7 +39,7 @@ if ($action) {
 				if (($exp = round(num(0.05 * $Player['exp']))) < 250) $exp = 250;
 				if ($exp > $Player['exp']) $exp = $Player['exp'];
 				$Player['score'] = round(num(0.85 * $Player['score']));
-				$Player['exp'] -= $Cost['exp'];
+				$Player['exp'] -= $exp;   // era $Cost['exp'] (não existe): abandonar não custava experiência
 				$db->query("UPDATE {$prefix}users SET exp='{$Player['exp']}',score='{$Player['score']}' WHERE login='$login' LIMIT 1;");
 				$db->query("UPDATE {$prefix}space SET abandoned=abandoned+1 WHERE name='{$Colony['planet']}' LIMIT 1;");
 				$db->query("DELETE FROM {$prefix}colonies WHERE name='{$Colony['name']}' LIMIT 1;");
@@ -58,10 +58,13 @@ if ($action) {
 			break;
 
 		case 'create':
+			// uma colónia por jogador: criar outra repunha os créditos a 25 000 de cada vez
+			if ($Colony) { $errors .= "{$Lang['ErrorAlreadyHaveColony']}<br />"; break; }
 			$db->query("SELECT `technology` FROM `{$prefix}space` WHERE `name`='$planet';");
 			if ($t = $db->fetchrow()) {
 				$technology = $t['technology'];
 				if ($technology == 'tron' && $Player['reputation'] > -5 || $technology == 'tron' && $Player['reputation'] > -5 || $technology == 'cyber' || $technology == 'necro' && $Player['voyaged'] < 250000 || $technology == 'ami') $errors .= "{$Lang['ErrorCannotUse']}<br />";
+				elseif ($name && !preg_match('/^[\\p{L}\\p{N} _.-]{2,32}$/u', stripslashes($name))) $errors .= "{$Lang['ErrorUnknownName']}<br />";   // o nome aparece em links e atributos
 				elseif ($name) {
 					$db->query("SELECT `name` FROM `{$prefix}colonies` WHERE `name`='$name';");
 					if ($db->numrows()) $errors .= "{$Lang['ErrorColonyAlreadyExists']}<br />";

@@ -74,7 +74,8 @@ $valid_resources = array('energy', 'silicon', 'metal', 'uran', 'plutonium', 'deu
 // -------------------------------------------------------------------
 
 $name = strip_tags(escapesql(getvar('name')));
-$amount = abs(num(getvar('amount')));
+// inteiro: com 0.5 o MySQL arredondava a favor do jogador (unidades, objetos e créditos de graça)
+$amount = (int)floor(abs(num(getvar('amount'))));
 
 $errors = '';
 $result = '';
@@ -345,15 +346,21 @@ function addequipment($item, $name='')
 function delequipment($id, $count=1)
 {
 	global $db, $prefix, $login, $Equipment, $Lang;
+	// atómico: pedidos em paralelo liam a mesma quantidade e o objeto era dado ou
+	// vendido várias vezes. Devolve 0 se outro pedido já o levou.
+	$id = (int)$id;
+	$count = (int)$count;
 	if (@$Equipment[$id]) {
-		if ($count < $Equipment[$id]['count']) {
-			$n = $Equipment[$id]['count'] -= $count;
-			$db->query("UPDATE {$prefix}equipment SET count='$n' WHERE id='$id' LIMIT 1;");
+		if ($count > 0 && $count < $Equipment[$id]['count']) {
+			$db->query("UPDATE {$prefix}equipment SET count=count-$count WHERE id='$id' AND owner='$login' AND count>$count LIMIT 1;");
+			if (!$db->affected_rows()) return 0;
+			$Equipment[$id]['count'] -= $count;
 		}
 		else {
-			if (($count = $Equipment[$id]['count']) < 1) $count = 1;
+			if (($count = (int)$Equipment[$id]['count']) < 1) $count = 1;
+			$db->query("DELETE FROM {$prefix}equipment WHERE id='$id' AND owner='$login' LIMIT 1;");
+			if (!$db->affected_rows()) return 0;
 			$Equipment = array_delete($Equipment, $id);
-			$db->query("DELETE FROM {$prefix}equipment WHERE id='$id' LIMIT 1;");
 		}
 		return $count;
 	}
@@ -1064,7 +1071,9 @@ function explore($i, $Exploration, $Player, $Colony, $Units, $Planet)
 	$Colony['soldierseat'] += $Exploration['soldiers'];
 	if (isset($Units['vessel'])) $Units['vessel']['amount'] = $Colony['vesselsfree'];
 
-	$crew = $Exploration['colonists'] + $Exploration['scientists'] + $Exploration['soldiers'];
+	// max(1, ...): expedições antigas com tripulação ou tempo 0 partiam todas as páginas do jogador
+	$crew = max(1, $Exploration['colonists'] + $Exploration['scientists'] + $Exploration['soldiers']);
+	$Exploration['time'] = max(1, $Exploration['time']);
 	$z = 700 * ($Exploration['scientists'] / ($crew) / $Exploration['time']);
 	if ($z > $foundpercentage) $z = $foundpercentage;
 
@@ -1734,6 +1743,9 @@ function engine($stardate = 0, $name = '', $steps = null)
 								$Colony['soldiers'] -= $t['soldierslost'];
 								$Colony['soldiersfree'] += $t['soldiers'] - $t['soldierslost'];
 								$Colony['bx10'] += $t['bx10'] - $t['bx10lost'];
+								// walker e valkyrie nunca voltavam dos ataques
+								$Colony['walker'] += $t['walker'] - $t['walkerlost'];
+								$Colony['valkyrie'] += $t['valkyrie'] - $t['valkyrielost'];
 								$Colony['hawk'] += $t['hawk'] - $t['hawklost'];
 								$Colony['crusader'] += $t['crusader'] - $t['crusaderlost'];
 								$Colony['warrior'] += $t['warrior'] - $t['warriorlost'];
@@ -1746,7 +1758,7 @@ function engine($stardate = 0, $name = '', $steps = null)
 
 								$sql = "UPDATE `{$prefix}colonies` SET `bx10`='{$Colony['bx10']}',`soldiers`='{$Colony['soldiers']}',`hawk`='{$Colony['hawk']}',`crusader`='{$Colony['crusader']}',";
 								$sql .= "`bee`='{$Colony['bee']}',";
-								$sql .= "`warrior`='{$Colony['warrior']}',`dragon`='{$Colony['dragon']}',`warrior`='{$Colony['warrior']}',`nemesis`='{$Colony['nemesis']}',`scavenger`='{$Colony['scavenger']}',`carrier`='{$Colony['carrier']}' WHERE `id`='{$Colony['id']}' AND `owner`='{$Player['login']}' LIMIT 1";
+								$sql .= "`warrior`='{$Colony['warrior']}',`dragon`='{$Colony['dragon']}',`whisper`='{$Colony['whisper']}',`walker`='{$Colony['walker']}',`valkyrie`='{$Colony['valkyrie']}',`nemesis`='{$Colony['nemesis']}',`scavenger`='{$Colony['scavenger']}',`carrier`='{$Colony['carrier']}' WHERE `id`='{$Colony['id']}' AND `owner`='{$Player['login']}' LIMIT 1";
 								$db->query($sql);
 								if (!$db->affectedrows()) echolog($sql);
 
@@ -1909,7 +1921,7 @@ function actionchangedescription($name='')
 {
 	global $login, $db, $prefix, $Colony;
 	if (!$name) $name = $login;
-	$description = escapesql(getvar('description'));
+	$description = escapesql(htmlspecialchars(strip_tags((string)getvar('description')), ENT_QUOTES));   // era mostrada sem escape (XSS guardado)
 	if ($Colony) {
 		$db->query("UPDATE {$prefix}colonies SET description='$description' WHERE owner='$name';");
 		$Colony['description'] = $description;
@@ -1920,12 +1932,8 @@ function actionchangeavatar($name='')
 {
 	global $login, $db, $prefix, $Colony;
 	if (! $name) $name = $login;
-	$url = getvar('url');
-	if ($url && strpos('-' . $url, 'http://') != 1) $url = 'http://' . $url;
-//		if (strpos('..', $url) >= 0) $url = '';
-	if (strpos($url, ";' \"") !== false) $url = '';
-	$ext = substr(strrchr($url, '.'), 1);
-	if (($ext == 'jpg') || ($ext == 'gif') || ($ext == 'png') || ($ext == 'jpeg') || (! $url)) {
+	$url = valid_image_url(getvar('url'));
+	if ($url !== '' || getvar('url') == '') {
 		$db->query("UPDATE `{$prefix}colonies` SET `avatar` = '$url' WHERE `owner` = '$name' LIMIT 1;");
 		$Colony['avatar'] = $url;
 	}
@@ -1935,12 +1943,8 @@ function actionchangeplayeravatar($name = '')
 {
 	global $login, $db, $prefix, $Player;
 	if (! $name) $name = $login;
-	$url = getvar('url');
-	if ($url && strpos('-' . $url, 'http://') != 1) $url = 'http://' . $url;
-	if (strpos($url, ";' \"") !== false) $url = '';
-//		if (strpos('..', $url) >= 0) $url = '';
-	$ext = substr(strrchr($url, '.'), 1);
-	if (($ext == 'jpg') || ($ext == 'gif') || ($ext == 'png') || ($ext == 'jpeg') || (! $url)) {
+	$url = valid_image_url(getvar('url'));
+	if ($url !== '' || getvar('url') == '') {
 		$db->query("UPDATE `{$prefix}users` SET `avatar` = '$url' WHERE `login` = '$name' LIMIT 1");
 		$Player['avatar'] = $url;
 	}
@@ -1997,9 +2001,9 @@ function actionattack()
 	global $db, $prefix, $distance, $errors, $name, $login, $Player, $Group, $Units, $Colony, $Attacks, $Lang, $stardate, $Attackers;
 	$owner = actionprepare();
 
-	foreach ($Attackers as $u) $s[] = array('id'=>$u,'amount'=>abs(num(postvar($u))));
+	foreach ($Attackers as $u) $s[] = array('id'=>$u,'amount'=>(int)floor(abs(num(postvar($u)))));
 
-	$soldiers = abs(num(getvar('soldiers')));
+	$soldiers = (int)floor(abs(num(getvar('soldiers'))));
 	$strategy = (int)getvar('strategy');
 
 	$a = 0;
@@ -2047,7 +2051,7 @@ function actionattack()
 		}
 	if ($hnut) $errors .= $Lang['ErrorHNUT'] . '<br />';
 	if ($credits > $Player['credits'] || $energy > $Colony['energy'] || $metal > $Colony['metal'] || $uran > $Colony['uran'] || $food > $Colony['food']) $errors .= $Lang['ErrorNotEnoughResources'].'<br />'.$Lang['NeedAtLeast'].': <b>[E]</b> '.div($energy).', <b>[M]</b> ' . div($metal).', <b>[U]</b> '.div($uran).', <b>[F]</b> '.div($food).', <b>[!]</b> '.div($credits).'!<br />';
-	if ($soldiers > $Colony['soldiersfree'] || $soldiers < $sn) $errors .= $Lang['ErrorNeedMoreSoldiers'] . '<br />';
+	if ($soldiers > $Colony['soldiersfree']) $errors .= $Lang['ErrorNeedMoreSoldiers'] . '<br />';
 	if ($soldiers + $ground > $quarters) $errors .= $Lang['Error2MGU'].'<br />';
 	if ($a < 100) $errors .= $Lang['Error2LU'].'<br />';
 

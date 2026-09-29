@@ -138,7 +138,8 @@ function actionmanagement()
 {
 	global $db, $prefix, $login, $Lang, $Player, $Colony, $errors;
 	list($infrastructure, $science, $military) = array((int)postvar('infrastructure'), (int)postvar('science'), (int)postvar('military'));
-	$min = 25 - 10 * $Colony['managementtechnology'];
+	// com managementtechnology 3 o mínimo era -5: percentagens negativas davam tempos negativos (tudo instantâneo)
+	$min = max(1, 25 - 10 * $Colony['managementtechnology']);
 	$max = 50 + 20 * $Colony['managementtechnology'];
 	if (($infrastructure + $science + $military != 100) || $infrastructure < $min || $science < $min || $military < $min || $infrastructure > $max || $science > $max || $military > $max) $errors .= $Lang['ErrorColonyManagement'].'<br />';
 	else {	
@@ -162,7 +163,7 @@ function actionmanagement()
 function actioncancelresearch()
 {
 	global $login, $db, $prefix, $Research;
-	if ($id = getvar('id')) $db->query("DELETE FROM {$prefix}researches WHERE `id`='$id' AND `login`='$login';");
+	if ($id = (int)getvar('id')) $db->query("DELETE FROM {$prefix}researches WHERE `id`='$id' AND `login`='$login';");
 	$Research = readresearch();
 }
 
@@ -172,7 +173,7 @@ function actioncancelresearch()
 
 function actioncancelproduction() {
 	global $login, $db, $prefix, $Productions;
-	if ($id = getvar('id')) $db->query("DELETE FROM {$prefix}productions WHERE `id`='$id' AND `login`='$login';");
+	if ($id = (int)getvar('id')) $db->query("DELETE FROM {$prefix}productions WHERE `id`='$id' AND `login`='$login';");
 	$Productions = readproductions();
 }
 
@@ -225,7 +226,7 @@ function actiontravel() {
 	global $login, $db, $prefix, $Player, $playerspeed, $stardate, $errors, $Lang;
 	$errors = '';
 
-	if (! $Player['destination'] && ($destination = getvar('destination'))) {
+	if (! $Player['destination'] && ($destination = escapesql(strip_tags((string)getvar('destination'))))) {
 		$db->query("SELECT * FROM `{$prefix}space` WHERE `name`='{$Player['planet']}' LIMIT 1;");
 		$sp = $db->fetchrow();
 		$db->query("SELECT * FROM `{$prefix}universe` WHERE `name`='{$Player['galaxy']}' LIMIT 1;");
@@ -307,19 +308,20 @@ function actionexplore()
 	global $Player, $Colony, $Exploration, $Planet, $Galaxy;
 	global $starday, $stardate, $planetexplorecost, $galaxyexplorecost, $colonistexplorecost, $scientistsexplorecost, $soldiersexplorecost, $foodexplorecost, $vesselsexplorecost;
 
-	$colonists = postvar('colonists');
-	$scientists = postvar('scientists');
-	$soldiers = postvar('soldiers');
-	$vessels = postvar('vessels');
-	$type = postvar('type');
-	$time = postvar('time');
-
-	if (!$time) $time = 1;
+	// inteiros não negativos: valores negativos davam custo negativo (créditos e
+	// comida infinitos) e uma tripulação ou tempo 0 partia o motor (divisão por zero)
+	$colonists = max(0, (int)postvar('colonists'));
+	$scientists = max(0, (int)postvar('scientists'));
+	$soldiers = max(0, (int)postvar('soldiers'));
+	$vessels = max(0, (int)postvar('vessels'));
+	$type = postvar('type') == 'galaxy' ? 'galaxy' : (postvar('type') == 'planet' ? 'planet' : '');
+	$time = max(1, (int)postvar('time'));
 	$duration = $time * $starday;
 	$target = $type == 'planet' ? $Planet['name'] : $Galaxy['name'];
 
 	if ($Exploration) $errors .= $Lang['ExE9'] . '<br />';
 	elseif ($type != 'planet' && $type != 'galaxy') $errors .= $Lang['ExE5'] . '<br />';
+	elseif ($colonists + $scientists + $soldiers < 1) $errors .= $Lang['ExE6'] . '<br />';
 	else {
 		if ($type == 'planet' && $colonists < 1) $errors .= $Lang['ExE6'] . '<br />';
 		if ($type == 'galaxy') {
@@ -361,7 +363,7 @@ function actionexplore()
 
 function actioncancelexpedition()
 {
-	global $Player, $Colony, $Exploration;
+	global $Player, $Colony, $Exploration, $name, $login;
 
 	if (!$name) $name = $login;
 	if ($Exploration) {
