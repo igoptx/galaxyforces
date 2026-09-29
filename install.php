@@ -222,7 +222,8 @@ if ($action == 'install' && $mode == 'install') {
 		if ($createtables && ($sql = readsql('sql/install.sql'))) {
 			foreach ($sql as $query) {
 				$query = str_replace($replace, $with, $query);
-				if (! $db->query($query)) $failedcreate[] = preg_replace('/CREATE TABLE \`(.*?)\`(.*)/si', '<b>$1</b>', $query);
+				// só as linhas CREATE TABLE contam como falha; o readsql() também devolve INSERTs partidos do install.sql que falham sem importância
+				if (! $db->query($query) && preg_match('/^CREATE TABLE/i', $query)) $failedcreate[] = preg_replace('/CREATE TABLE \`(.*?)\`(.*)/si', '<b>$1</b>', $query);
 			}
 			if (@$failedcreate) error($Lang['Error3a'].(join(', ', $failedcreate)).$Lang['Error3b']);
 		}
