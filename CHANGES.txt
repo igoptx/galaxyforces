@@ -1,3 +1,13 @@
+2026-09-29	[ 0.6.2 ]
+
+Bug fixes found while walking the game as a player.
+
+Game fixes:
+Bug: The emoticons in chat, messages and descriptions no longer nest an image inside an image (a code such as "8P" matched inside the path of an image already inserted), which produced a broken request on every page
+Bug: The production page no longer shows a blank panel when there is nothing to build; it explains that a factory is needed first, like the units and research pages
+Change: The optional per-install override files (style/local.css, js/local.js) now ship empty instead of returning a not-found error on every page
+
+
 2026-09-29	[ 0.6.1 ]
 
 A follow-up to 0.6.0: more OGame-style polish, a hardening fix and clean-up.
