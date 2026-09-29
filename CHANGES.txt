@@ -1,3 +1,48 @@
+2026-09-29	[ 0.6.0 ]
+
+This release modernises the 2010 codebase and hardens it, keeping the game's essence.
+
+Platform:
+New: Runs on PHP 8.5 and MySQL 8.4 (was PHP 5 / MySQL 4.1); the database layer uses mysqli and utf8mb4
+New: Docker setup with two independent universes (Milky Way, Andromeda) behind an nginx proxy
+New: Real client IP behind the proxy (Apache mod_remoteip), so IP bans and the audit log are meaningful
+Change: Configurable via environment (title, tick length, default language, theme, debug, admin, confirm password)
+Change: Debug is off by default (was on), so errors and paths are not shown in production
+
+Look and feel:
+New: Modern "nova" theme (default), OGame-inspired; the original theme is still available (GALAXY_STYLE=galaxy)
+New: Overview landing page after login (colony, per-hour production with time to full, in-progress, events)
+New: Colony, build, research, units, production, equipment and galaxy pages redrawn as cards
+New: Live countdown timers, an unread-message banner, and per-hour production in the resource tooltip
+
+Language:
+New: European Portuguese translation (default); a missing string falls back to English
+Change: The language list is built from the locale/ folders; adding a language needs no code change
+
+Administration:
+New: Operations Center (ops.php), a maintenance/management/monitoring tool for administrators only
+New: Audit log of logins, registrations, colonies, attacks, clans and admin actions
+New: Per-universe maintenance mode (administrators keep playing)
+
+Security:
+Bug: Fixed a session-cookie authentication bypass (an empty seed let any account be taken over with no password)
+Change: Passwords are stored with bcrypt (was unsalted MD5); old accounts are re-hashed on next login
+Bug: Fixed SQL injection in the avatar, distribute, password-recovery, activation, ads, galaxy and admin paths
+Bug: Fixed stored and reflected XSS (avatars, descriptions, clan/colony names, admin and message fields)
+Change: Cross-site requests can no longer trigger game actions; session cookies are HttpOnly and SameSite=Lax
+Bug: Removed a hardcoded admin backdoor and made the delete-confirmation password actually work
+Change: Admin actions are restricted to the right groups; every action is recorded
+
+Game fixes:
+Bug: The colony engine never ran (a missing global), so nothing progressed; attacks resolution crashed on PHP 8
+Bug: Fixed resource and credit exploits: exploration inputs, fractional amounts, item duplication, the academy not charging, unlimited colonies, the mine paying twice, the gambler not charging the stake, free teleports
+Bug: walker, valkyrie and whisper now return from attacks; abandoning a colony costs experience; no self-fights
+Bug: Fixed several divide-by-zero crashes and truncated galaxy names; the universe map is populated
+
+Tests:
+New: End-to-end tests (tests/): a full two-player scenario, a page smoke test, and game-rule regressions
+
+
 2010-02-07	[ 0.5.3 ]
 
 Update: Graphics conversion to true color PNG format, do not support GIF any more
