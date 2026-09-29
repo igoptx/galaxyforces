@@ -28,6 +28,29 @@ $pagename = $Lang['Equipment'];
 
 $avatar = $Player['avatar'] ? $Player['avatar'] : 'gallery/avatars/noavatar.gif';
 
+// Cartão de objeto: imagem, nome (+nível), atributos e ações/formulário.
+function item_card($t, $stats, $actions)
+{
+	global $Lang;
+	$name = $Lang['items'][$t['name']]['name'] . ($t['level'] ? " +{$t['level']}" : '');
+	$href = "description.php?type=equipment&amp;back=equipment.php&amp;subject={$t['name']}&amp;id={$t['id']}";
+	echo "\t\t<article class=\"card\">\n\t\t\t" . card_image(array("gallery/items/{$t['name']}.jpg", "gallery/items/icons/{$t['name']}.jpg"), $href, $name) . "\n";
+	echo "\t\t\t<div class=\"card-body\">\n\t\t\t\t<h4 class=\"card-title\"><a href=\"$href\">$name</a>"
+		. (@$t['count'] ? "<span class=\"badge\" title=\"{$Lang['Count']}\">" . div($t['count']) . '</span>' : '') . "</h4>\n";
+	echo "\t\t\t\t" . card_chips($stats) . "\n";
+	echo "\t\t\t\t<div class=\"card-actions\">$actions</div>\n\t\t\t</div>\n\t\t</article>\n";
+}
+
+// Atributos de combate de um objeto.
+function item_stats($t)
+{
+	global $Lang;
+	$stats = array();
+	if ($t['min'] || $t['max']) $stats[] = array('title' => $Lang['Damage'], 'label' => $Lang['Damage'], 'html' => "<span class=\"plus\">{$t['min']}-{$t['max']}</span>");
+	if ($t['armor']) $stats[] = array('title' => $Lang['Armor'], 'label' => $Lang['Armor'], 'html' => "<span class=\"minus\">{$t['armor']}</span>");
+	return $stats;
+}
+
 // ===========================================================================
 // ERRORS
 // ===========================================================================
@@ -60,59 +83,19 @@ elseif ($view == 'sellitem' && checkplace('itemshop')) {
 	foreach ($Equipment as $t) if (! $t['active']) $Backpack[] = $t;
 
 	if ($Backpack) {
-
 		$mod = reputationmodifier($Player['reputation']);
 		if (($ratio = $place['extra']) < 1) $ratio = 1;
 		$ratio /= 5;
 
-		subbegin();
-
-		?><table width="100%" cellspacing="0" cellpadding="0"><?php
-
-		$c = FALSE;
-
+		echo "\t<div class=\"cards\">\n";
 		foreach ($Backpack as $t) {
-			$b = ! @$b;
-
-			$icon = "gallery/items/icons/{$t['name']}.jpg";
-
-			if ($b) {
-				$align = 'left';
-				if ($c) echo "\t\t<tr valign=\"middle\"><td colspan=\"7\">&nbsp;</td></tr>\n"; else $c = TRUE;
-				echo "\t\t<tr valign=\"middle\">\n";
-				echo "\t\t<td width=\"72\">\n";
-				tableimg('images/pw.gif', 72, 72, $icon, 64, 64, "description.php?type=equipment&back=equipment.php&subject={$t['name']}&id={$t['id']}");
-				echo "\t\t</td>\n";
-				echo "\t\t<td width=\"8\">&nbsp;</td>\n";
-			}
-			else $align = 'right';
-
-			echo "\t\t<td align=\"$align\"><font class=\"result\"><b>";
-			echo $Lang['items'][$t['name']]['name'];
-			if ($t['level']) echo " +{$t['level']}";
-			echo '</b></font><br />';
-
-			echo "<b>{$Lang['Price']}</b>: ".div(round(num($t['price'] * $ratio / $mod))).BR;
-
-			echo "<br />";
-
-			echo "\t<form action=\"equipment.php\" method=\"POST\"><input type=\"hidden\" name=\"action\" value=\"sellitem\"><input type=\"hidden\" name=\"view\" value=\"sellitem\"><input type=\"hidden\" name=\"id\" value=\"{$t['id']}\">";
-			if ($t['count']) { ?><b><?php echo $Lang['Count']; ?></b>:&nbsp;<input type="text" size="4" name="amount" value="<?php echo $t['count']; ?>">&nbsp;<?php }
-			echo "<input type=\"submit\" value=\"{$Lang['Sell']}\"><br /></form>\n";
-
-			echo "</td>\n";
-
-			echo "\t\t<td width=\"8\">&nbsp;</td>\n";
-
-			if (! $b) {
-				echo "\t\t<td width=\"72\">\n";
-				tableimg('images/pw.gif', 72, 72, $icon, 64, 64, "description.php?type=equipment&back=equipment.php&subject={$t['name']}&id={$t['id']}");
-				echo "\t\t</td>\n\t\t</tr>\n";
-			}
+			$stats = array(array('title' => $Lang['Price'], 'icon' => 'images/credits.jpg', 'html' => '<span class="result">' . div(round(num($t['price'] * $ratio / $mod))) . '</span>'));
+			$form = "<form action=\"equipment.php\" method=\"POST\"><input type=\"hidden\" name=\"action\" value=\"sellitem\"><input type=\"hidden\" name=\"view\" value=\"sellitem\"><input type=\"hidden\" name=\"id\" value=\"{$t['id']}\">"
+				. ($t['count'] ? "<input class=\"amount\" type=\"text\" size=\"4\" name=\"amount\" value=\"{$t['count']}\" title=\"{$Lang['Count']}\">" : '')
+				. "<input type=\"submit\" value=\"{$Lang['Sell']}\"></form>";
+			item_card($t, $stats, $form);
 		}
-
-		echo "\t\t</table>\n";
-		subend();
+		echo "\t</div>\n";
 	}
 
 	tableend(anchor('itemshop.php', $Lang['GoBack']));
@@ -121,59 +104,39 @@ elseif ($view == 'sellitem' && checkplace('itemshop')) {
 // ===========================================================================
 // EQUIPMENT
 // ===========================================================================
-
 else {
 	tablebegin($pagename);
-
-	subbegin('images/table-b2.jpg');
 
 	echo "\t<script>\n\t<!--\n\n\tfunction ask(\$url) {\n\t\tif (confirm('{$Lang['AreYouSure?']}')) location.href = \$url;\n\t}\n\n\tfunction avatar() {\n\t\t\$msg = prompt('{$Lang['EnterAvatarURL']}', '');\n\t\tif (\$msg > '') {\n\t\t\t\$msg = \$msg.replace(/\\+/g,\"%2B\"); // code: kot\n\t\t\t\$msg = \$msg.replace(/\\&/g,\"%26\");\n\t\t\t\$msg = \$msg.replace(/\\#/g,\"%23\");\n\t\t\t\$url = '{$_SERVER['PHP_SELF']}?name={$name}&rid={$rid}&action=changeplayeravatar&url=' + \$msg;\n\t\t\tdocument.location.href = \$url;\n\t\t}\n";
 	if ($Player['avatar']) echo "\t\telse if (\$msg != null) {\n\t\t\t\$url = '{$_SERVER['PHP_SELF']}?name={$name}&rid={$rid}&action=changeplayeravatar';\n\t\t\tdocument.location.href = \$url;\n\t\t}\n";
 	echo "\t}\n\t//-->\n\t</script>\n";
 
-?>
-	<table align="center" width="100%" cellspacing="0" cellpadding="0" border="0">
-	<tr valign="top">
-	<td align="left">
-		<b><?php echo $Lang['Name']; ?></b>: <a href="whois.php?name=<?php echo $Player['login']; ?>"><?php echo $Player['login']; ?></a><br />
-		<?php echo $Player['clan'] ? "<b>{$Lang['Group']}</b>: <a href=\"clan.php\">{$Player['clan']}</a>" : ''; ?><br />
-		<br />
-		<b><?php echo $Lang['Strength']; ?></b>: <font class="result"><?php echo floor(num(100 * $Player['strength'])) / 100; ?></font><br />
-		<b><?php echo $Lang['Agility']; ?></b>: <font class="work"><?php echo floor(num(100 * $Player['agility'])) / 100; ?></font><br />
-		<br />
+	// atributos do herói (os opcionais só aparecem se tiverem valor, como antes)
+	$extra = array('hit' => array('Hit', 0), 'criticalhit' => array('CriticalHit', 0), 'critical' => array('Critical', null), 'block' => array('Block', 0),
+		'deaf' => array('Deafness', 0), 'hide' => array('Hiding', 0), 'protection' => array('Protection', 0));
+?>	<div class="colony">
+		<div class="colony-info">
+			<dl class="facts">
+				<dt><?php echo $Lang['Name']; ?></dt><dd><a href="whois.php?name=<?php echo $Player['login']; ?>"><?php echo $Player['login']; ?></a></dd>
+				<dt><?php echo $Lang['Level']; ?></dt><dd class="plus"><?php echo $Player['level']; ?></dd>
+<?php if ($Player['clan']) { ?>				<dt><?php echo $Lang['Group']; ?></dt><dd><a href="clan.php"><?php echo $Player['clan']; ?></a></dd>
+<?php } ?>				<dt><?php echo $Lang['Reputation']; ?></dt><dd><span class="result"><?php echo $Player['reputation']; ?></span> (<?php echo $playernature; ?>)</dd>
+				<dt><?php echo $Lang['Strength']; ?></dt><dd class="result"><?php echo floor(num(100 * $Player['strength'])) / 100; ?></dd>
+				<dt><?php echo $Lang['Damage']; ?></dt><dd class="plus"><?php echo $Player['min']; ?> - <?php echo $Player['max']; ?></dd>
+				<dt><?php echo $Lang['Agility']; ?></dt><dd class="work"><?php echo floor(num(100 * $Player['agility'])) / 100; ?></dd>
+				<dt><?php echo $Lang['Armor']; ?></dt><dd class="minus"><?php echo $Player['armor']; ?></dd>
+				<dt>MP</dt><dd><span class="<?php echo $Player['mp'] > $Player['mpmax'] ? 'work' : 'result'; ?>"><?php echo $Player['mp']; ?></span> / <span class="capacity"><?php echo $Player['mpmax']; ?></span> <?php echo amount($Player['mpgain']); ?></dd>
+				<dt>HP</dt><dd><span class="<?php echo $Player['hp'] > $Player['hpmax'] ? 'work' : 'result'; ?>"><?php echo $Player['hp']; ?></span> / <span class="capacity"><?php echo $Player['hpmax']; ?></span> <?php echo amount($Player['hpgain']); ?></dd>
 <?php
-	echo "\t\t<b>[MP]</b>: <font class=\"" . ($Player['mp'] > $Player['mpmax'] ? 'work' : 'result') . "\">{$Player['mp']}</font> / <font class=\"capacity\">{$Player['mpmax']}</font> " . amount($Player['mpgain']) . "<br />\n";
-	echo "\t\t<b>[HP]</b>: <font class=\"" . ($Player['hp'] > $Player['hpmax'] ? 'work' : 'result') . "\">{$Player['hp']}</font> / <font class=\"capacity\">{$Player['hpmax']}</font> " . amount($Player['hpgain']) . "<br />\n";
-?>
-	</td>
-	<td width="8">&nbsp;</td>
-	<td align="left">
-		<b><?php echo $Lang['Level']; ?></b>:&nbsp;<font class="plus"><?php echo $Player['level']; ?></font><br />
-		<b><?php echo $Lang['Reputation']; ?></b>:&nbsp;<font class="result"><?php echo $Player['reputation']; ?></font> (<?php echo $playernature; ?>)<br />
-		<br />
-		<b><?php echo $Lang['Damage']; ?></b>:&nbsp;<font class="plus"><?php echo $Player['min']; ?> - <?php echo $Player['max']; ?></font><br />
-		<b><?php echo $Lang['Armor']; ?></b>:&nbsp;<font class="minus"><?php echo $Player['armor']; ?></font><br />
-		<br />
+	foreach ($extra as $key => $e) {
+		if (!$Player[$key]) continue;
+		echo "\t\t\t\t<dt>{$Lang[$e[0]]}</dt><dd>" . ($e[1] === null ? amount($Player[$key]) : amount($Player[$key], $e[1])) . "</dd>\n";
+	}
+?>			</dl>
+		</div>
+		<a class="colony-avatar" href="javascript:avatar()"><img src="<?php echo $avatar; ?>" alt="" width="160" height="160" /></a>
+	</div>
 <?php
-	if ($Player['hit']) echo "\t\t<b>{$Lang['Hit']}</b>:&nbsp;" . amount($Player['hit'], 0) . "</font><br />\n";
-	if ($Player['criticalhit']) echo "\t\t<b>{$Lang['CriticalHit']}</b>:&nbsp;" . amount($Player['criticalhit'], 0) . "</font><br />\n";
-	if ($Player['critical']) echo "\t\t<b>{$Lang['Critical']}</b>:&nbsp;" . amount($Player['critical']) . "</font><br />\n";
-	if ($Player['block']) echo "\t\t<b>{$Lang['Block']}</b>:&nbsp;" . amount($Player['block'], 0) . "</font><br />\n";
-	if ($Player['deaf']) echo "\t\t<b>{$Lang['Deafness']}</b>:&nbsp;" . amount($Player['deaf'], 0) . "</font><br />\n";
-	if ($Player['hide']) echo "\t\t<b>{$Lang['Hiding']}</b>:&nbsp;" . amount($Player['hide'], 0) . "</font><br />\n";
-	if ($Player['protection']) echo "\t\t<b>{$Lang['Protection']}</b>:&nbsp;" . amount($Player['protection'], 0) . "</font><br />\n";
-
-?>		<br />
-	<td width="8">&nbsp;</td>
-	<td width="168" align="right">
-<?php tableimg('images/bw.gif', 168, 168, $avatar, 160, 160, 'javascript:avatar()', 'right'); ?>
-	</td>
-	</tr>
-	</table>
-<?php
-
-subend();
-
 	$Active = null;
 	$Backpack = null;
 
@@ -183,183 +146,61 @@ subend();
 			else $Backpack[] = $t;
 
 	if ($Active) {
-
 		tablebreak();
-		subbegin('images/table-a1.jpg');
-
-		echo "\t\t<table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" align=\"center\">\n";
-
-		$b = FALSE;
-		$c = FALSE;
-
-		foreach ($Active as $t) {
-			$b = ! $b;
-
-			$icon = "gallery/items/icons/{$t['name']}.jpg";
-
-			if ($b) {
-				$align = 'left';
-
-				if ($c) echo "\t\t<tr valign=\"middle\"><td colspan=\"7\">&nbsp;</td></tr>\n"; else $c = TRUE;
-				echo "\t\t<tr valign=\"middle\">\n";
-				echo "\t\t<td width=\"72\">\n";
-				tableimg('images/pw.gif', 72, 72, $icon, 64, 64, "description.php?type=equipment&back=equipment.php&subject={$t['name']}&id={$t['id']}");
-				echo "\t\t</td>\n";
-			}
-			else {
-				$align = 'right';
-
-				echo "\t\t<td>&nbsp;</td>\n";
-			}
-
-			echo "\t\t<td width=\"8\">&nbsp;</td>\n\t\t<td align=\"$align\"><font class=\"result\"><b>";
-			echo $Lang['items'][$t['name']]['name'];
-			if ($t['level']) echo " +{$t['level']}";
-			echo '</b></font><br />';
-
-			$r = '';
-			if ($t['min'] || $t['max']) $r .= ($r ? ', ' : '') . "<b>{$Lang['Damage']}</b>: <font class=\"plus\">{$t['min']}-{$t['max']}</font>";
-			if ($t['armor']) $r .= ($r ? ', ' : '') . "<b>{$Lang['Armor']}</b>: <font class=\"minus\">{$t['armor']}</font>";
-
-			echo "$r<br />";
-
-			echo "<br /><a href=\"equipment.php?action=unequip&id={$t['id']}&rid=$rid\">{$Lang['Unequip']} &gt;&gt;</a>";
-			echo "</td>\n";
-
-			echo "\t\t<td width=\"8\">&nbsp;</td>\n";
-
-			if (! $b) {
-				echo "\t\t<td width=\"72\">\n";
-				tableimg('images/pw.gif', 72, 72, $icon, 64, 64, "description.php?type=equipment&back=equipment.php&subject={$t['name']}&id={$t['id']}");
-				echo "\t\t</td>\n\t\t</tr>\n";
-			}
-		}
-
-		echo "\t\t</table>\n";
-		subend();
+		echo "\t<div class=\"cards\">\n";
+		foreach ($Active as $t)
+			item_card($t, item_stats($t), "<a class=\"action\" href=\"equipment.php?action=unequip&amp;id={$t['id']}&amp;rid=$rid\">{$Lang['Unequip']}</a>");
+		echo "\t</div>\n";
 	}
 
 	tableend($Lang['Equipment']);
 
-	echo "\t\t<br />\n";
-
+	// nave
 	tablebegin($Lang['Ship']);
 
-	subbegin('images/table-a3.jpg');
-
 	$ship = $Player['ship'];
+	$shipname = $Lang['units'][$ship]['name'];
+	$shiphref = "description.php?type=unit&amp;back=equipment.php&amp;page=$page&amp;subject=$ship";
+?>	<div class="cards">
+		<article class="card">
+			<?php echo card_image(array("gallery/units/$ship.jpg", "gallery/units/icons/$ship.jpg"), $shiphref, $shipname); ?>
 
-	echo "\t\t<table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" align=\"center\">\n\t\t<tr>\n";
+			<div class="card-body">
+				<h4 class="card-title"><a href="<?php echo $shiphref; ?>"><span class="capacity"><?php echo $shipname; ?></span></a></h4>
+				<?php echo card_chips(array(array('title' => $Lang['Speed'], 'label' => $Lang['Speed'], 'html' => '<span class="plus">' . $Var['units'][$ship]['speed'] . '</span>'))); ?>
 
-	echo "\t\t<td width=\"72\" align=left>\n";
-	tableimg('images/pw.gif', 72, 72, "gallery/units/icons/{$ship}.jpg", 64, 64, "description.php?type=unit&back=equipment.php&page=$page&subject=$ship", '', $Lang['units'][$ship]['name']);
-	echo "\t\t</td>\n";
-
-	echo "\t\t<td width=\"8\">&nbsp;</td>\n";
-	echo "\t\t<td align=\"left\">\n";
-
-	echo "\t\t<font class=\"capacity\"><b>" . $Lang['units'][$ship]['name'] . '</b></font><br />';
-	echo '<br />';
-	echo "<b>{$Lang['Speed']}</b>: <font class=\"plus\">" . $Var['units'][$ship]['speed'] . '</font><br />';
-	echo "<br />\n";
-	echo "\t\t</td>";
-
-	echo "\t\t<td align=\"right\" width=\"8\">&nbsp;</td>\n";
-	echo "\n\t\t</tr>\n\t\t</table>\n";
-
-/*
-	if ($guns = $Player['guns']) {
-		echo "\t\t</td>\n\t\t<td width=\"8\">&nbsp;</td>\n\t\t<td align=\"right\">\n";
-		tableimg('images/pw.gif', 72, 72, "gallery/equipment/icons/${guns['name']}.jpg", 64, 64, "description.php?name=${guns['name']}", '', $Lang['equipment'][$guns['name']]['name']);
-	}
-
-	if ($shields = $Player['shields']) {
-		echo "\t\t</td>\n\t\t<td width=\"8\">&nbsp;</td>\n\t\t<td align=\"right\">\n";
-		tableimg('images/pw.gif', 72, 72, "gallery/equipment/icons/${shields['name']}.jpg", 64, 64, "description.php?name=${shields['name']}", '', $Lang['equipment'][$shields['name']]['name']);
-	}
-
-	if ($engine = $Player['engine']) {
-		echo "\t\t</td>\n\t\t<td width=\"8\">&nbsp;</td>\n\t\t<td align=\"right\">\n";
-		tableimg('images/pw.gif', 72, 72, "gallery/equipment/icons/${engine['name']}.jpg", 64, 64, "description.php?name=${engine['name']}", '', $Lang['equipment'][$engine['name']]['name']);
-	}
-
-	echo "\t\t</td>\n\t\t</tr>\n\t\t</table>\n";
-*/
-
-	subend();
-
+			</div>
+		</article>
+	</div>
+<?php
+	// mochila
 	if ($Backpack) {
-
 		tablebreak();
-		subbegin('images/table-a2.jpg');
-
-		echo "\t\t<table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" align=\"center\">\n";
-
-		$b = FALSE;
-		$c = FALSE;
-
+		echo "\t<div class=\"cards\">\n";
 		foreach ($Backpack as $t) {
-			$b = ! $b;
-
-			$icon = "gallery/items/icons/{$t['name']}.jpg";
-
-			if ($b) {
-				$align = 'left';
-				if ($c) echo "\t\t<tr valign=\"middle\"><td colspan=\"7\">&nbsp;</td></tr>\n"; else $c = TRUE;
-				echo "\t\t<tr valign=\"middle\">\n";
-				echo "\t\t<td width=\"72\">\n";
-				tableimg('images/pw.gif', 72, 72, $icon, 64, 64, "description.php?type=equipment&back=equipment.php&subject={$t['name']}&id={$t['id']}");
-				echo "\t\t</td>\n";
-				echo "\t\t<td width=\"8\">&nbsp;</td>\n";
-			}
-			else $align = 'right';
-
-			echo "\t\t<td align=\"$align\"><font class=\"result\"><b>";
-			echo $Lang['items'][$t['name']]['name'];
-			if ($t['level']) echo " +{$t['level']}";
-			echo '</b></font><br />';
-
-			$sr = '';
-			if ($t['min'] || $t['max']) $sr .= ($sr ? ', ' : '') . "<b>{$Lang['Damage']}</b>:&nbsp;<font class=\"plus\">{$t['min']}-{$t['max']}</font>";
-			if ($t['armor']) $sr .= ($sr ? ', ' : '') . "<b>{$Lang['Armor']}</b>:&nbsp;<font class=\"minus\">{$t['armor']}</font>";
-			if ($t['count']) $sr .= ($sr ? ', ' : '') . "<b>{$Lang['Count']}</b>:&nbsp;<font class=\"minus\">" . div($t['count']) . '</font>';
-
-			echo "$sr<br /><br />";
-
 			if ($view == 'giveitems' && $name) {
-				echo '<form action="equipment.php" method="POST"><input type="hidden" name="action" value="giveitems" /><input type="hidden" name="view" value="giveitems" /><input type="hidden" name="id" value="'.$t['id'].'" /><input type="hidden" name="name" value="'.$name.'" />';
-				if ($t['count']) echo $Lang['Count'].':&nbsp;<input type="text" size="5" name="amount" value="0" />&nbsp;';
-				echo '<input type="submit" value="'.$Lang['Give'].'" /></form>';
+				$actions = '<form action="equipment.php" method="POST"><input type="hidden" name="action" value="giveitems" /><input type="hidden" name="view" value="giveitems" /><input type="hidden" name="id" value="' . $t['id'] . '" /><input type="hidden" name="name" value="' . $name . '" />'
+					. ($t['count'] ? '<input class="amount" type="text" size="5" name="amount" value="0" title="' . $Lang['Count'] . '" />' : '')
+					. '<input type="submit" value="' . $Lang['Give'] . '" /></form>';
 			}
 			else {
+				$actions = '';
 				switch ($t['type']) {
-				case 'guns': case 'shields': case 'engine': case 'belt': case 'helmet': case 'armor': case 'belt': case 'gloves': case 'implant': case 'artifact': case 'weapon': case 'weapon2':					
-					echo "<a href=\"equipment.php?rid=$rid&action=equip&id={$t['id']}\">{$Lang['Equip']}&nbsp;&gt;&gt;</a> ";
+				case 'guns': case 'shields': case 'engine': case 'belt': case 'helmet': case 'armor': case 'gloves': case 'implant': case 'artifact': case 'weapon': case 'weapon2':
+					$actions .= "<a class=\"action\" href=\"equipment.php?rid=$rid&amp;action=equip&amp;id={$t['id']}\">{$Lang['Equip']}</a> ";
 					break;
 				case 'item':
-					echo "<a href=\"equipment.php?rid=$rid&action=use&id={$t['id']}\">{$Lang['Use']}&nbsp;&gt;&gt;</a> ";
+					$actions .= "<a class=\"action\" href=\"equipment.php?rid=$rid&amp;action=use&amp;id={$t['id']}\">{$Lang['Use']}</a> ";
 					break;
 				case 'drink':
-					echo "<a href=\"equipment.php?rid=$rid&action=use&id={$t['id']}\">{$Lang['Drink']}&nbsp;&gt;&gt;</a> ";
+					$actions .= "<a class=\"action\" href=\"equipment.php?rid=$rid&amp;action=use&amp;id={$t['id']}\">{$Lang['Drink']}</a> ";
 					break;
 				}
-
-				echo "<a href=\"javascript:ask('equipment.php?rid=$rid&action=dropitem&id={$t['id']}')\" class=\"delete\">{$Lang['DropItem']}&nbsp;&gt;&gt;</a>";
+				$actions .= "<a href=\"javascript:ask('equipment.php?rid=$rid&action=dropitem&id={$t['id']}')\" class=\"delete\">{$Lang['DropItem']}&nbsp;&gt;&gt;</a>";
 			}
-	
-			echo "</td>\n";
-
-			echo "\t\t<td width=\"8\">&nbsp;</td>\n";
-
-			if (!$b) {
-				echo "\t\t<td width=\"72\">\n";
-				tableimg('images/pw.gif', 72, 72, $icon, 64, 64, "description.php?type=equipment&back=equipment.php&subject={$t['name']}&id={$t['id']}");
-				echo "\t\t</td>\n\t\t</tr>\n";
-			}
+			item_card($t, item_stats($t), $actions);
 		}
-
-		echo "\t\t</table>\n";
-		subend();
+		echo "\t</div>\n";
 	}
 
 	tableend("<a href=\"$back\">{$Lang['GoBack']} &gt;&gt;</a>");

@@ -25,24 +25,13 @@ require('include/header.php');
 if ($view == 'unitslist') {
 	tablebegin($Lang['Units'], 500);
 
-	echo '<br /><table width="100%" cellspacing="0" cellpadding="0">';
-
-	$i = 0;
-	
+	echo "\t<div class=\"cards cards-gallery\">\n";
 	foreach ($Var['units'] as $id => $unit) {
-		if (!$i) echo '<tr'.($c = @$c ? '' : ' class="div"').'>';
-		echo '<td class="space">&nbsp;</td><td class="pw">';
-		tableimg('images/pw.gif', 72, 72, "gallery/units/$id.jpg", 64, 64 , "description.php?type=unit&subject=$id");
-		echo '</td>';
-		if ($i++ == 4) {
-			echo '<td>&nbsp;</td></tr>';
-			$i = 0;
-		}
+		$name = isset($Lang['units'][$id]['name']) ? $Lang['units'][$id]['name'] : $id;
+		echo "\t\t<article class=\"card card-tile\">" . card_image(array("gallery/units/$id.jpg", "gallery/units/icons/$id.jpg"), "description.php?type=unit&amp;subject=$id", $name) . "<span class=\"card-caption\">$name</span></article>\n";
 	}
-	if ($i != 4) echo '<td>&nbsp;</td></tr>'; 
+	echo "\t</div>\n";
 
-	echo '</table><br />';
-	
 	tableend('Galaxopedia');
 }
 
@@ -53,96 +42,67 @@ if ($view == 'unitslist') {
 elseif (isset($Colony) && $Colony) {
 	tablebegin('<a href="units.php?view=unitslist">'.$Lang['Units'].'</a>');
 
-	echo '<table width="100%" cellspacing="0" cellpadding="0">';
+	$flats = isset($Lang['structures']['flats']['name']) ? $Lang['structures']['flats']['name'] : 'Flats';
+	$barracks = isset($Lang['structures']['barracks']['name']) ? $Lang['structures']['barracks']['name'] : 'Barracks';
 
 	$count = 0;
-	if ($Units) foreach ($Units as $s) {
-		if (!isset($type)) $type = $s['type'];
-		elseif ($s['type'] != $type) {
-?>	<tr height="8"><td colspan="9">&nbsp;</td></tr>
-	</table>
-<?php
-			tablebreak();
-?>	<table width="100%" cellspacing="0" cellpadding="0" border="0" align="center">
-<?php
+	$type = null;
+	if ($Units) {
+		echo "\t<div class=\"cards\">\n";
+		foreach ($Units as $s) {
+			if ($type !== null && $s['type'] != $type) {
+				echo "\t</div>\n";
+				tablebreak();
+				echo "\t<div class=\"cards\">\n";
+			}
 			$type = $s['type'];
+			$href = "description.php?type=unit&amp;subject={$s['id']}&amp;back={$_SERVER['PHP_SELF']}";
+
+			// produção por unidade (com sinal) e atributos, como nas colunas antigas
+			$ratios = array();
+			foreach (array('energy', 'silicon', 'metal', 'uran', 'plutonium', 'deuterium', 'food') as $r)
+				if (!empty($s[$r . 'ratio'])) $ratios[] = array('icon' => "images/$r.jpg", 'title' => $Lang[strcap($r)], 'html' => amount($s[$r . 'ratio'], 0));
+			$stats = array();
+			if (isset($s['workforce'])) $stats[] = array('label' => 'W', 'title' => $Lang['Workforce'], 'html' => '<span class="work">' . $s['workforce'] . '</span>');
+			if (@$s['scienceforce']) $stats[] = array('label' => 'S', 'title' => $Lang['Scienceforce'], 'html' => '<span class="work">' . $s['scienceforce'] . '</span>');
+			if (!empty($s['attack'])) $stats[] = array('label' => 'A', 'title' => $Lang['Attack'], 'html' => '<span class="plus">' . div($s['attack']) . '</span>');
+			if (isset($s['damage'])) $stats[] = array('label' => 'D', 'title' => $Lang['Damage'], 'html' => '<span class="capacity">' . div($s['damage']) . '</span>');
+			if (!empty($s['capacity'])) $stats[] = array('label' => 'C', 'title' => $Lang['Capacity'], 'html' => '<span class="result">' . div($s['capacity']) . '</span>');
+			if (isset($s['foodcapacity'])) $stats[] = array('label' => 'F', 'title' => $Lang['Food'] . ' / ' . $Lang['Capacity'], 'html' => '<span class="capacity">' . div($s['foodcapacity']) . '</span>');
+			if (isset($s['flats'])) $stats[] = array('label' => 'P', 'title' => $flats, 'html' => '<span class="capacity">' . div($s['flats']) . '</span>');
+			if (isset($s['barracks'])) $stats[] = array('label' => 'B', 'title' => $barracks, 'html' => '<span class="capacity">' . div($s['barracks']) . '</span>');
+
+			if (isset($s['level'])) $count++;
+			if (isset($s['amount'])) $count += $s['amount'];
+?>		<article class="card">
+			<?php echo card_image(array("gallery/units/{$s['id']}.jpg", "gallery/units/icons/{$s['id']}.jpg"), $href, $s['name']); ?>
+
+			<div class="card-body">
+				<h4 class="card-title"><a href="<?php echo $href; ?>"><?php echo $s['name']; ?></a>
+<?php if (isset($s['amount'])) { ?>					<span class="badge" title="<?php echo $Lang['Amount']; ?>"><?php echo div($s['amount']); ?></span>
+<?php } elseif (isset($s['level'])) { ?>					<span class="badge" title="<?php echo $Lang['Level']; ?>"><?php echo $s['level']; ?></span>
+<?php } ?>				</h4>
+				<p class="card-desc"><?php echo $s['description']; ?></p>
+				<?php echo card_chips($ratios, 'ratios'); ?>
+
+				<?php echo card_chips($stats); ?>
+
+<?php if (isset($s['amount'])) { ?>				<div class="card-actions">
+					<form action="<?php echo $_SERVER['PHP_SELF']; ?>?rid=<?php echo $rid; ?>" method="POST">
+						<input type="hidden" name="action" value="destroyunits" />
+						<input type="hidden" name="name" value="<?php echo $s['id']; ?>" />
+						<input class="amount" size="4" maxlength="8" name="amount" value="0" /><input type="submit" class="danger" value="<?php echo $Lang['destroy']; ?>" />
+					</form>
+<?php if (($Player['planet'] == $Colony['planet']) && ($type == 'fighter' || $type == 'thief')) { ?>					<a class="action" href="equipment.php?action=shipexchange&amp;name=<?php echo $s['id']; ?>"><?php echo $Lang['Equip']; ?></a>
+<?php } ?>				</div>
+<?php } ?>			</div>
+		</article>
+<?php
 		}
-?>	<tr height="8"><td colspan="9">&nbsp;</td></tr>
-	<tr height="72" valign="top">
-	<td width="12">&nbsp;</td>
-	<td width="72">
-		<table background="images/pw.gif" width="72" height="72" cellspacing="0" cellpadding="0" border="0" align="center">
-		<tr height="72" valign="center">
-		<td><center><a href="description.php?type=unit&subject=<?php echo $s['id']; ?>&back=<?php echo $_SERVER['PHP_SELF']; ?>"><img src="gallery/units/icons/<?php echo $s['id']; ?>.jpg" alt="" width="64" height="64" hspace="0" vspace="0" border="0"></a></center></td>
-		</tr>
-		</table>
-	</td>
-	<td width="8">&nbsp;</td>
-	<td align="left">
-		<font class="result"><b><?php echo $s['name']; ?></b></font><br />
-		<?php echo $s['description']; ?><br />
-	</td>
-	<td width="8">&nbsp;</td>
-	<td width="80" align="left">
-<?php
-			if (isset($s['level'])) {
-			$count++;
-?>		<b><?php echo $Lang['Level']; ?></b>: <font class="capacity"><?php echo $s['level']; ?></font><br />
-<?php
-			}
-			if (isset($s['amount'])) {
-				$count += $s['amount'];
-?>		<b><?php echo $Lang['Amount']; ?></b>: <font class="plus"><?php echo div($s['amount']); ?></font><br />
-<?php
-			}
-?>	</td>
-	<td width="8">&nbsp;</td>
-	<td width="72" align="left">
-<?php
-	if (isset($s['energyratio']) && $s['energyratio']) echo "\t\t<b>[E] </b>" . amount($s['energyratio'], 0) . "<br />\n";
-	if (@$s['siliconratio']) echo "\t\t<b>[S]</b> ".amount($s['siliconratio'], 0)."<br />\n";
-	if (@$s['metalratio']) echo "\t\t<b>[M]</b> ".amount($s['metalratio'], 0)."<br />\n";
-	if (isset($s['uranratio']) && $s['uranratio']) echo "\t\t<b>[U] </b>" . amount($s['uranratio'], 0) . "<br />\n";
-	if (@$s['plutoniumratio']) echo "\t\t<b>[P]</b> ".amount($s['plutoniumratio'], 0)."<br />\n";
-	if (@$s['deuteriumratio']) echo "\t\t<b>[D]</b> ".amount($s['deuteriumratio'], 0)."<br />\n";
-	if (isset($s['foodratio']) && $s['foodratio']) echo "\t\t<b>[F] </b>" . amount($s['foodratio'], 0) . "<br />\n";
-?>	</td>
-	<td width="4">&nbsp;</td>
-	<td width="72" align="left">
-<?php
-	if (isset($s['workforce'])) echo "\t\t<b>[W]</b> <font class=\"work\">" . ($s['workforce']) . "</font><br />\n";
-	if (@$s['scienceforce']) echo "\t\t<b>[S]</b> <font class=\"work\">{$s['scienceforce']}</font><br />\n";
-	if (isset($s['attack']) && $s['attack']) echo "\t\t<b>[A]</b> <font class=\"plus\">" . div($s['attack']) . "</font><br />\n";
-	if (isset($s['damage'])) echo "\t\t<b>[D]</b> <font class=\"capacity\">" . div($s['damage']) . "</font><br />\n";
-	if (isset($s['capacity']) && $s['capacity']) echo "\t\t<b>[C]</b> <font class=\"result\">" . div($s['capacity']) . "</font><br />\n";
-	if (isset($s['foodcapacity'])) echo "\t\t<b>[F]</b> <font class=\"capacity\">" . div($s['foodcapacity']) . "</font><br />\n";
-	if (isset($s['flats'])) echo "\t\t<b>[P] </b><font class=\"capacity\">" . div($s['flats']) . "</font><br />\n";
-	if (isset($s['barracks'])) echo "\t\t<b>[B] </b><font class=\"capacity\">" . div($s['barracks']) . "</font><br />\n";
-?>	</td>
-	<td width="4">&nbsp;</td>
-	<td width="110" align="right">
-<?php
-	if (isset($s['amount'])) {
-
-?>		<form action="<?php echo $_SERVER['PHP_SELF']; ?>?rid=<?php echo $rid; ?>" method="POST">
-		<input type="hidden" name="action" value="destroyunits" />
-		<input type="hidden" name="name" value="<?php echo $s['id']; ?>" />
-		<input size="4" maxlength="8" name="amount" value="0" />&nbsp;<input type="submit" value="<?php echo $Lang['destroy']; ?>" />
-		</form>
-<?php
-		if (($Player['planet'] == $Colony['planet']) && ($type == 'fighter' || $type == 'thief')) echo "\t\t<a href=\"equipment.php?action=shipexchange&name={$s['id']}\">{$Lang['Equip']} &gt;&gt;</a>\n";
+		echo "\t</div>\n";
 	}
-	else echo "&nbsp;";
-?>	</td>
-	<td width="4">&nbsp;</td>
-	</tr>
-<?php
-	}
-	else echo "\t<tr><td align=\"center\"><br />{$Lang['No units']}</td></tr>\n";
+	else echo "\t<p>{$Lang['No units']}</p>\n";
 
-?>	<tr height="8"><td colspan="9">&nbsp;</td></tr>
-	</table>
-<?php
 	tableend($Lang['Count'] . ': <font class="result">' . div($count) . '</font>');
 }
 else {

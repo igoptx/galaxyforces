@@ -200,19 +200,33 @@ function card_image($candidates, $href = '', $label = '')
 }
 
 // Custos como chips com o ícone de cada recurso.
-function card_costs($costs, $credits_class = 'result')
+function card_costs($costs, $credits_class = 'result', $keys = null)
 {
 	global $Lang;
 	$names = array('credits' => 'Credits', 'energy' => 'Energy', 'silicon' => 'Silicon', 'metal' => 'Metal', 'uran' => 'Uran',
 		'plutonium' => 'Plutonium', 'deuterium' => 'Deuterium', 'food' => 'Food', 'crystals' => 'Crystals');
 	$out = '';
 	foreach ($names as $key => $lang) {
+		if ($keys !== null && !in_array($key, $keys)) continue;   // só as chaves que a página mostrava
 		if (empty($costs[$key])) continue;
 		$label = isset($Lang[$lang]) ? $Lang[$lang] : $lang;
 		$out .= '<li class="cost cost-' . $key . '" title="' . htmlspecialchars($label) . '"><img src="images/' . $key . '.jpg" alt="" width="16" height="16" />'
 			. '<span' . ($key == 'credits' ? ' class="' . $credits_class . '"' : '') . '>' . div($costs[$key]) . '</span></li>';
 	}
 	return $out ? '<ul class="costs">' . $out . '</ul>' : '';
+}
+
+// Chips genéricos: cada chip é array('html' => ..., 'title' => ..., 'icon' => imagem ou null, 'label' => rótulo curto ou null).
+function card_chips($chips, $class = 'stats')
+{
+	$out = '';
+	foreach ($chips as $c) {
+		$out .= '<li class="cost"' . (!empty($c['title']) ? ' title="' . htmlspecialchars(strip_tags($c['title'])) . '"' : '') . '>'
+			. (!empty($c['icon']) ? '<img src="' . $c['icon'] . '" alt="" width="16" height="16" />' : '')
+			. (!empty($c['label']) ? '<b class="chip-label">' . $c['label'] . '</b>' : '')
+			. '<span>' . $c['html'] . '</span></li>';
+	}
+	return $out ? '<ul class="costs ' . $class . '">' . $out . '</ul>' : '';
 }
 
 function style_module_section($elements, $id="", $section="box")

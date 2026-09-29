@@ -78,24 +78,24 @@ if (isset($Colony) && $Colony) {
 	//-->
 	</script>
 
-	<table cellspacing="0" cellpadding="0" border="0" align="center">
+	<ul class="queue">
 <?php
 			foreach($Productions as $s) {
+				$left = $s['end'] - $stardate;
+				$pct = $left > 0 ? round(num(100 * ($stardate - $s['begin']) / $s['time'])) : 100;
+?>		<li>
+			<?php echo card_image(array("gallery/units/icons/{$s['name']}.jpg"), '', $ProductionsAvailable[$s['name']]['name']); ?>
 
-?>	<tr>
-	<td><font class="result"><b><?php echo $ProductionsAvailable[$s['name']]['name']; ?></b></font></td>
-	<td>&nbsp; &nbsp;</td>
-	<td><b><?php echo $Lang['Amount']; ?></b>: <font class="plus"><?php echo div($s['amount']); ?></font></td>
-	<td>&nbsp; &nbsp;</td>
-	<td><?php echo $Lang['FullETA']; ?>: <font class="value"><?php echo eta($s['end'] - $stardate); ?></font><?php if ($s['end'] - $stardate > 0) echo ' ('.round(num(100 * ($stardate - $s['begin']) / $s['time'])).'%)'; ?></td>
-	<td>&nbsp; &nbsp;</td>
-	<td><a href="javascript:ask('<?php echo $_SERVER['PHP_SELF']; ?>?action=cancelproduction&id=<?php echo $s['id']; ?>')" class="delete"><?php echo $Lang['ProductC']; ?> &gt;&gt;</a></td>
-	</tr>
+			<div class="queue-body">
+				<div class="queue-title"><span class="result"><?php echo $ProductionsAvailable[$s['name']]['name']; ?></span> <span class="badge" title="<?php echo $Lang['Amount']; ?>"><?php echo div($s['amount']); ?></span></div>
+				<div class="meter"><i style="width: <?php echo max(0, min(100, $pct)); ?>%"></i></div>
+				<div class="queue-meta"><?php echo $Lang['FullETA']; ?>: <span class="value"><?php echo eta($left); ?></span><?php if ($left > 0) echo " ($pct%)"; ?></div>
+			</div>
+			<a href="javascript:ask('<?php echo $_SERVER['PHP_SELF']; ?>?action=cancelproduction&id=<?php echo $s['id']; ?>')" class="delete"><?php echo $Lang['ProductC']; ?> &gt;&gt;</a>
+		</li>
 <?php
 			}
-
-?>	</table>
-	<br />
+?>	</ul>
 <?php
 			tablebreak();
 		}
@@ -103,82 +103,48 @@ if (isset($Colony) && $Colony) {
 		$count = 0;
 
 		if ($ProductionsAvailable) {
-
-?>	<table width="100%" cellspacing="0" cellpadding="0" border="0" align="center">
-<?php
+			$type = null;
+			echo "\t<div class=\"cards\">\n";
 			foreach ($ProductionsAvailable as $s) {
-				if (!isset($type)) $type = $s['type'];
-				elseif ($s['type'] != $type) {
-
-?>	<tr height="8"><td>&nbsp;</td></tr>
-	</table>
-<?php
-				tablebreak();
-
-?>	<table width="100%" cellspacing="0" cellpadding="0" border="0" align="center">
-<?php
+				if ($type !== null && $s['type'] != $type) {
+					echo "\t</div>\n";
+					tablebreak();
+					echo "\t<div class=\"cards\">\n";
+				}
 				$type = $s['type'];
-			}
+				$href = "description.php?type=unit&amp;subject={$s['id']}&amp;back={$_SERVER['PHP_SELF']}";
+				$costs = $s;
+				if (isset($s['cost'])) $costs['credits'] = $s['credits'] + $s['cost'];
+?>		<article class="card">
+			<?php echo card_image(array("gallery/units/{$s['id']}.jpg", "gallery/units/icons/{$s['id']}.jpg"), $href, $s['name']); ?>
 
-?>	<tr height="8"><td>&nbsp;</td></tr>
-	<tr height="72" valign="middle">
-	<td width="12">&nbsp;</td>
-	<td width="72">
-		<table background="images/pw.gif" width="72" height="72" cellspacing="0" cellpadding="0" border="0" align="center">
-		<tr height="72" valign="center">
-		<td><center><a href="description.php?type=unit&subject=<?php echo $s['id']; ?>&back=<?php echo $_SERVER['PHP_SELF']; ?>"><img src="gallery/units/icons/<?php echo $s['id']; ?>.jpg" alt="" width="64" height="64" hspace="0" vspace="0" border="0"></a></center></td>
-		</tr>
-		</table>
-	</td>
-	<td width="8">&nbsp;</td>
-	<td align="left">
-		<font class="result"><b><?php echo $s['name']; ?></b></font><br />
-		<?php echo $s['description']; ?><br />
-	</td>
-	<td width="8">&nbsp;</td>
-	<td width="80" align="left"><b><?php echo $Lang['Amount']; ?></b>: <font class="capacity"><?php echo div($Colony[$s['id']] + 0); ?></td>
-	<td width="8">&nbsp;</td>
-	<td width="100" align="left">
+			<div class="card-body">
+				<h4 class="card-title"><a href="<?php echo $href; ?>"><?php echo $s['name']; ?></a>
+					<span class="badge" title="<?php echo $Lang['Amount']; ?>"><?php echo div($Colony[$s['id']] + 0); ?></span></h4>
+				<p class="card-desc"><?php echo $s['description']; ?></p>
+				<?php echo card_costs($costs, isset($s['cost']) ? 'work' : 'result', array('credits', 'energy', 'silicon', 'metal', 'uran', 'plutonium', 'deuterium', 'crystals')); ?>
+
+				<div class="card-actions">
 <?php
-			if (isset($s['cost'])) echo "\t\t<b>[!]</b>&nbsp;<font class=\"work\">" . div($s['credits'] + $s['cost']) . "</font><br />\n";
-			elseif (isset($s['credits'])) echo "\t\t<b>[!]</b>&nbsp;<font class=\"result\">" . div($s['credits']) . "</font><br />\n";
-
-			if (@$s['energy']) echo "\t\t<b>[E]</b>&nbsp;" . div($s['energy']) . "<br />\n";
-			if (@$s['silicon']) echo "\t\t<b>[S]</b>&nbsp;".div($s['silicon'])."<br />\n";
-			if (@$s['metal']) echo "\t\t<b>[M]</b>&nbsp;" . div($s['metal']) . "<br />\n";
-			if (@$s['uran']) echo "\t\t<b>[U]</b>&nbsp;" . div($s['uran']) . "<br />\n";
-			if (@$s['plutonium']) echo "\t\t<b>[P]</b>&nbsp;".div($s['plutonium'])."<br />\n";
-			if (@$s['deuterium']) echo "\t\t<b>[D]</b>&nbsp;".div($s['deuterium'])."<br />\n";
-			if (@$s['crystals']) echo "\t\t<b>[C]</b>&nbsp;" . div($s['crystals']) . "<br />\n";
-
-?>	</td>
-	<td width="4">&nbsp;</td>
-	<td width="80" align="center">
-<?php
-	if ($Colony['military']) {
-		echo '[ <font class="plus">'.eta(1 + round(num((50 / $Colony['military']) * ($s['work'] / log(num($Colony['workforce'])) / ($Colony['factory'] + $Colony['tron']))))).'</b></font> ]<br /><br />';
-		echo '[ <font class="work">'.eta(1 + round(num((50 / $Colony['military']) * (100 * $s['work'] / log(num($Colony['workforce'])) / ($Colony['factory'] + $Colony['tron']))))).'</b></font> ]<br />';
-	}
-	else echo $Lang['NotAvailable'];
-	
-?>	</td>
-	<td width="4">&nbsp;</td>
-	<td width="120" align="right">
-		<form action="<?php echo $_SERVER['PHP_SELF']; ?>?rid=<?php echo $rid; ?>" method="POST">
-		<input type="hidden" name="action" value="product" />
-		<input type="hidden" name="name" value="<?php echo $s['id']; ?>" />
-		<input size="4" maxlength="8" name="amount" value="1" />&nbsp;<input type="submit" value="<?php echo $Lang['Production']; ?>" />
-		</form>
-	</td>
-	<td width="12">&nbsp;</td>
-	</tr>
+				if ($Colony['military']) {
+					// tempo para 1 unidade e para 100 unidades, como nas colunas antigas
+					$eta1 = eta(1 + round(num((50 / $Colony['military']) * ($s['work'] / log(num($Colony['workforce'])) / ($Colony['factory'] + $Colony['tron'])))));
+					$eta100 = eta(1 + round(num((50 / $Colony['military']) * (100 * $s['work'] / log(num($Colony['workforce'])) / ($Colony['factory'] + $Colony['tron'])))));
+					echo "\t\t\t\t\t<span class=\"eta\" title=\"1\">$eta1</span> <span class=\"eta eta-100\" title=\"100\">$eta100</span>\n";
+				}
+				else echo "\t\t\t\t\t<span class=\"muted\">{$Lang['NotAvailable']}</span>\n";
+?>					<form action="<?php echo $_SERVER['PHP_SELF']; ?>?rid=<?php echo $rid; ?>" method="POST">
+						<input type="hidden" name="action" value="product" />
+						<input type="hidden" name="name" value="<?php echo $s['id']; ?>" />
+						<input class="amount" size="4" maxlength="8" name="amount" value="1" /><input type="submit" value="<?php echo $Lang['Production']; ?>" />
+					</form>
+				</div>
+			</div>
+		</article>
 <?php
 				$count++;
 			}
-
-?>	<tr height="8"><td>&nbsp;</td></tr>
-	</table>
-<?php
+			echo "\t</div>\n";
 		}
 		if ($count) tableend($count . $Lang[' unit(s) available']);
 		else tableend($Lang['Production']);
