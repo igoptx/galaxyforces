@@ -14,7 +14,7 @@ import argparse, datetime, glob, os, random, re, sys, time, urllib.parse
 from lib import ROOT, Player, parse, php_errors, sql
 
 # páginas que nunca funcionaram no projeto original
-KNOWN_BROKEN = {"calendar.php"}   # resto do phpMyAdmin, depende de bibliotecas que não existem
+KNOWN_BROKEN = set()   # calendar.php (resto do phpMyAdmin) foi removido
 SKIP = {"install.php", "index.php", "hash.php"}          # install reescreve o config.php
 INTERNAL = {"default.php", "maintenance.php"}           # não usam a base de dados e terminam a sessão
 DANGEROUS = re.compile(r"logout|delete|remove|ban|lock|drop|abandon|reset|kill|truncate|jail", re.I)
