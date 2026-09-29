@@ -235,7 +235,7 @@ function valid_image_url($url)
 	$url = trim((string)$url);
 	if ($url === '') return '';
 	if (!preg_match('#^https?://#i', $url)) $url = 'http://' . $url;
-	return preg_match('#^https?://[A-Za-z0-9.-]+(:[0-9]{1,5})?/[A-Za-z0-9._~/%+-]*\.(png|jpe?g|gif|webp)$#i', $url) ? $url : '';
+	return preg_match('#^https?://[A-Za-z0-9.-]+(:[0-9]{1,5})?/[A-Za-z0-9._~/%+-]*\.(png|jpe?g|gif|webp)(\?[A-Za-z0-9._~%=&+-]*)?$#i', $url) ? $url : '';
 }
 
 function getvar($name)
