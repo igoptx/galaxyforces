@@ -1,3 +1,20 @@
+2026-09-29	[ 0.6.1 ]
+
+A follow-up to 0.6.0: more OGame-style polish, a hardening fix and clean-up.
+
+Look and feel:
+New: The browser tab title now names the current page, so several open tabs are easy to tell apart
+New: The menu shows a badge with the number of unread messages, which clears once they are read
+Change: The high-scores page was redrawn on the modern table, with gold/silver/bronze medals for the top three, the player's own row highlighted, sortable columns and escaped player/clan names
+
+Security:
+Change: Failed logins are now throttled (per account and per IP) to slow down brute force
+Bug: The debug dump (Config, User, Player...) is no longer shown to administrators unless GALAXY_DEBUG is on, so it can no longer leak the database credentials or the auth secret
+
+Clean-up:
+Change: Removed the dead phpMyAdmin calendar.php leftover (it returned a server error on every request); the smoke test now reports no server errors on any page
+
+
 2026-09-29	[ 0.6.0 ]
 
 This release modernises the 2010 codebase and hardens it, keeping the game's essence.
