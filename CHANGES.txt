@@ -1,3 +1,12 @@
+2026-09-29	[ 0.7.0 ]
+
+OGame-style build and research queues.
+
+Gameplay:
+New: A colony can now queue several buildings and several researches instead of one at a time. Resources are charged when an item joins the queue and refunded if it is removed; when the active item finishes, the next one starts on its own, even while the player is offline. The queue holds up to five items.
+New: The build and research pages always show the list to choose from, plus what is in progress and the queue with a running time-to-finish for each item; the overview lists the queued items too.
+
+
 2026-09-29	[ 0.6.2 ]
 
 Bug fixes found while walking the game as a player.
