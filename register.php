@@ -77,6 +77,7 @@ if ($action == 'register') {
 
 			if (! $db->query($sql)) $errors .= $Lang['ErrorRegistering'] . '<br />';
 			else {
+				audit('player', 'register', $login, $email, $login);
 				if ($Config['Registration'] == 'auto') {
 					tablebegin($Lang['Completed'], '400');
 					echo "\t<br />{$Lang['RegistrationCompleted']}<br /><br />\n";

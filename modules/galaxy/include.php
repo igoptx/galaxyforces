@@ -2066,6 +2066,7 @@ function actionattack()
 		$db->query("UPDATE {$prefix}users SET credits='{$Player['credits']}' WHERE login='{$Player['login']}';");
 		$db->query("UPDATE `{$prefix}colonies` SET `energy`={$Colony['energy']},`metal`='{$Colony['metal']}',`uran`='{$Colony['uran']}',`food`='{$Colony['food']}'$sql3 WHERE `owner`='$login' LIMIT 1;");
 		$db->query("INSERT INTO `{$prefix}attacks` (`login`,`owner`, `target`,`begin`,`time`,`strategy`,`bonus`,`soldiers`$sql1) VALUES ('$login','{$Colony['name']}','$name','$stardate','$time','$strategy','$bonus','$soldiers'$sql2);");
+		audit('attack', 'launch', $name, "owner $owner");
 
 		$Attacks = readattacks($login);
 	}

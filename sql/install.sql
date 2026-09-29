@@ -805,6 +805,27 @@ CREATE TABLE `galaxy_universe` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `galaxy_audit` (Centro de Operações)
+--
+
+CREATE TABLE `galaxy_audit` (
+  `id` int(11) NOT NULL auto_increment,
+  `time` datetime NOT NULL,
+  `actor` varchar(32) NOT NULL default '',
+  `ip` varchar(64) NOT NULL default '',
+  `category` varchar(16) NOT NULL default '',
+  `action` varchar(32) NOT NULL default '',
+  `target` varchar(64) NOT NULL default '',
+  `details` varchar(255) NOT NULL default '',
+  PRIMARY KEY  (`id`),
+  KEY `time` (`time`),
+  KEY `category` (`category`),
+  KEY `actor` (`actor`)
+);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `galaxy_users`
 --
 

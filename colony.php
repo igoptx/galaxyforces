@@ -43,6 +43,7 @@ if ($action) {
 				$db->query("UPDATE {$prefix}users SET exp='{$Player['exp']}',score='{$Player['score']}' WHERE login='$login' LIMIT 1;");
 				$db->query("UPDATE {$prefix}space SET abandoned=abandoned+1 WHERE name='{$Colony['planet']}' LIMIT 1;");
 				$db->query("DELETE FROM {$prefix}colonies WHERE name='{$Colony['name']}' LIMIT 1;");
+				audit('colony', 'abandon', $Colony['name'], $Colony['planet']);
 				$db->query("DELETE FROM {$prefix}researches WHERE login='$login';");
 				$db->query("DELETE FROM {$prefix}exploration WHERE login='$login';");
 				$db->query("DELETE FROM {$prefix}buildings WHERE login='$login';");
@@ -76,6 +77,7 @@ if ($action) {
 						$food = ($technology == 'human' ? 200 : 0);
 						$colonists = ($technology == 'human' ? 5 : 0);
 						$db->query("INSERT INTO `{$prefix}colonies` (`name`,`owner`,`planet`,`thicks`,`base`,`tron`,`ami`,`cyber`,`necro`,`energy`,`silicon`,`metal`,`food`,`colonists`) VALUES ('$name','$login','$planet','$stardate',$base,$tron,$ami,$cyber,$necro,$energy,$silicon,$metal,$food,$colonists);");
+						audit('colony', 'create', $name, "$planet ($technology)");
 						if ($Player['credits'] + $Player['bank'] < 25000) {
 							$db->query("UPDATE `{$prefix}users` SET `credits`='25000',`bank`='0' WHERE `login`='$login' LIMIT 1;");
 							sendmessage($Lang['BankDonatedSubject'], $Lang['BankDonated'] . '<b>25000</b>!<br />', $Lang['GalaxyBank'], $login, 'report');

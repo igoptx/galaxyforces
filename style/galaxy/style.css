@@ -1206,3 +1206,9 @@ table.list tr.here td { background: #223344; }
 .people { margin: 0; padding: 0; list-style: none; text-align: center; }
 .people li { display: inline; margin: 0 4px; }
 .card-here { border-color: #ffcc99; }
+.ops-tabs a { margin-right: 8px; } .ops-tabs a.active { color: #ffcc99; }
+.ops-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 6px; }
+.ops-kpi { border: 1px solid #334466; padding: 4px; } .ops-kpi b { display: block; font-size: 12pt; }
+.ops-bars { display: flex; align-items: flex-end; gap: 2px; height: 80px; } .ops-bar { flex: 1; height: 100%; display: flex; align-items: flex-end; } .ops-bar i { display: block; width: 100%; background: #aaccff; } .ops-bar span { display: none; }
+.ops-actions { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; text-align: left; }
+.ops-form { margin: 2px 0; } .tag { padding: 0 4px; border: 1px solid #334466; }

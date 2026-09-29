@@ -135,6 +135,11 @@ $Menu[]=array(
 	'*'=>'@',
 	'_'=>'MenuAdministration',
 );
+$Menu[]=array(
+	'$'=>'ops',
+	'*'=>'@wheel',
+	'_'=>'MenuOps',
+);
 /*
 $Menu[]=array(
 	'$'=>'hq',

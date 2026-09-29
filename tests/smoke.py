@@ -58,6 +58,10 @@ def crawl(c, label):
     for p in PAGES:
         if p in SKIP or (c.logged and p in INTERNAL): continue
         html = visit(c, p)
+        if p == "ops.php":   # Centro de Operações: só visitar (os formulários mexem no universo inteiro)
+            for v in ("dashboard", "players", "colonies", "activity", "queues", "economy", "maintenance", "system"):
+                visit(c, f"ops.php?view={v}")
+            continue
         submit_forms(c, p, html)
         links = [l for l in parse(html).links if ".php?" in l and not l.startswith(("http", "javascript")) and not DANGEROUS.search(l)]
         for l in links[:25]: visit(c, l.lstrip("/"))

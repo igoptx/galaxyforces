@@ -81,6 +81,27 @@ dependem do tema.
 
 Os dados ficam em volumes do Docker: `db-data-mysql8` (base de dados), `log-milkyway` e `log-andromeda`.
 
+## Centro de Operações
+
+Ferramenta interna de manutenção, gestão e monitorização, só para administradores (grupo `wheel`). Está em
+`ops.php` e aparece no menu como **Operações**. Cada universo tem a sua, com os dados dessa base de dados.
+
+| Separador | O que mostra ou permite |
+|---|---|
+| Painel | Jogadores (total, ativos, online, novos), colónias, clãs, filas em curso, logins falhados, colónias atrasadas no motor, registos e logins por dia, atividade recente, melhores jogadores |
+| Jogadores | Pesquisa por login, e-mail ou IP; por jogador: dados, colónia, histórico e ações (mudar grupo, dar ou tirar créditos e recursos, bloquear, banir, mover o herói, repor a palavra-passe, terminar a sessão, enviar mensagem, apagar a conta) |
+| Colónias | Todas as colónias, com recursos, dano e ciclos em atraso |
+| Atividade | O registo de auditoria (logins, registos, colónias, ataques, clãs, ações de administração), com filtros |
+| Filas | Construções, investigações, produções, expedições e ataques em curso, com o tempo restante |
+| Economia | Totais de créditos e recursos no universo, jogadores mais ricos, preços dos mercados |
+| Manutenção | Modo de manutenção só deste universo, mensagem para o chat, notícias, processar colónias atrasadas, limpar dados antigos, otimizar tabelas |
+| Sistema | Versões de PHP e MySQL, configuração, tamanho das tabelas, espaço em disco e o fim dos ficheiros de registo |
+
+As ações só funcionam por POST, com um token ligado à sessão do administrador, e ficam todas no registo de
+auditoria (tabela `galaxy_audit`, criada sozinha nas bases que ainda não a têm). Apagar uma conta pede a
+palavra-passe de confirmação `GALAXY_ADMIN_CONFIRM`. Com o modo de manutenção ativo, os administradores
+continuam a poder entrar e jogar.
+
 ## Comandos úteis
 
 Ver os logs, incluindo os erros PHP de um universo:
