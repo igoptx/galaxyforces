@@ -89,7 +89,17 @@ $logged = false;
 if (@$db && ($login = $db->safe($login)) && (($Config['AuthType'] == 'http' && $password) || ($action == 'login' && $password || $salt))) {
 	$db->query("SELECT password,seed,usergroup,language,style,ip,lastip,locked,banned FROM {$prefix}users WHERE login='$login' AND active=1;");
 	if ($t = $db->fetchrow()) {
-		if ($locked = $t['locked'] > $timestamp) $logged = false;
+		// trava força-bruta: tentativas falhadas recentes (tabela de auditoria)
+		$throttled = false;
+		if ($action == 'login' && $password && function_exists('audit')) {
+			$safe_ip = $db->safe($ip);
+			if (@$db->query("SELECT (SELECT COUNT(*) FROM {$prefix}audit WHERE action='login_failed' AND target='$login' AND time >= NOW() - INTERVAL 15 MINUTE) l, (SELECT COUNT(*) FROM {$prefix}audit WHERE action='login_failed' AND ip='$safe_ip' AND time >= NOW() - INTERVAL 15 MINUTE) i") && ($tc = $db->fetchrow()))
+				$throttled = ($tc['l'] >= 10 || $tc['i'] >= 30);
+			$db->query("SELECT password,seed,usergroup,language,style,ip,lastip,locked,banned FROM {$prefix}users WHERE login='$login' AND active=1;");
+			$t = $db->fetchrow();
+		}
+		if ($throttled) { $logged = false; if (function_exists('audit')) audit('auth', 'login_throttled', $login, '', ''); }
+		elseif ($locked = $t['locked'] > $timestamp) $logged = false;
 		elseif ($action == 'login' || $Config['AuthType'] == 'http') {
 			if (gf_password_verify($password, $t['password'])) {
 				$seed = bin2hex(random_bytes(8));   // seed de sessão imprevisível (era rand())
