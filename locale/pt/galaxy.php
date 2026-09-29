@@ -228,6 +228,7 @@ $Lang['Thief']='Ladrão';
 
 $Lang['FullETA']='Tempo estimado (ETA)';
 $Lang['Building']='Construção';
+$Lang['InProgress']='Em curso';
 $Lang['BuildL3']='</b>) está atualmente em curso (';
 $Lang['BuildL4']='% concluído)';
 $Lang['BuildC']='Cancelar construção';

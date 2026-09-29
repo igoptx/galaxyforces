@@ -228,6 +228,7 @@ $Lang['Thief']='Thief';
 
 $Lang['FullETA']='Estimated time (ETA)';
 $Lang['Building']='Building';
+$Lang['InProgress']='In progress';
 $Lang['BuildL3']='</b>) is currently in progress (';
 $Lang['BuildL4']='% finished)';
 $Lang['BuildC']='Cancel building';

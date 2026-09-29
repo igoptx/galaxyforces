@@ -272,6 +272,46 @@ elseif ($Colony) {
 
 	tableend($Lang['Resources']);
 
+	// -----------------------------------------------------------------------
+	// Em curso: construção, investigação, produção — e a fila (estilo OGame)
+	// -----------------------------------------------------------------------
+	$sd = (int)$stardate;
+	$prog = array();
+
+	if ($Buildings) $prog[] = array('icon' => "gallery/buildings/icons/{$Buildings['name']}.jpg", 'label' => $Lang['Building'],
+		'name' => (isset($Builds[$Buildings['name']]) ? $Builds[$Buildings['name']]['name'] : strcap($Buildings['name'])) . ' x' . (int)$Buildings['amount'], 'left' => $Buildings['end'] - $sd, 'link' => 'build.php');
+	if (@$Research) $prog[] = array('icon' => "gallery/technology/icons/{$Research['name']}.jpg", 'label' => $Lang['Research'],
+		'name' => (isset($Technologies[$Research['name']]) ? $Technologies[$Research['name']]['name'] : strcap($Research['name'])), 'left' => $Research['end'] - $sd, 'link' => 'research.php');
+	if ($Productions) foreach ($Productions as $pr) $prog[] = array('icon' => "gallery/units/icons/{$pr['name']}.jpg", 'label' => $Lang['Production'],
+		'name' => (isset($ProductionsAvailable[$pr['name']]) ? $ProductionsAvailable[$pr['name']]['name'] : strcap($pr['name'])) . ' x' . div($pr['amount']), 'left' => $pr['end'] - $sd, 'link' => 'production.php');
+
+	if (function_exists('readbuildqueue')) {
+		$bcum = $Buildings ? max(0, $Buildings['end'] - $sd) : 0;
+		foreach (readbuildqueue($login) as $q) {
+			$bcum += (int)$q['time'];
+			$prog[] = array('icon' => "gallery/buildings/icons/{$q['name']}.jpg", 'label' => $Lang['Building'] . ' · ' . $Lang['Queued'],
+				'name' => (isset($Builds[$q['name']]) ? $Builds[$q['name']]['name'] : strcap($q['name'])) . ' x' . (int)$q['amount'], 'left' => $bcum, 'link' => 'build.php');
+		}
+		$rcum = @$Research ? max(0, $Research['end'] - $sd) : 0;
+		foreach (readresearchqueue($login) as $q) {
+			$rcum += (int)$q['time'];
+			$prog[] = array('icon' => "gallery/technology/icons/{$q['name']}.jpg", 'label' => $Lang['Research'] . ' · ' . $Lang['Queued'],
+				'name' => (isset($Technologies[$q['name']]) ? $Technologies[$q['name']]['name'] : strcap($q['name'])), 'left' => $rcum, 'link' => 'research.php');
+		}
+	}
+
+	if ($prog) {
+		tablebegin($Lang['InProgress']);
+		echo "\t<ul class=\"queue\">\n";
+		foreach ($prog as $q) {
+			echo "\t\t<li>" . card_image(array($q['icon']), $q['link'], $q['name'])
+				. '<div class="queue-body"><div class="queue-title"><span class="muted">' . htmlspecialchars($q['label']) . '</span> <span class="result">' . htmlspecialchars($q['name']) . '</span></div>'
+				. '<div class="queue-meta">' . ($q['left'] > 0 ? '<span class="value" data-countdown="' . ($q['left'] * $thicklength) . '">' . eta($q['left']) . '</span>' : '<span class="plus">' . $Lang['completed'] . '</span>') . '</div></div></li>' . "\n";
+		}
+		echo "\t</ul>\n";
+		tableend();
+	}
+
 	echo "\t<script>\n\t<!--\n\tfunction avatar() {\n\t\t\$msg = prompt('{$Lang['EnterAvatarURL']}', '');\n\t\tif (\$msg > '') {\n\t\t\t\$url = '{$_SERVER['PHP_SELF']}?rid=$rid&action=changeavatar&url=' + \$msg;\n\t\t\t	document.location.href = \$url;\n\t\t}\n";
 	if ($Colony['avatar']) echo "\t\telse if (\$msg != null) {\n\t\t\t\$url = '{$_SERVER['PHP_SELF']}?rid=$rid&action=changeavatar';\n\t\t\tdocument.location.href = \$url;\n\t\t}\n";
 	echo "\t}\n\n\tfunction description() {\n\t\t\$msg = prompt('{$Lang['EnterDescription']}:', '');\n\t\t\$msg = \$msg.replace(/\\+/g,\"%2B\"); // code: kot\n\t\t\$msg = \$msg.replace(/\\&/g,\"%26\");\n\t\t\$msg = \$msg.replace(/\\#/g,\"%23\");\n\t\tif (\$msg > '') {\n\t\t\t\$url = '{$_SERVER['PHP_SELF']}?rid=$rid&action=changedescription&description=' + \$msg;\n\t\t\tdocument.location.href = \$url;\n\t\t}\n";
