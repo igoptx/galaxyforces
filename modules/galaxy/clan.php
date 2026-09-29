@@ -163,7 +163,7 @@ function actionrecultivation()
 	if ($Group && $Player['privileged'] && ($credits = abs(num(getvar('credits')))) && ($name = escapesql(getvar('name')))) {
 		if ($Group['credits'] < $credits || $credits < 100000) $errors .= $Lang['ErrorNotEnoughCredits'] . '<br />';
 		elseif ($db->query("SELECT * FROM `{$prefix}space` WHERE `name`='$name' AND `type`='planet';") && ($t = $db->fetchrow())) {
-			$n = round(num($credits / 100000));
+			$n = (int)floor(num($credits / 100000));   // floor: com round cobrava mais do que o validado
 			$r = 0;
 			for ($i = 0; ($i < $n) && ($r < $t['explored']); $i++) {
 				switch ($t['class']) {
@@ -177,6 +177,7 @@ function actionrecultivation()
 			}
 			if ($r > $t['explored']) $r = $t['explored'];
 			if ($i < $n) $n = $i;
+			if (!$n || !@$c) return;   // planeta não explorado: evita divisão por zero e custo 0
 			$score = round(num((1 / $c) * $t['explored'] * $r * (10 + $Group['level'])));
 			$cost = $n * 100000;
 			$db->query("UPDATE `{$prefix}space` SET `explored`=`explored`-'$r' WHERE `id`='{$t['id']}';");
@@ -271,8 +272,11 @@ function actionuserdonation()
 	global $login, $db, $prefix, $stardate, $Player, $Group, $Lang, $errors, $result, $name;
 
 	if ($name && $Group && $Player['privileged']) {
-		$credits = abs(num(getvar('credits')));
-		$crystals = abs(num(getvar('crystals')));
+		$credits = (int)floor(abs(num(getvar('credits'))));
+		$crystals = (int)floor(abs(num(getvar('crystals'))));
+		// só a membros do próprio clã (impedia drenar o tesouro para uma conta de fora)
+		$db->query("SELECT `clan` FROM `{$prefix}users` WHERE `login`='$name';");
+		if (!($mrow = $db->fetchrow()) || $mrow['clan'] != $Group['name']) { $errors .= $Lang['ErrorLoginNotExists'] . '<br />'; return; }
 
 		if ($crystals || $credits) {
 			if ($Group['crystals'] < $crystals || $Group['credits'] < $credits) $errors .= $Lang['ErrorNotEnoughResources'] . '<br />';

@@ -102,7 +102,7 @@ function actionbanktransfer() {
 			if (!$errors) {
 				$db->query("SELECT bank FROM {$prefix}users WHERE login='".$db->safe($name)."';");
 				if (!($row = $db->fetchrow())) $errors .= $Lang['ErrorLoginNotExists'].'<br />'; 
-				elseif ($row['bank'] >= $place['parameters']) $errors .= $Lang['BankLimit'].'<br />';
+				elseif ($row['bank'] + $amount > $place['parameters']) $errors .= $Lang['BankLimit'].'<br />';
 				else {
 					$bank = $row['bank'] + $amount;
 					$Player['bank'] -= $cost;
@@ -201,10 +201,11 @@ function actionteleport() {
 		$b = FALSE;
 		for ($i = 0; $i < count((array)($names)); $i++) {
 			if ($names[$i] == $name) { 
-				if ($Player['credits'] < $prices[$i]) $errors .= $Lang['ErrorNotEnoughCredits'] . '<br />';
+				$price = isset($prices[$i]) && $prices[$i] !== '' ? num($prices[$i]) : PHP_INT_MAX;   // sem preco definido nao e gratis
+				if ($Player['credits'] < $price) $errors .= $Lang['ErrorNotEnoughCredits'] . '<br />';
 				elseif ($Player['mp'] >= 5) {
 					$Player['mp'] -= 5;
-					$Player['credits'] -= $prices[$i];
+					$Player['credits'] -= $price;
 					$Player['planet'] = $name;
 					$db->query("UPDATE {$prefix}users SET mp='{$Player['mp']}',planet='{$Player['planet']}',credits='{$Player['credits']}' WHERE id='{$Player['id']}' LIMIT 1;");
 				}
@@ -256,6 +257,7 @@ function actiongamble() {
 		elseif ($Player['mp'] < 0.1 + 0.1 * $Player['level']) $errors .= $Lang['ErrorNotEnoughMP'] . '<br />';
 		else {
 			$Player['mp'] -= 0.1 + 0.1 * $Player['level'];
+			$Player['credits'] -= $cost;   // a aposta e sempre paga; os premios somam-se a seguir
 			if (Rand(0, 199) < 2) {
 				$exp = round(num(33 * Rand(1, num(5 * $cost)) * $Player['level'])) / 100;
 				$Player['exp'] += $exp;
@@ -276,7 +278,6 @@ function actiongamble() {
 			}
 			else {
 				$result = $Lang['GambleN' . Rand(1, 3)] . '<br />';
-				$Player['credits'] -= $cost;
 			}
 			$db->query("UPDATE `{$prefix}users` SET `exp` = '{$Player['exp']}', `credits` = '{$Player['credits']}', `mp` = '{$Player['mp']}' WHERE `login` = '$login' LIMIT 1");
 		}
@@ -323,11 +324,11 @@ function actionmine() {
 					$result .= "<font class=\"capacity\">$s</font><br /><b>{$Lang['Experience']}</b>: <font class=\"capacity\"><b>"  . div($exp) . '</b></font>.<br />';
 				}
 				if (Rand(0, 99) < 1 + $kind) {
-					$Player['credits'] += $credits = Rand(10, num(500 * $Player['level']));
+					$Player['credits'] += $jackpot = Rand(10, num(500 * $Player['level']));
 					if (Rand(0, 99) < 25) $s = $Lang['MineWork7'];
 					else if (Rand(0, 99) < 25) $s = $Lang['MineWork6'];
 					else $s = $Lang['MineWork5'];
-					$result .= "<font class=\"work\"><b>$s</b>:</font> <font class=\"plus\"><b>" . div($credits) . '</b> [!]</font>.<br />';
+					$result .= "<font class=\"work\"><b>$s</b>:</font> <font class=\"plus\"><b>" . div($jackpot) . '</b> [!]</font>.<br />';
 				}
 			}
 
