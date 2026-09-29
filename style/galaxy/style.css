@@ -1193,3 +1193,16 @@ div.module-bug div table.sheet
 .meter i { display: block; height: 4px; background: #aaccff; }
 .meter.over i { background: #ff8bb9; }
 .res-amount { margin: 2px 0; font-size: 11pt; }
+.cards-gallery { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+.card-tile { flex-direction: column; align-items: center; text-align: center; }
+.chip-label { color: #aaccff; margin-right: 3px; }
+.queue { margin: 0; padding: 0; list-style: none; text-align: left; }
+.queue li { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+.queue-body { flex: 1; }
+table.list { width: 100%; }
+table.list th { color: #aaccff; }
+table.list .left { text-align: left; }
+table.list tr.here td { background: #223344; }
+.people { margin: 0; padding: 0; list-style: none; text-align: center; }
+.people li { display: inline; margin: 0 4px; }
+.card-here { border-color: #ffcc99; }
