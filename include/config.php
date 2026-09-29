@@ -9,7 +9,7 @@
 ## ---------------------------------------------------------------------------
 
 # $Config['Debug'] = FALSE;
-$Config['Debug'] = TRUE;
+$Config['Debug'] = getenv('GALAXY_DEBUG') ? (bool)getenv('GALAXY_DEBUG') : FALSE; // FALSE em produção; GALAXY_DEBUG=1 liga
 $Config['Logins'] = TRUE;
 $Config['Registration'] = 'auto'; // [ 'auto', 'email', 'admin' ]
 $Config['AuthType'] = 'cookie'; // [ 'cookie', 'session', 'http' ]

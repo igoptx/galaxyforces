@@ -23,6 +23,8 @@ x-db-env: &db-env
   GALAXY_ADMIN_CONFIRM: ${GALAXY_ADMIN_CONFIRM:-}
   # idioma quando o browser não pede um disponível (en, pl, pt)
   GALAXY_DEFAULT_LANGUAGE: ${GALAXY_DEFAULT_LANGUAGE:-pt}
+  # modo de depuração (mostra erros e tempos); vazio = desligado, produção
+  GALAXY_DEBUG: ${GALAXY_DEBUG:-}
   # tema visual: nova (moderno) ou galaxy (original)
   GALAXY_STYLE: ${GALAXY_STYLE:-nova}
 

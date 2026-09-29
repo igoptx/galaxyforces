@@ -8,8 +8,8 @@
 ## General
 ## ---------------------------------------------------------------------------
 
-# $Config['Debug'] = FALSE;
-$Config['Debug'] = TRUE;
+// FALSE em produção (não mostra erros nem caminhos); GALAXY_DEBUG=1 liga-o
+$Config['Debug'] = getenv('GALAXY_DEBUG') ? (bool)getenv('GALAXY_DEBUG') : FALSE;
 $Config['Logins'] = TRUE;
 $Config['Registration'] = 'auto'; // [ 'auto', 'email', 'admin' ]
 $Config['AuthType'] = 'cookie'; // [ 'cookie', 'session', 'http' ]
