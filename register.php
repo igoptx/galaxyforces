@@ -68,7 +68,7 @@ if ($action == 'register') {
 		if ($db->numrows()) $errors .= $Lang['ErrorLoginExists'] . '!<br />';
 		else {
 			$backpassword = $password;
-			$password = md5($password);
+			$password = $db->safe(gf_password_hash($password));
 			$regid = bin2hex(random_bytes(6));   // 12 caracteres aleatórios
 
 			if ($Config['Registration'] == 'auto') $sql = "INSERT INTO `{$prefix}users` (`login`,`password`,`email`,`gg`,`www`,`language`,`active`,`registered`) VALUES ('$login','$password','$email','$gg','$www','$language',1,'$today');";

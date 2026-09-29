@@ -72,6 +72,31 @@ function strcap($s)
 	return $s ? strtoupper($s[0]).substr($s, 1) : '';
 }
 
+// Palavras-passe: password_hash (bcrypt) para as novas, com aceitação das
+// antigas em MD5 e re-hash no próximo login. A coluna password é varchar(255).
+function gf_password_hash($password)
+{
+	return password_hash((string)$password, PASSWORD_DEFAULT);
+}
+
+// Verdadeiro se a palavra-passe corresponde ao hash guardado (bcrypt ou MD5 antigo).
+function gf_password_verify($password, $hash)
+{
+	$hash = (string)$hash;
+	if ($hash === '') return false;
+	// MD5 antigo: 32 caracteres hexadecimais
+	if (strlen($hash) === 32 && ctype_xdigit($hash)) return hash_equals($hash, md5((string)$password));
+	return password_verify((string)$password, $hash);
+}
+
+// Verdadeiro se o hash deve ser regenerado (era MD5, ou o custo do bcrypt mudou).
+function gf_password_needs_rehash($hash)
+{
+	$hash = (string)$hash;
+	if (strlen($hash) === 32 && ctype_xdigit($hash)) return true;
+	return password_needs_rehash($hash, PASSWORD_DEFAULT);
+}
+
 function escapesql($s)
 {
 	global $db;

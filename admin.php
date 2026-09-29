@@ -173,7 +173,7 @@ elseif ($action) {
 			if ($User['usergroup'] != 'wheel') $errors .= $Lang['ErrorAccessDenied'].'<br />';
 			elseif (($password = @$_POST['password']) != @$_POST['reenter']) $errors .= $Lang['ErrorPasswordAndReenter'].BR;
 			else {
-				$password = md5($password);
+				$password = $db->safe(gf_password_hash($password));
 				$db->query("UPDATE {$prefix}users SET password='$password' WHERE login='$name' LIMIT 1;");
 				echolog("$login: changed password for \"$name\"");
 				$result .= "{$Lang['Pass1']} <a href=\"whois.php?name=$name\">$name</a><br />";

@@ -41,7 +41,7 @@ if ($action == 'recover') {
 		else {
 			$password = Rand(111, 999) . Rand(111, 999);
 			$backpassword = $password;
-			$password = md5($password);
+			$password = $db->safe(gf_password_hash($password));
 			$db->query("UPDATE `{$prefix}users` SET `password`='$password', `regid`='' WHERE `regid`='$regid' LIMIT 1;");   // o código só serve uma vez
 			if ($email) {
 				$msg = $Lang['EmailDontReply'] . $Lang['EmailForgotten3'] . $Lang['EmailRegister21'] . "$login\n\n" . $Lang['EmailRegister22'] . "$backpassword\n\n" . $Lang['EmailForgotten4'];

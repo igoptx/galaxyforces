@@ -91,11 +91,13 @@ if (@$db && ($login = $db->safe($login)) && (($Config['AuthType'] == 'http' && $
 	if ($t = $db->fetchrow()) {
 		if ($locked = $t['locked'] > $timestamp) $logged = false;
 		elseif ($action == 'login' || $Config['AuthType'] == 'http') {
-			if (is_string($t['password']) && hash_equals($t['password'], md5($password))) {
+			if (gf_password_verify($password, $t['password'])) {
 				$seed = bin2hex(random_bytes(8));   // seed de sessão imprevisível (era rand())
 				$salt = sha1($login.$unique.$seed);
 				$logged = true;
 				if ($ip != $t['ip']) { $t['lastip'] = $t['ip']; $t['ip'] = $ip; }
+				// re-hash das passwords antigas em MD5 no login (temos a password em claro)
+				if (gf_password_needs_rehash($t['password'])) $db->query("UPDATE {$prefix}users SET password='".$db->safe(gf_password_hash($password))."' WHERE login='$login' LIMIT 1;");
 				$db->query("UPDATE {$prefix}users SET seed='$seed',seen='$timestamp',online='$timestamp',ip='{$t['ip']}',lastip='{$t['lastip']}',locked='' WHERE login='$login';");
 				if (function_exists('audit')) audit('auth', 'login', $login, '', $login);
 			}

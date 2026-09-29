@@ -181,7 +181,7 @@ if ($ops_admin && $_SERVER['REQUEST_METHOD'] == 'POST') {
 
 		case 'password':
 			$new = substr(strtr(base64_encode(random_bytes(9)), '+/', 'xy'), 0, 12);
-			$db->query("UPDATE `{$prefix}users` SET `password`='" . md5($new) . "', `seed`='' WHERE `login`='$safe_player' LIMIT 1");
+			$db->query("UPDATE `{$prefix}users` SET `password`='" . $db->safe(gf_password_hash($new)) . "', `seed`='' WHERE `login`='$safe_player' LIMIT 1");
 			audit('ops', 'password', $player, 'reset');
 			// mostrada nesta resposta (sem redirecionar): nunca vai para URLs, logs ou registo
 			$ops_newpw = $new;
