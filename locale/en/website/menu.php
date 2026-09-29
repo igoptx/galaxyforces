@@ -34,3 +34,4 @@ $Lang['MenuAds']='advertisements';
 $Lang['MenuRegulations']='regulations';
 $Lang['MenuTutorial']='tutorial';
 $Lang['MenuIRC']='irc channel';
+$Lang['MenuOps']='operations';
