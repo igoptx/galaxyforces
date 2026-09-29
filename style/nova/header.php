@@ -15,8 +15,14 @@ $nova_title = explode(' - ', $Config['Title'], 2);
 
 function nova_resource($key, $label, $amount, $capacity = null)
 {
+	global $Colony, $thicklength;
 	$full = $capacity !== null && $amount > $capacity;
 	$tip = $label . ': ' . strip_tags(strdiv($amount)) . ($capacity !== null ? ' / ' . strip_tags(strdiv($capacity)) : '');
+	// produção por hora no tooltip (o motor calcula por ciclo; thicklength segundos por ciclo)
+	if (isset($Colony[$key . 'plus']) && $thicklength > 0) {
+		$hour = round(($Colony[$key . 'plus'] - $Colony[$key . 'minus']) * 3600 / $thicklength);
+		if ($hour) $tip .= '  (' . ($hour > 0 ? '+' : '') . number_format($hour, 0, '.', ' ') . '/h)';
+	}
 	echo "\t\t<li class=\"res res-$key" . ($full ? ' full' : '') . "\" title=\"" . htmlspecialchars(html_entity_decode($tip)) . "\">"
 		. "<img src=\"images/$key.jpg\" alt=\"\" width=\"16\" height=\"16\" />"
 		. "<span class=\"res-label\">$label</span><span class=\"res-value\">" . strdiv($amount) . "</span></li>\n";
