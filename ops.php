@@ -196,7 +196,7 @@ if ($ops_admin && $_SERVER['REQUEST_METHOD'] == 'POST') {
 			$subject = strip_tags((string)postvar('subject'));
 			$message = strip_tags((string)postvar('message'));
 			if ($subject === '' || $message === '') { $flash = 'OpsFailed'; break; }
-			sendmessage($db->safe($subject), $db->safe($message), $login, $player);
+			sendmessage($subject, $message, $login, $player);   // sendmessage() já escapa
 			audit('ops', 'message', $player, $subject);
 			break;
 

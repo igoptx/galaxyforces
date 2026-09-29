@@ -52,6 +52,18 @@ function adminconfirmed($pass)
 $activity = getvar('activity');
 $view = getvar('view');
 $category = getvar('category');
+
+// Entradas limpas uma vez: várias iam cruas para as queries (SQL injection) e
+// para a página (XSS). newname/to/clanname são nomes; checkbox[] são ids ou nomes.
+$newname = escapesql(strip_tags((string)$newname));
+$to = escapesql(strip_tags((string)$to));
+$clanname = escapesql(strip_tags((string)$clanname));
+$category = preg_replace('/[^a-z0-9_]/', '', (string)$category);
+if (isset($_POST['checkbox'])) {
+	$clean = array();
+	foreach ((array)$_POST['checkbox'] as $v) $clean[] = $db->safe(strip_tags((string)$v));
+	$_POST['checkbox'] = $clean;
+}
 $page = (int)getvar('page');
 $id = (int)getvar('id');
 $checkall = getvar('checkall') > '';
@@ -79,6 +91,12 @@ if (!in_array($User['usergroup'], (array)($valid))) {
 
 elseif ($action) {
 	audit('admin', $action, (string)$name, 'admin.php');
+	// os grupos só eram verificados no menu: um moderador podia apagar contas ou
+	// tornar-se wheel. Moderadores: chat e bans; tudo o resto é só para wheel.
+	if (!in_array($action, array('chatdelete', 'ban', 'unlock', 'lock')) && @$User['usergroup'] != 'wheel') {
+		$errors .= $Lang['ErrorAccessDenied'].'<br />';
+		$action = '';
+	}
 	switch ($action) {
 		case 'chatdelete':
 			$sql = '';
@@ -106,12 +124,14 @@ elseif ($action) {
 
 		case 'ban':
 		case 'lock':
-			list($h, $i, $s, $d, $m, $y) = array(getvar('h'), getvar('i'), getvar('s'), getvar('d'), getvar('m'), getvar('y'));
+			// só dígitos (a data ia crua para a query)
+			list($h, $i, $s, $d, $m, $y) = array_map(function ($v) { return preg_replace('/[^0-9]/', '', (string)$v); }, array(getvar('h'), getvar('i'), getvar('s'), getvar('d'), getvar('m'), getvar('y')));
 			$time = "$y$m$d$h$i$s";
 			$human = "$y-$m-$d $h:$i:$s";
 			if (strlen($time) != 14) $errors .= "{$Lang['ErrorDateTimeFormat']}<br />";
 			elseif ($action == 'lock' && $Player['usergroup'] != $Config['Administrators']) $errors .= "{$Lang['ErrorAccessDenied']}<br />";
 			elseif (!$name = $db->safe($name)) $errors .= "{$Lang['ErrorEmptyLogin']}<br />";
+			elseif (@$User['usergroup'] != 'wheel' && $db->query("SELECT `usergroup` FROM {$prefix}users WHERE login='$name' LIMIT 1") && ($tt = $db->fetchrow()) && $tt['usergroup'] == 'wheel') $errors .= "{$Lang['ErrorAccessDenied']}<br />";   // moderador não bane admins
 			elseif (!$reason) $errors .= "{$Lang['ErrorUnknownReason']}<br />";
 			else {
 				$db->query("SELECT bancount FROM {$prefix}users WHERE login='$name';");
@@ -409,7 +429,7 @@ elseif ($action) {
 				$db->query("INSERT INTO`{$prefix}chat` (`timestamp`, `author`, `message`) VALUES(".date('YmdHis').",'<font color=\"robot\">system</font>','<font class=\"capacity\">Skasowano ".count((array)(@$_POST['checkbox']))." klan(y/ow). Kredyty oraz krysztaly przelane zostaly na konta wlascicieli.</font>');");
 				for ($i = 0; $i < count((array)(@$_POST['checkbox'])); $i++) 
 				{
-					$db->query("select * from {$prefix}groups where id=".$_POST['checkbox'][$i].";");
+					$db->query("select * from {$prefix}groups where id=".(int)$_POST['checkbox'][$i].";");
 					if ($t = $db->fetchrow())
 					{
 						$db->query("UPDATE {$prefix}users SET clan='' WHERE login='".$t['name']."';");
@@ -884,7 +904,7 @@ elseif ($view == 'chat') {
 		echo "\t</table>\n\t</form>\n";
 		echo "\t<script>\n\t<!--\n\tfunction deleteselected()\n\t{\n\t\tif (confirm('{$Lang['AreYouSure?']}')) form.submit();\n\t}\n\t//-->\n\t</script>\n";
 
-		echo "\t<br /><a href=\"{$_SERVER['REQUEST_URI']}&checkall=1\" onclick=\"setcheckboxes('form', 'checkbox[]', true); return false;\">{$Lang['SelectAll']}</a> &nbsp;/&nbsp; <a href=\"{$_SERVER['REQUEST_URI']}&checkall=0\" onclick=\"setcheckboxes('form', 'checkbox[]', false); return false;\">{$Lang['UnselectAll']}</a><br />\n";
+		echo "\t<br /><a href=\"" . htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES) . "&checkall=1\" onclick=\"setcheckboxes('form', 'checkbox[]', true); return false;\">{$Lang['SelectAll']}</a> &nbsp;/&nbsp; <a href=\"{$_SERVER['REQUEST_URI']}&checkall=0\" onclick=\"setcheckboxes('form', 'checkbox[]', false); return false;\">{$Lang['UnselectAll']}</a><br />\n";
 		echo "\t<br /><a class=\"delete\" href=\"javascript:deleteselected()\">{$Lang['DeleteSelected']}&nbsp;&gt;&gt;</a><br />\n";
 	}
 	else {
@@ -1030,7 +1050,7 @@ elseif (($view == 'oldseen') && ($User['usergroup'] == 'wheel'))
 echo "\t<script>\n\t<!--\n\tfunction deleteselected()\n\t{\n\t\t
 if (confirm('{$Lang['AreYouSure?']}')) form.submit();\n\t}\n\t//-->\n\t</script>\n";
 
-echo "\t<br /><a href=\"{$_SERVER['REQUEST_URI']}&checkall=1\" onclick=\"setcheckboxes('form', 'checkbox[]', true); return false;\">{$Lang['SelectAll']}</a> &nbsp;/&nbsp; <a href=\"{$_SERVER['REQUEST_URI']}&checkall=0\" onclick=\"setcheckboxes('form', 'checkbox[]', false); return false;\">{$Lang['UnselectAll']}</a><br />\n";
+echo "\t<br /><a href=\"" . htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES) . "&checkall=1\" onclick=\"setcheckboxes('form', 'checkbox[]', true); return false;\">{$Lang['SelectAll']}</a> &nbsp;/&nbsp; <a href=\"{$_SERVER['REQUEST_URI']}&checkall=0\" onclick=\"setcheckboxes('form', 'checkbox[]', false); return false;\">{$Lang['UnselectAll']}</a><br />\n";
 echo "\t<br /><a class=\"delete\" href=\"javascript:deleteselected()\">{$Lang['DeleteSelected']}&nbsp;&gt;&gt;</a><br />\n
 {$Lang['AdminConfirmPassword']}: <input type='password' name='pass' value=''/>";
 ?>

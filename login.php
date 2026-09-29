@@ -50,11 +50,11 @@ if ($action == 'logout') { ?><br /><font class="capacity"><?php echo $Lang['Succ
 	<table class="form" align="center">
 	<tr>
 	<td><?php echo $Lang['Login']; ?>:</td>
-	<td><input type="text" maxlength="32" name="login"<?php echo ($login ? " value=\"$login\"" : ''); ?> /></td>
+	<td><input type="text" maxlength="32" name="login"<?php echo ($login ? ' value="' . htmlspecialchars(stripslashes($login), ENT_QUOTES) . '"' : ''); ?> /></td>
 	</tr>
 	<tr>
 	<td><?php echo $Lang['Password']; ?>:</td>
-	<td><input type="password" maxlength="32" name="password"<?php echo ($error ? " value=\"$password\"" : ''); ?> /></td>
+	<td><input type="password" maxlength="32" name="password" /></td>
 	</tr>
 	<tr><td colspan="2">&nbsp;</td></tr>
 	<tr>

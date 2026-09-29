@@ -25,7 +25,7 @@ require("include/messages.php");
 
 $index = (int)getvar('index');
 $view = getvar('view');
-$category = getvar('category');
+$category = preg_replace('/[^a-z]/', '', (string)getvar('category'));   // ecoado em links e campos (XSS refletido)
 $page = (int)getvar('page');
 $checkall = getvar('checkall');
 
@@ -53,8 +53,8 @@ switch ($category) {
 if ($action == 'broadcast') {
 	if (isset($_POST['checkbox']) && $_POST['checkbox']) {
 		for ($i = 0; $i < count((array)($_POST['checkbox'])); $i++)
-			if (! $i) $to = $_POST['checkbox'][$i];
-			else $to .= ',' . $_POST['checkbox'][$i];
+			if (! $i) $to = escapesql(strip_tags($_POST['checkbox'][$i]));
+			else $to .= ',' . escapesql(strip_tags($_POST['checkbox'][$i]));
 	}
 	$action = 'compose';
 }
@@ -97,7 +97,7 @@ elseif ($action == 'delete') {
 
 elseif ($action == 'deleteselected') {
 	if ($Config['MessageLife']) $db->query("DELETE FROM `{$prefix}messages` WHERE `timestamp`<'".date('Ymd', mktime(0, 0, 0, num(date("m")), num(date("d") - $Config['MessageLife']), num(date("Y")))).'000000'."';");
-	for ($i = 0; $i < count((array)(@$_POST['checkbox'])); $i++) @$sql .= ($sql ? ' OR ' : '')."`id`='".$_POST['checkbox'][$i]."'";
+	for ($i = 0; $i < count((array)(@$_POST['checkbox'])); $i++) @$sql .= ($sql ? ' OR ' : '')."`id`='".(int)$_POST['checkbox'][$i]."'";
 	$sql = "DELETE FROM `{$prefix}messages` WHERE `to`='$login' AND (".$sql.");";
 	$db->query($sql);
 }
@@ -139,7 +139,7 @@ elseif ($view == 'compose' || $view == 'reply') {
 		}
 	}
 	else {
-		if (! isset($to)) $to = getvar('to');
+		if (! isset($to)) $to = strip_tags((string)getvar('to'));
 		$subject = '';
 	}
 
@@ -153,12 +153,12 @@ elseif ($view == 'compose' || $view == 'reply') {
 	<tr>
 	<td><b><?php echo $Lang['To:']; ?></b></td>
 	<td>&nbsp;</td>
-	<td><input type="text" size="30" maxlength="512" name="to" <?php echo $to ? "value=\"$to\" " : ''; ?>/></td>
+	<td><input type="text" size="30" maxlength="512" name="to" <?php echo $to ? 'value="' . htmlspecialchars(stripslashes($to), ENT_QUOTES) . '" ' : ''; ?>/></td>
 	</tr>
 	<tr>
 	<td><b><?php echo $Lang['Subject:']; ?></b></td>
 	<td>&nbsp;</td>
-	<td><input type="text" size="60" maxlength="240" name="subject" <?php echo $subject ? "value=\"$subject\" " : ''; ?>/></td>
+	<td><input type="text" size="60" maxlength="240" name="subject" <?php echo $subject ? 'value="' . htmlspecialchars($subject, ENT_QUOTES) . '" ' : ''; ?>/></td>
 	</tr>
 	<tr><td colspan="3">&nbsp;</td></tr>
 	<tr>
@@ -275,7 +275,7 @@ else {
 		echo "\t</table>\n\t</form>\n";
 		echo "\t<script>\n\t<!--\n\tfunction deleteselected()\n\t{\n\t\tif (confirm('{$Lang['AreYouSure?']}')) form.submit();\n\t}\n\t//-->\n\t</script>\n";
 
-		echo "\t<br /><a href=\"{$_SERVER['REQUEST_URI']}&checkall=1\" onclick=\"setcheckboxes('form', 'checkbox[]', true); return false;\">{$Lang['SelectAll']}</a> &nbsp;/&nbsp; <a href=\"{$_SERVER['REQUEST_URI']}&checkall=0\" onclick=\"setcheckboxes('form', 'checkbox[]', false); return false;\">{$Lang['UnselectAll']}</a> &nbsp;/&nbsp; <a href=\"messages.php?action=markallread&page=$page&category=$category\">{$Lang['MarkAllRead']}</a><br />\n";
+		echo "\t<br /><a href=\"" . htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES) . "&checkall=1\" onclick=\"setcheckboxes('form', 'checkbox[]', true); return false;\">{$Lang['SelectAll']}</a> &nbsp;/&nbsp; <a href=\"{$_SERVER['REQUEST_URI']}&checkall=0\" onclick=\"setcheckboxes('form', 'checkbox[]', false); return false;\">{$Lang['UnselectAll']}</a> &nbsp;/&nbsp; <a href=\"messages.php?action=markallread&page=$page&category=$category\">{$Lang['MarkAllRead']}</a><br />\n";
 		echo "\t<br /><a class=\"delete\" href=\"javascript:deleteselected()\">{$Lang['DeleteSelected']}&nbsp;&gt;&gt;</a><br />\n";
 	}
 	else {
