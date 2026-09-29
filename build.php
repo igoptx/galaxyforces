@@ -133,77 +133,45 @@ else {
 	}
 	else {
 		tablebegin($Lang['Build']);
-		
-?>	<table width="100%" cellspacing="0" cellpadding="0" border="0" align="center">
-<?php
+
+		// um grupo de cartões por tipo de estrutura
+		$type = null;
+		echo "\t<div class=\"cards\">\n";
 		foreach ($Builds as $s) {
-
-			if (! isset($type)) $type = $s['type'];
-			elseif ($s['type'] != $type) {
-
-?>	<tr height="8"><td colspan="9">&nbsp;</td></tr>
-	</table>
-<?php
-			tablebreak();
-
-?>	<table width="100%" cellspacing="0" cellpadding="0" border="0" align="center">
-<?php
+			if ($type !== null && $s['type'] != $type) {
+				echo "\t</div>\n";
+				tablebreak();
+				echo "\t<div class=\"cards\">\n";
+			}
 			$type = $s['type'];
-			}
 
-?>	<tr height="8"><td colspan="9">&nbsp;</td></tr>
-	<tr height="72" valign="middle">
-	<td width="12">&nbsp;</td>
-	<td width="72">
-		<table background="images/pw.gif" width="72" height="72" cellspacing="0" cellpadding="0" border="0" align="center">
-		<tr height="72" valign="center">
-		<td><center><a href="description.php?subject=<?php echo $s['id']; ?>&back=<?php echo $_SERVER['PHP_SELF']; ?>"><img src="gallery/buildings/icons/<?php echo $s['id']; ?>.jpg" alt="" width="64" height="64" hspace="0" vspace="0" border="0"></a></center></td>
-		</tr>
-		</table>
-	</td>
-	<td width="8">&nbsp;</td>
-	<td align="left">
-		<font class="result"><b><?php echo $s['name']; ?></b></font><br />
-		<?php echo $s['description']; ?><br />
-		<b><?php echo $Lang['Amount']; ?></b>: <font class="capacity"><?php echo strdiv($Colony[$s['id']]); ?>
-	</td>
-	<td width="8">&nbsp;</td>
-	<td><?php if (isset($s['level'])) { ?><b><?php echo $Lang['Level']; ?></b>: <font class="capacity"><?php echo $s['level']; ?></font><?php } ?></td>
-	<td width="8">&nbsp;</td>
-	<td width="100" align="left">
+			$href = "description.php?subject={$s['id']}&back={$_SERVER['PHP_SELF']}";
+			$costs = $s;
+			if (isset($s['cost'])) $costs['credits'] = $s['credits'] + $s['cost'];
+			$credits_class = isset($s['cost']) ? 'work' : 'result';
+?>		<article class="card">
+			<?php echo card_image(array("gallery/buildings/{$s['id']}.jpg", "gallery/buildings/icons/{$s['id']}.jpg"), $href, $s['name']); ?>
+
+			<div class="card-body">
+				<h4 class="card-title"><a href="<?php echo $href; ?>"><?php echo $s['name']; ?></a>
+					<span class="badge" title="<?php echo $Lang['Amount']; ?>"><?php echo strdiv($Colony[$s['id']]); ?></span></h4>
+				<p class="card-desc"><?php echo $s['description']; ?></p>
+<?php if (isset($s['level'])) { ?>				<p class="card-meta"><b><?php echo $Lang['Level']; ?></b>: <span class="capacity"><?php echo $s['level']; ?></span></p>
+<?php } ?>				<?php echo card_costs($costs, $credits_class); ?>
+
+<?php if ($Colony['infrastructure']) { ?>				<div class="card-actions">
+					<span class="eta" title="ETA"><?php echo eta(round(num((50 / $Colony['infrastructure']) * $s['work'] / log(num($Colony['workforce']))))); ?></span>
+					<form action="<?php echo $_SERVER['PHP_SELF']; ?>?rid=<?php echo $rid; ?>" method="POST">
+						<input type="hidden" name="action" value="build" />
+						<input type="hidden" name="name" value="<?php echo $s['id']; ?>" />
+						<?php if (! isset($s['level'])) { ?><input class="amount" size="4" maxlength="8" name="amount" value="1" /><?php } ?><input type="submit" value="<?php echo $Lang['build']; ?>" />
+					</form>
+				</div>
+<?php } ?>			</div>
+		</article>
 <?php
-			if (isset($s['cost'])) echo "\t\t<b>[!]</b>&nbsp;<font class=\"work\">" . div($s['credits'] + $s['cost']) . "</font><br />\n";
-			elseif (isset($s['credits'])) echo "\t\t<b>[!]</b>&nbsp;<font class=\"result\">" . div($s['credits']) . "</font><br />\n";
-
-			if (@$s['energy']) echo "\t\t<b>[E]</b>&nbsp;" . div($s['energy']) . "<br />\n";
-			if (@$s['silicon']) echo "\t\t<b>[S]</b>&nbsp;" . div($s['silicon']) . "<br />\n";
-			if (@$s['metal']) echo "\t\t<b>[M]</b>&nbsp;" . div($s['metal']) . "<br />\n";
-			if (@$s['uran']) echo "\t\t<b>[U]</b>&nbsp;" . div($s['uran']) . "<br />\n";
-			if (@$s['crystals']) echo "\t\t<b>[C]</b>&nbsp;" . div($s['crystals']) . "<br />\n";
-
-			echo '</td>';
-
-			if ($Colony['infrastructure']) {
-	
-?>	<td width="4">&nbsp;</td>
-	<td width="80" align="center">
-		[ <font class="plus"><?php echo eta(round(num((50 / $Colony['infrastructure']) * $s['work'] / log(num($Colony['workforce']))))); ?></b></font> ]<br />
-	</td>
-	<td width="4">&nbsp;</td>
-	<td width="100" align="right">
-		<form action="<?php echo $_SERVER['PHP_SELF']; ?>?rid=<?php echo $rid; ?>" method="POST">
-		<input type="hidden" name="action" value="build" />
-		<input type="hidden" name="name" value="<?php echo $s['id']; ?>" />
-		<?php if (! isset($s['level'])) { ?><input size="4" maxlength="8" name="amount" value="1" />&nbsp;<?php } ?><input type="submit" value="<?php echo $Lang['build']; ?>" />
-		</form>
-	</td>
-	<td width="12">&nbsp;</td>
-<?php
-			}
-			echo '</tr>';
-
 		}
-		echo "\t".'<tr height="8"><td colspan="9">&nbsp;</td></tr>'."\n\t</table>\n";
+		echo "\t</div>\n";
 		tableend(count((array)($Builds)) . $Lang[' structure(s) available']);
 
 		if ($action == 'cancelbuilding') sound('processcancelled');

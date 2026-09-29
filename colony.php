@@ -192,110 +192,78 @@ elseif ($Colony) {
 	foreach (array('energy','silicon','metal','uran','plutonium','deuterium','food') as $name) $Colony[$name.'fill'] = fill($name);
 
 	tablebegin($pagename);
-	subbegin('images/table-b1.jpg');
-?>		<table width="100%" cellspacing="0" cellpadding="0" border="0" align="center">
-		<tr valign="top">
-		<td>
-			<b><?php echo $Lang['Colony name']; ?></b>: <font class="capacity"><?php echo $Colony['name']; ?></font><br />
-			<br />
-			<b><?php echo $Lang['Technology']; ?></b>: <font class="result"><?php echo $Planet['technology']; ?></font><br />
-			<b><?php echo $Lang['Population']; ?></b>: <font class="result"><?php echo div($Colony['colonists'] + $Colony['scientists'] + $Colony['soldiers']); ?></font><br />
-			<b><?php echo $Lang['Robots']; ?></b>: <font class="result"><?php echo div($Colony['bx1'] + $Colony['bx2'] + $Colony['bx5'] + $Colony['bx10']); ?></font><br />
-			<br />
-			<b><?php echo $Lang['Damaged']; ?></b>: <font class="delete"><?php echo round(num(100 * $Colony['damage'])) / 100; ?>%</font><?php if ($Colony['damage']) { ?> <a href="colony.php?action=repair"><?php echo $Lang['Repair']; ?> &gt;&gt;</a><?php } ?><br />
-		</td>
-		<td width="8">&nbsp;</td>
-		<td>
-			<b><?php echo $Lang['Planet']; ?></b>: <a href="galaxy.php?galaxy=<?php echo $Galaxy['name']; ?>&object=<?php echo $Planet['name']; ?>"><?php echo strcap($Planet['name']); ?></a>, <b><?php echo $Lang['Galaxy']; ?></b>: <a href="galaxy.php?galaxy=<?php echo $Galaxy['name']; ?>"><?php echo strcap($Galaxy['name']); ?></a><br />
-			<br />
-<?php if ($Colony['colonists']) { ?>			<b><?php echo $Lang['Colonists']; ?></b>: <font class="result"><?php echo div($Colony['colonists']); ?></font><?php echo (@$Colony['colonists'] ? ' (<font class="capacity">'.div($Colony['colonistsfree']).'</font> '.$Lang['freeinbase'].')' : ''); ?><br /><?php } ?>
-<?php if ($Colony['scientists']) { ?>			<b><?php echo $Lang['Scientists']; ?></b>: <font class="result"><?php echo div($Colony['scientists']); ?></font><?php echo (@$Colony['scientists'] ? ' (<font class="capacity">'.div($Colony['scientistsfree']).'</font> '.$Lang['freeinbase'].')' : ''); ?><br /><?php } ?>
-<?php if ($Colony['soldiers']) { ?>			<b><?php echo $Lang['Soldiers']; ?></b>: <font class="result"><?php echo div($Colony['soldiers']); ?></font><?php echo (@$Colony['soldiers'] ? ' (<font class="capacity">' . div($Colony['soldiersfree']) . '</font> ' . $Lang['freeinbase'] . ')' : ''); ?> <a href="train.php?RID=<?php echo $RID; ?>"><?php echo $Lang['TrainS']; ?> &gt;&gt;</a><br /><?php } ?>
-<?php if ($Colony['clones']) { ?>			<b><?php echo $Lang['Clones']; ?></b>: <font class="result"><?php echo div($Colony['clones']); ?></font><?php echo (@$Colony['clonesfree'] ? ' (<font class="capacity">'.div($Colony['clonesfree']).'</font> '.$Lang['freeinbase'].')' : ''); ?><br /><?php } ?>
-<?php if ($Colony['drones']) { ?>			<b><?php echo $Lang['Drones']; ?></b>: <font class="result"><?php echo div($Colony['drones']); ?></font><?php echo (@$Colony['clonesfree'] ? ' (<font class="capacity">'.div($Colony['dronesfree']).'</font> '.$Lang['freeinbase'].')' : ''); ?><br /><?php } ?>
-<?php if ($Colony['souls']) { ?>			<b><?php echo $Lang['Souls']; ?></b>: <font class="result"><?php echo div($Colony['souls']); ?></font><?php echo (@$Colony['soulsfree'] ? ' (<font class="capacity">'.div($Colony['soulsfree']).'</font> '.$Lang['freeinbase'].')' : ''); ?><br /><?php } ?>
-			<br />
-			<?php echolink('colony.php?view=management', $Lang['ColonyManagement']) ?>&nbsp;&nbsp;<?php echolink('colony.php?view=abandon', $Lang['AbandonColony'], 'delete') ?><br />
-		</td>
-		<td width="8">&nbsp;</td>
-		<td rowspan="2" width="168">
-			<table background="images/bw.gif" width="168" height="168" cellspacing="0" cellpadding="0" hspace="4" border="0" align="right">
-			<tr height="168" valign="center">
-			<td><center><a href="javascript:avatar()"><img src="<?php echo $Colony['avatar'] ? $Colony['avatar'] : 'gallery/avatars/noavatar.gif'; ?>" alt="" width="160" height="160" hspace="0" vspace="0" border="0" /></a></center></td>
-			</tr>
-			</table>
-		</td>
-		</tr>
-		<tr>
-		<td colspan="3">
-<?php
-	if ($Colony['description']) {
 
-?>		<b><?php echo $Lang['Description']; ?></b> (<a href="javascript:description()"><?php echo $Lang['change']; ?></a>):<br />
-		<font class="result"><?php echo emoticons($Colony['description']); ?></font><br />
+	// população: só os grupos que a colónia tem, como antes
+	$people = array('colonists' => 'Colonists', 'scientists' => 'Scientists', 'soldiers' => 'Soldiers', 'clones' => 'Clones', 'drones' => 'Drones', 'souls' => 'Souls');
+	$freekey = array('colonists' => 'colonists', 'scientists' => 'scientists', 'soldiers' => 'soldiers', 'clones' => 'clones', 'drones' => 'clones', 'souls' => 'souls');
+?>	<div class="colony">
+		<div class="colony-info">
+			<dl class="facts">
+				<dt><?php echo $Lang['Colony name']; ?></dt><dd class="capacity"><?php echo $Colony['name']; ?></dd>
+				<dt><?php echo $Lang['Planet']; ?></dt><dd><a href="galaxy.php?galaxy=<?php echo $Galaxy['name']; ?>&amp;object=<?php echo $Planet['name']; ?>"><?php echo strcap($Planet['name']); ?></a>, <a href="galaxy.php?galaxy=<?php echo $Galaxy['name']; ?>"><?php echo strcap($Galaxy['name']); ?></a></dd>
+				<dt><?php echo $Lang['Technology']; ?></dt><dd class="result"><?php echo $Planet['technology']; ?></dd>
+				<dt><?php echo $Lang['Population']; ?></dt><dd class="result"><?php echo div($Colony['colonists'] + $Colony['scientists'] + $Colony['soldiers']); ?></dd>
+				<dt><?php echo $Lang['Robots']; ?></dt><dd class="result"><?php echo div($Colony['bx1'] + $Colony['bx2'] + $Colony['bx5'] + $Colony['bx10']); ?></dd>
+<?php
+	foreach ($people as $key => $lang) {
+		if (!@$Colony[$key]) continue;
+		$free = $key == 'drones' ? @$Colony['clonesfree'] : @$Colony[$freekey[$key] . 'free'];
+		$freeval = $key == 'drones' ? @$Colony['dronesfree'] : $free;
+?>				<dt><?php echo $Lang[$lang]; ?></dt><dd><span class="result"><?php echo div($Colony[$key]); ?></span><?php if (in_array($key, array('colonists', 'scientists', 'soldiers')) || $free) echo ' <span class="muted">(<span class="capacity">' . div($freeval) . '</span> ' . $Lang['freeinbase'] . ')</span>'; ?><?php if ($key == 'soldiers') { ?> <a href="train.php?RID=<?php echo $RID; ?>"><?php echo $Lang['TrainS']; ?> &gt;&gt;</a><?php } ?></dd>
 <?php
 	}
-	else {
-
-?>		<a href="javascript:description()"><?php echo $Lang['EditDescription']; ?> &gt;&gt;</a><br />
+?>				<dt><?php echo $Lang['Damaged']; ?></dt><dd><span class="delete"><?php echo round(num(100 * $Colony['damage'])) / 100; ?>%</span><?php if ($Colony['damage']) { ?> <a href="colony.php?action=repair"><?php echo $Lang['Repair']; ?> &gt;&gt;</a><?php } ?></dd>
+			</dl>
+			<div class="colony-desc">
+<?php if ($Colony['description']) { ?>				<b><?php echo $Lang['Description']; ?></b> (<a href="javascript:description()"><?php echo $Lang['change']; ?></a>):
+				<span class="result"><?php echo emoticons($Colony['description']); ?></span>
+<?php } else { ?>				<a href="javascript:description()"><?php echo $Lang['EditDescription']; ?> &gt;&gt;</a>
+<?php } ?>			</div>
+			<p class="colony-links"><?php echolink('colony.php?view=management', $Lang['ColonyManagement']); ?> <?php echolink('colony.php?view=abandon', $Lang['AbandonColony'], 'delete'); ?></p>
+		</div>
+		<a class="colony-avatar" href="javascript:avatar()"><img src="<?php echo $Colony['avatar'] ? $Colony['avatar'] : 'gallery/avatars/noavatar.gif'; ?>" alt="" width="160" height="160" /></a>
+	</div>
 <?php
-	}
-?>		</td>
-		<td width="8">&nbsp;</td>
-		</tr>
-		</table>
-<?php
-	subend();
 	tablebreak();
 
-	function cell($name, $content) {
-		global $i;
-		if (++$i % 2) {
-			echo "\t<tr height=\"8\"><td colspan=\"9\">&nbsp;</td></tr>\n\t<tr height=\"72\" valign=\"center\">\n\t<td width=\"12\">&nbsp;</td><td align=\"left\" width=\"72\">\n";
-			tableimg('images/pw.gif', 72, 72, "gallery/resources/icons/$name.jpg", 64, 64, "description.php?subject=$name&back=colony.php");
-			echo "\t</td>\n\t<td width=\"12\">&nbsp;</td>\n\t<td align=\"left\">\n\t\t$content\n\t</td>\n";
-		}
-		else {
-			echo "\t<td width=\"12\">&nbsp;</td>\n\t<td align=\"right\">\n\t\t$content\n\t</td>\n\t<td width=\"12\">&nbsp;</td>\n\t<td align=\"right\" width=\"72\">\n";
-			tableimg('images/pw.gif', 72, 72, "gallery/resources/icons/$name.jpg", 64, 64, "description.php?subject=$name&back=colony.php");
-			echo "\t</td>\n\t<td width=\"12\">&nbsp;</td>\n\t</tr>\n";
-		}
-	}
-
-	echo "\t<table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" align=\"center\">\n";
-
-	$symbol = array('energy'=>'E','silicon'=>'S','metal'=>'M','uran'=>'U','plutonium'=>'P','deuterium'=>'D','food'=>'F','crystals'=>'C');
-
+	// um cartão por recurso: quantidade, ocupação do armazém, fontes e produção por ciclo
+	echo "\t<div class=\"cards cards-res\">\n";
 	foreach (array('energy','silicon','metal','uran','plutonium','deuterium','food','crystals') as $name) {
-		if ($Colony[$name] || @$Colony[$name.'capacity'] || @$Colony[$name.'sources']) {
-			$content = '<b>['.$symbol[$name].']</b> '.$Lang[strcap($name)].': <font class="value">'.div($Colony[$name]).'</font><br /><br />';
-			if (@$Colony[$name.'capacity']) $content .= $Lang['Capacity'].': <font class="capacity">'.div($Colony[$name.'capacity']).'</font>'.$Colony[$name.'fill'].(@$Colony[$name.'sources'] ? '&nbsp;&nbsp;' : '');
-			if (@$Colony[$name.'sources']) $content .= $Lang['Sources'].': <font class="work">'.div($Colony[$name.'sources']).'</font>';
-			$content .= '<br />';
-			if (@$Colony[$name.'plus'] || @$Colony[$name.'minus']) $content .= $Lang['Rates'].': '.amount($Colony[$name.'plus']).'&nbsp;&nbsp;'.amount(-$Colony[$name.'minus']).'</font> = <font class="result">'.div($Colony[$name.'plus'] - $Colony[$name.'minus'], 1, $Lang['DecPoint']).'</font>';
-			$content .= '<br />';
+		if (!($Colony[$name] || @$Colony[$name.'capacity'] || @$Colony[$name.'sources'])) continue;
+		$label = $Lang[strcap($name)];
+?>		<article class="card card-res">
+			<?php echo card_image(array("gallery/resources/icons/$name.jpg"), "description.php?subject=$name&amp;back=colony.php", $label); ?>
 
-			cell($name, $content);
+			<div class="card-body">
+				<h4 class="card-title"><?php echo $label; ?></h4>
+				<p class="res-amount value"><?php echo div($Colony[$name]); ?></p>
+<?php
+		if (@$Colony[$name.'capacity']) {
+			$pct = 100 * $Colony[$name] / $Colony[$name.'capacity'];
+?>				<div class="meter<?php echo $pct > 100 ? ' over' : ''; ?>"><i style="width: <?php echo max(0, min(100, round(num($pct)))); ?>%"></i></div>
+				<p class="card-meta"><?php echo $Lang['Capacity']; ?>: <span class="capacity"><?php echo div($Colony[$name.'capacity']); ?></span><?php echo $Colony[$name.'fill']; ?></p>
+<?php
 		}
+		if (@$Colony[$name.'sources']) echo "\t\t\t\t<p class=\"card-meta\">{$Lang['Sources']}: <span class=\"work\">" . div($Colony[$name.'sources']) . "</span></p>\n";
+		if (@$Colony[$name.'plus'] || @$Colony[$name.'minus']) {
+?>				<p class="card-meta rates"><?php echo $Lang['Rates']; ?>: <?php echo amount($Colony[$name.'plus']); ?> <?php echo amount(-$Colony[$name.'minus']); ?> = <span class="result"><?php echo div($Colony[$name.'plus'] - $Colony[$name.'minus'], 1, $Lang['DecPoint']); ?></span></p>
+<?php
+		}
+?>			</div>
+		</article>
+<?php
 	}
+?>		<article class="card card-res">
+			<?php echo card_image(array("gallery/resources/icons/credits.jpg"), "description.php?subject=credits&amp;back=colony.php", $Lang['Credits']); ?>
 
-	cell('credits', '<b>[!]</b> '.$Lang['Credits'].': <font class="value">'.div($Player['credits']).'</font><br /><br />'.$Lang['Bank'].': <font class="value">'.div($Player['bank']).'</font><br /><br />');
-
-	if ($i % 2) echo "\t<td colspan=\"5\">&nbsp;</td>\n";
-	echo "\t<tr height=\"8\"><td colspan=\"9\">&nbsp;</td></tr>\n\t</table>\n";
-
-/*
-	tablebreak();
-
-	subbegin();
-
-	?><table width="100%" cellspacing="0" cellpadding="0"><?php
-
-	?><tr><td><b><?php echo $Lang['Scienceforce']; ?></b>:</td><td>&nbsp;</td><td align="center"><?php echo div($Colony['scienceforce'], 1); ?></td><td>&nbsp;</td>
- workforce ${Colony['workforce']} ";
-	subend();
-
-*/
+			<div class="card-body">
+				<h4 class="card-title"><?php echo $Lang['Credits']; ?></h4>
+				<p class="res-amount value"><?php echo div($Player['credits']); ?></p>
+				<p class="card-meta"><?php echo $Lang['Bank']; ?>: <span class="value"><?php echo div($Player['bank']); ?></span></p>
+			</div>
+		</article>
+	</div>
+<?php
 
 	tableend($Lang['Resources']);
 
