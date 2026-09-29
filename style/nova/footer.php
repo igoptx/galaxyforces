@@ -42,4 +42,28 @@ if ($Config['Debug'] && isset($db)) {
 	show();
 	setInterval(function () { left = left > 1 ? left - 1 : length; show(); }, 1000);
 })();
+
+// contadores de qualquer <span data-countdown="segundos"> (construção, investigação, produção...)
+(function () {
+	var els = [].slice.call(document.querySelectorAll('[data-countdown]'));
+	if (!els.length) return;
+	els.forEach(function (el) { el.dataset.left = parseInt(el.getAttribute('data-countdown'), 10) || 0; });
+	function fmt(t) {
+		if (t <= 0) return el_done;
+		var d = Math.floor(t / 86400), h = Math.floor(t % 86400 / 3600), m = Math.floor(t % 3600 / 60), s = t % 60, o = '';
+		if (d) o += d + 'd ';
+		if (d || h) o += h + 'h ';
+		if (!d) o += (h ? (m < 10 ? '0' : '') : '') + m + 'm ' + (s < 10 ? '0' : '') + s + 's';
+		return o.trim();
+	}
+	var el_done = els[0].getAttribute('data-done') || '';
+	setInterval(function () {
+		els.forEach(function (el) {
+			var t = parseInt(el.dataset.left, 10);
+			el.textContent = fmt(t);
+			if (t > 0) el.dataset.left = t - 1;
+		});
+	}, 1000);
+	els.forEach(function (el) { el.textContent = fmt(parseInt(el.dataset.left, 10)); });
+})();
 </script>
