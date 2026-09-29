@@ -685,3 +685,38 @@ table.list .nowrap { white-space: nowrap; }
 	.cards-gallery { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
 	.colony > .card-img { width: 120px; height: 120px; }
 }
+
+/* ---- crachá no menu (mensagens novas, etc.) ---- */
+.menu li a { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.menu-badge {
+	flex: none;
+	min-width: 18px;
+	padding: 0 6px;
+	font-size: 11px;
+	font-weight: 700;
+	line-height: 18px;
+	text-align: center;
+	color: #1a1205;
+	background: var(--active);
+	border-radius: 9px;
+	box-shadow: 0 0 0 1px rgba(255, 158, 44, 0.4);
+}
+
+/* ---- classificação (highscores) ---- */
+table.highscores td.rank, table.highscores th.rank { width: 44px; text-align: center; }
+.rank-badge {
+	display: inline-block;
+	min-width: 22px;
+	padding: 1px 6px;
+	font-weight: 700;
+	font-variant-numeric: tabular-nums;
+	color: var(--muted);
+	border-radius: 10px;
+}
+.rank-badge.rank-1 { color: #1a1205; background: #ffd54a; box-shadow: 0 0 0 1px rgba(255, 213, 74, 0.5); }
+.rank-badge.rank-2 { color: #12161c; background: #cfd8e3; box-shadow: 0 0 0 1px rgba(207, 216, 227, 0.5); }
+.rank-badge.rank-3 { color: #1a1205; background: #e0a06a; box-shadow: 0 0 0 1px rgba(224, 160, 106, 0.5); }
+table.highscores td.result, table.highscores td.capacity, table.highscores td.plus { text-align: right; font-variant-numeric: tabular-nums; }
+table.highscores th { text-align: right; }
+table.highscores th.left, table.highscores th.rank { text-align: left; }
+table.highscores th.rank { text-align: center; }

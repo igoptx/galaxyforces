@@ -54,77 +54,55 @@ if (!$db->query("SELECT login,clan,level,score,voyaged,ip,lastip FROM {$prefix}u
 }
 else {
 
-tablebegin('Top 100 (<font class="result"><b>' . div($max) . '</b></font>)');
+$staff = ($User['usergroup'] == 'wheel' || $User['usergroup'] == 'moderators');
 
-echo "\t<br />\n";
+// cabeçalho ordenável: alterna entre ascendente e descendente na mesma coluna
+$sortlink = function ($asc, $desc, $label) use ($category, $page, $Lang) {
+	$active = ($category === $asc || $category === $desc);
+	$next = ($category === $asc) ? $desc : $asc;
+	$arrow = ($category === $asc) ? ' ▲' : (($category === $desc) ? ' ▼' : '');
+	return '<a href="highscores.php?category=' . $next . '&amp;page=' . (int)$page . '"'
+		. ($active ? ' class="result"' : '') . ' title="' . htmlspecialchars($Lang['ReverseOrder']) . '">'
+		. htmlspecialchars($label) . $arrow . '</a>';
+};
 
-echo "\t<table id=\"sub\" cellspacing=\"0\" cellpadding=\"0\">\n";
-echo "\t".'<tr id="header"><td width="12" id="headerl">&nbsp;</td><td width="8">&nbsp;</td><td width="8">&nbsp;</td><td align="left">';
+tablebegin($Lang['Score'] . ' <span class="muted">(' . div($max) . ')</span>');
 
-echo '<a'.($category == 'login' ? ' class="result"' : ($category == 'logindesc' ? ' class="minus"' : '')).' href="highscores.php?category='.($category == 'login' ? 'logindesc' : 'login')."&page=$page\" onmouseover=\"self.status='{$Lang['ReverseOrder']}'; return true\" onmouseout=\"self.status=''; return true\">{$Lang['Login']}</a>";
-echo ':</td><td width="8">&nbsp;</td><td align="left">'.$Lang['Colony'].':</td><td width="8">&nbsp;</td><td align="left">';
-
-echo '<a'.($category == 'clan' ? ' class="result"' : ($category == 'clandesc' ? ' class="minus"' : '')).' href="highscores.php?category='.($category == 'clan' ? 'clandesc' : 'clan')."&page=$page\" onMouseOver=\"self.status='{$Lang['ReverseOrder']}'; return true\" onMouseOut=\"self.status=''; return true\">{$Lang['Clan']}</a>";
-echo ':</td><td width="8">&nbsp;</td><td align="center">';
-
-if ($User['usergroup'] == 'wheel' || $User['usergroup'] == 'moderators')
-{
-	echo '<a'.($category == 'ip' ? ' class="result"' : ($category == 'ipdesc' ? ' class="minus"' : '')).' href="highscores.php?category='.($category == 'ip' ? 'ipdesc' : 'ip')."&page=$page\" onMouseOver=\"self.status='{$Lang['ReverseOrder']}'; return true\" onMouseOut=\"self.status=''; return true\">IP</a>";
-	echo '</td><td width="8">&nbsp;</td><td align="center">';
-}
-
-echo '<a'.($category == 'level' ? ' class="result"' : ($category == 'leveldesc' ? ' class="minus"' : '')).' href="highscores.php?category='.($category == 'level' ? 'leveldesc' : 'level')."&page=$page\" onMouseOver=\"self.status='{$Lang['ReverseOrder']}'; return true\" onMouseOut=\"self.status=''; return true\">{$Lang['Level']}</a>";
-echo ':</td><td width=\"8\">&nbsp;</td><td align="center">';
-
-echo '<a'.($category == 'voyaged' ? ' class="result"' : ($category == 'voyageddesc' ? ' class="minus"' : '')).' href="highscores.php?category='.($category == 'voyaged' ? 'voyageddesc' : 'voyaged')."&page=$page\" onMouseOver=\"self.status='{$Lang['ReverseOrder']}'; return true\" onMouseOut=\"self.status=''; return true\">{$Lang['Voyaged']}</a>";
-echo ':</td><td width="8">&nbsp;</td><td align="center">';
-echo '<a href="highscores.php?category='.($category == 'score' ? 'scoredesc' : 'score')."&page=$page\" onMouseOver=\"self.status='{$Lang['ReverseOrder']}'; return true\" onMouseOut=\"self.status=''; return true\">{$Lang['Score']}</a>";
-echo ':</td><td width="12" id="headerr">&nbsp;</td></tr>'."\n";
+echo "\t<table class=\"list highscores\">\n\t<thead><tr>";
+echo '<th class="rank">#</th>';
+echo '<th class="left">' . $sortlink('login', 'logindesc', $Lang['Name']) . '</th>';
+echo '<th class="left">' . $sortlink('clan', 'clandesc', $Lang['Clan']) . '</th>';
+if ($staff) echo '<th>' . $sortlink('ip', 'ipdesc', 'IP') . '</th>';
+echo '<th>' . $sortlink('level', 'leveldesc', $Lang['Level']) . '</th>';
+echo '<th>' . $sortlink('voyaged', 'voyageddesc', $Lang['Voyaged']) . '</th>';
+echo '<th>' . $sortlink('score', 'scoredesc', $Lang['Score']) . '</th>';
+echo "</tr></thead>\n\t<tbody>\n";
 
 $i = 0;
-$tab=array();
-while ($t = $db->fetchrow()) $tab[] = $t;
-
-foreach ($tab as $t) {
+while ($t = $db->fetchrow()) {
 	$i++;
-	//$db->query("SELECT name FROM ${prefix}colonies WHERE owner='{$t['login']}' LIMIT 1;");
-	//if ($u = $db->fetchrow()) $colony = $u['name'];
-	//else $colony = '';
+	$rank = $l + $i;
+	$cls = ($t['login'] == $login) ? ' class="here"' : '';
+	$medal = $rank <= 3 ? ' rank-' . $rank : '';
 
-	if ($i == 11 && ! $page && ! ($category == 'clan' || $category == 'clandesc' || $category == 'login' || $category == 'logindesc')) echo "\t<tr height=\"20\"><td colspan=\"13\">&nbsp;</td></tr>\n";
+	echo "\t<tr$cls>";
+	echo '<td class="rank"><span class="rank-badge' . $medal . '">' . $rank . '</span></td>';
+	echo '<td class="left"><a href="whois.php?name=' . urlencode($t['login']) . '">' . htmlspecialchars($t['login']) . '</a></td>';
+	echo '<td class="left">' . ($t['clan'] !== '' ? '<a href="clanhall.php?clan=' . urlencode($t['clan']) . '">' . htmlspecialchars($t['clan']) . '</a>' : '<span class="muted">—</span>') . '</td>';
 
-	if ($t['login'] == $login) $id=' id="here"';
-	elseif (! ($i % 2)) $id = ' id="div"';
-	else $id = '';
+	if ($User['usergroup'] == 'wheel')
+		echo '<td class="nowrap"><a href="https://apps.db.ripe.net/db-web-ui/query?searchtext=' . urlencode($t['ip']) . '">' . htmlspecialchars($t['ip']) . '</a>'
+			. ($t['lastip'] && $t['ip'] != $t['lastip'] ? ', <a href="https://apps.db.ripe.net/db-web-ui/query?searchtext=' . urlencode($t['lastip']) . '">' . htmlspecialchars($t['lastip']) . '</a>' : '') . '</td>';
+	elseif ($User['usergroup'] == 'moderators')
+		echo '<td>' . htmlspecialchars(ip_camuflage($t['ip'])) . '</td>';
 
-?>	<tr height="24"<?php echo $id; ?>>
-	<td></td>
-	<td><?php echo $l + $i; ?>.</td>
-	<td></td>
-	<td><a href="whois.php?name=<?php echo $t['login']; ?>"><?php echo $t['login']; ?></a></td>
-	<td></td>
-	<td><?php echo @$t['colony']; ?></td>
-	<td></td>
-	<td align="left"><?php echo $t['clan']; ?></td>
-	<td>&nbsp;</td>
-<?php
-
-	if ($User['usergroup'] == 'wheel') echo '<td align="center"><a href="http://ripe.net/whois?form_type=simple&full_query_string=&searchtext='.$t['ip'].'">'.$t['ip'].'</a>'.($t['lastip'] && $t['ip'] != $t['lastip'] ? ', <a href="http://ripe.net/whois?form_type=simple&full_query_string=&searchtext='.$t['lastip'].'">'.$t['lastip'].'</a>' : '').'</td><td></td>';
-	elseif ($User['usergroup'] == 'moderators') echo '<td align="center">'.ip_camuflage($t['ip']).'</td><td></td>';
-
-?>	<td align="center"><font class="plus"><?php echo $t['level']; ?></font></td>
-	<td>&nbsp;</td>
-	<td align="center"><font class="capacity"><?php echo str_replace(' ', '&nbsp;', number_format(num($t['voyaged']), 2, $Lang['DecPoint'], ' ')); ?></font></td>
-	<td>&nbsp;</td>
-	<td align="center"><font class="result"><?php echo str_replace(' ', '&nbsp;', div($t['score'])); ?></font></td>
-	<td>&nbsp;</td>
-	</tr>
-<?php
+	echo '<td class="plus">' . (int)$t['level'] . '</td>';
+	echo '<td class="capacity nowrap">' . htmlspecialchars(number_format(num($t['voyaged']), 2, $Lang['DecPoint'], ' ')) . '</td>';
+	echo '<td class="result nowrap">' . div($t['score']) . "</td>";
+	echo "</tr>\n";
 }
 
-?>	</table>
-	<br />
-<?php
+echo "\t</tbody></table>\n";
 
 $n = $page;
 
