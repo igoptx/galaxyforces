@@ -98,6 +98,12 @@ function nova_resource($key, $label, $amount, $capacity = null)
 <nav class="sidebar">
 <?php
 
+// contador de mensagens não lidas no item "messages" do menu
+if ($logged && !empty($login)) {
+	$db->query("SELECT COUNT(*) c FROM `{$prefix}messages` WHERE `to`='" . $db->safe($login) . "' AND `read`=0");
+	if (($mrow = $db->fetchrow()) && $mrow['c'] > 0) $GLOBALS['MenuBadges']['messages'] = (int)$mrow['c'];
+}
+
 tablebegin($Lang['Menu']);
 
 $Style['menu.prefix'] = "\t\t<ul class=\"menu\">\n";

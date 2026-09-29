@@ -11,6 +11,19 @@ include('include/style.php');
 // HEAD
 // ---------------------------------------------------------------------------
 
+// título por página no separador do browser: nome do item de menu atual
+if (empty($title) && !empty($Menu) && is_array($Menu)) {
+	locale('website/menu');   // os rótulos do menu ainda não estão carregados aqui
+	$cur = basename($_SERVER['PHP_SELF'], '.php');
+	foreach ($Menu as $m) {
+		if (isset($m['$']) && $m['$'] === $cur) {
+			$key = isset($m['_']) ? $m['_'] : 'Menu' . ucfirst($cur);
+			if (!empty($Lang[$key])) $title = ucfirst($Lang[$key]);
+			break;
+		}
+	}
+}
+
 // o tema pode pedir modo standards (DOCTYPE) e acrescentar meta tags ao <head>
 if (!empty($Style['Doctype'])) echo $Style['Doctype'] . "\n";
 echo "<html>\n<head>\n\t<title>[ {$Config['Title']}" . (@$title ? " - $title" : '') . " ]</title>\n";

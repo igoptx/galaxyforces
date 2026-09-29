@@ -134,6 +134,8 @@ function style_menu_galaxy()
 		echo @$Style['menu.item.prefix'];
 		if ($link) echo '<a href="'.$link.'">';
 		echo $lang;
+		// contador (mensagens novas, etc.), preenchido em $MenuBadges pelo tema
+		if (!empty($GLOBALS['MenuBadges'][$id])) echo ' <span class="menu-badge">'.(int)$GLOBALS['MenuBadges'][$id].'</span>';
 		if ($link) echo '</a>';
 		echo @$Style['menu.item.suffix'];
 //		echo "$id\n$link\n$lang\n$image\n";
