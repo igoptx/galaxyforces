@@ -221,6 +221,20 @@ MySQL 8.x.
 O PHP deve ter `output_buffering` ativo (por exemplo `32768`). Num servidor dedicado, `zlib.output_compression`
 também ajuda. Veja [docker/php/galaxy.ini](docker/php/galaxy.ini) para a configuração usada no Docker.
 
+## Palavras-passe
+
+As palavras-passe são guardadas com `password_hash` (bcrypt). As contas antigas, guardadas em MD5, continuam
+a funcionar: no primeiro login, a palavra-passe é convertida para bcrypt automaticamente.
+
+Numa base de dados que já existia antes desta mudança, alargue a coluna uma vez (os hashes bcrypt têm 60
+caracteres, não cabem em `varchar(32)`):
+
+```bash
+docker compose exec db sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -e "ALTER TABLE galaxy_milkyway.galaxy_users MODIFY password varchar(255) NOT NULL DEFAULT ''; ALTER TABLE galaxy_andromeda.galaxy_users MODIFY password varchar(255) NOT NULL DEFAULT '';"'
+```
+
+Instalações novas já têm a coluna com o tamanho certo.
+
 ## Problemas conhecidos
 
 - O `calendar.php` é um resto do phpMyAdmin, depende de bibliotecas que não existem no projeto e nunca

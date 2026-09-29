@@ -229,7 +229,7 @@ if ($action == 'install' && $mode == 'install') {
 		}
 
 		if ($initialcreate) {
-			if (!$db->query("INSERT INTO {$destination_prefix}users (id,active,login,password,usergroup,email,registered) VALUES (0,1,'$initialuser','".md5($initialpassword)."','wheel','$email','".date("Y-m-d")."');")) error($Lang['Error4']);
+			if (!$db->query("INSERT INTO {$destination_prefix}users (id,active,login,password,usergroup,email,registered) VALUES (0,1,'$initialuser','".gf_password_hash($initialpassword)."','wheel','$email','".date("Y-m-d")."');")) error($Lang['Error4']);
 		}
 
 		if ($createworld && ($sql = array_merge((array)readsql('sql/world.sql'), (array)readsql('sql/universe.sql')))) {

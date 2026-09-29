@@ -64,7 +64,7 @@ elseif ($action == 'changepassword') {
 	if (strlen($new) < 6) $errors .= $Lang['ErrorPasswordTooShort'] . ' (' . $Lang['mustcontainatleast'] . ' 6 ' . $Lang['chars'] . ')' . '<br />';
 	if ($new != $reenter) $errors .= $Lang['ErrorPasswordAndReenter'] . '<br />';
 	if (! $errors) {
-		$new = md5($new);
+		$new = escapesql(gf_password_hash($new));
 		$db->query("UPDATE `{$prefix}users` SET `password`='$new' WHERE `login`='$login' LIMIT 1;");
 
 	 	tablebegin($Lang['Profile'], '400');

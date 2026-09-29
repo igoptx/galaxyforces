@@ -834,7 +834,7 @@ CREATE TABLE `galaxy_users` (
   `active` tinyint(1) NOT NULL default '0',
   `online` varchar(14) NOT NULL default '',
   `login` varchar(32) NOT NULL default '',
-  `password` varchar(32) NOT NULL default '',
+  `password` varchar(255) NOT NULL default '',
   `seed` varchar(16) NOT NULL,
   `usergroup` varchar(16) NOT NULL default '',
   `clan` varchar(32) NOT NULL default '',
