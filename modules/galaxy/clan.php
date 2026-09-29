@@ -217,6 +217,7 @@ function actionfoundclan() {
 				$Player['clan'] = $name;
 				$Group = array('name' => $name, 'owner' => $login);
 				$db->query("INSERT INTO `{$prefix}groups` (`name`,`created`,`description`,`owner`,`tax`,`www`) VALUES ('$name',NOW(),'$description','$login','$tax','$www');");
+				audit('clan', 'found', $name);
 				$db->query("UPDATE `{$prefix}users` SET `credits`={$Player['credits']},`clan`='$name' WHERE `id`='{$Player['id']}';");
 				$db->query("INSERT INTO `{$prefix}chat` (`from`,`message`) VALUES ('<font color=\"yellow\">$login</font>', '<font class=\"capacity\"><i>found: <b>{$Group['name']}</b></i></font>...');");
 			}

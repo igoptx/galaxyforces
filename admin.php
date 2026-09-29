@@ -78,6 +78,7 @@ if (!in_array($User['usergroup'], (array)($valid))) {
 // ===========================================================================
 
 elseif ($action) {
+	audit('admin', $action, (string)$name, 'admin.php');
 	switch ($action) {
 		case 'chatdelete':
 			$sql = '';

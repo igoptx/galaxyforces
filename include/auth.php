@@ -96,7 +96,9 @@ if (@$db && ($login = $db->safe($login)) && (($Config['AuthType'] == 'http' && $
 				$logged = true;
 				if ($ip != $t['ip']) { $t['lastip'] = $t['ip']; $t['ip'] = $ip; }
 				$db->query("UPDATE {$prefix}users SET seed='$seed',seen='$timestamp',online='$timestamp',ip='{$t['ip']}',lastip='{$t['lastip']}',locked='' WHERE login='$login';");
+				if (function_exists('audit')) audit('auth', 'login', $login, '', $login);
 			}
+			elseif ($action == 'login' && function_exists('audit')) audit('auth', 'login_failed', $login, 'wrong password', '');
 		}
 		elseif ($salt == sha1($login.$unique.$t['seed'])) $logged = true;
 		else $logged = false;

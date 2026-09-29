@@ -341,6 +341,7 @@ if (@$Database) {
 	if (!@$db && !@$Config['Internal'] && $Config['Debug']) die('<b>Error</b>: Connection to database failed!');
 	if (@$db && $db->query("SELECT * FROM {$prefix}config;")) while ($t = $db->fetchrow()) $Config[$t['config_key']] = $t['config_value'];
 	if (@$Config['Messages']) include(@$ROOT."include/messages.php");
+	include(@$ROOT."include/audit.php");
 }
 else {
 	@include("{$ROOT}include/users.php");
@@ -376,6 +377,18 @@ if ($Config['Debug']) {
 else {
 	@include("{$ROOT}include/emoticons.php");
 	@include("{$ROOT}include/modules.php");
+}
+
+// -------------------------------------------------------------------
+// Modo de manutenção por universo (Centro de Operações)
+// -------------------------------------------------------------------
+// Guardado em {prefix}config como MaintenanceMode, por isso cada universo tem o
+// seu. Os administradores continuam a entrar; os outros vão para maintenance.php.
+
+if (!empty($Config['MaintenanceMode']) && @$User['usergroup'] != 'wheel' && empty($Config['Internal'])
+	&& !in_array(basename($_SERVER['PHP_SELF']), array('login.php', 'maintenance.php', 'welcome.php', 'index.php', 'default.php'))) {
+	header("Location: {$ROOT}maintenance.php\r\n");
+	die;
 }
 
 @include("{$ROOT}include/custom.php");
