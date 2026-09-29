@@ -22,8 +22,13 @@ $files = array();
 function emoticons($s='')
 {
 	global $Emoticons;
-	if (function_exists('str_ireplace')) return str_ireplace(array_keys($Emoticons), $Emoticons, $s);
-	else return str_replace(array_keys($Emoticons), $Emoticons, $s);
+	// strtr() substitui numa única passagem, escolhendo a chave mais longa em
+	// cada posição e sem voltar a analisar o texto que já inseriu. str_replace/
+	// str_ireplace com arrays reprocessavam o resultado: uma chave posterior
+	// (p. ex. "8P") voltava a casar dentro do caminho de um <img> já gerado
+	// (".../default/8P.gif"), aninhando <img> dentro de <img> e produzindo
+	// pedidos 404 como images/emoticons/default/<img src=.
+	return $Emoticons ? strtr($s, $Emoticons) : $s;
 }
 
 function emotia($name, $src) {
