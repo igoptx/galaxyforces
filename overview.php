@@ -50,6 +50,13 @@ function ov_eta_full($stock, $capacity, $rate_hour)
 // Herói e colónia
 // ---------------------------------------------------------------------------
 
+// posição na classificação: nº de jogadores com pontuação superior + 1 (o
+// administrador, id=0, não conta). Igual ao critério dos highscores.
+$db->query("SELECT COUNT(*) c FROM `{$prefix}users` WHERE `id`>0 AND `score` > " . (int)$Player['score']);
+$ov_rank = ($row = $db->fetchrow()) ? (int)$row['c'] + 1 : 0;
+$db->query("SELECT COUNT(*) c FROM `{$prefix}users` WHERE `id`>0");
+$ov_total = ($row = $db->fetchrow()) ? (int)$row['c'] : 0;
+
 tablebegin($Lang['OvColony'] . ': ' . htmlspecialchars($Colony['name']));
 ?>	<div class="ov-head">
 		<dl class="facts">
@@ -57,7 +64,8 @@ tablebegin($Lang['OvColony'] . ': ' . htmlspecialchars($Colony['name']));
 			<dt><?php echo $Lang['OvHero']; ?></dt><dd><a href="equipment.php"><?php echo htmlspecialchars($Player['login']); ?></a> <span class="muted">(<?php echo $Lang['Level']; ?> <?php echo (int)$Player['level']; ?>)</span></dd>
 			<dt><?php echo $Lang['OvPopulation']; ?></dt><dd class="result"><?php echo div($Colony['colonists'] + $Colony['scientists'] + $Colony['soldiers']); ?></dd>
 			<dt><?php echo $Lang['OvScore']; ?></dt><dd class="result"><?php echo div($Player['score']); ?></dd>
-		</dl>
+<?php if ($ov_rank) { ?>			<dt><?php echo $Lang['OvRank']; ?></dt><dd><a href="highscores.php"><span class="result">#<?php echo div($ov_rank); ?></span><?php if ($ov_total) echo ' <span class="muted">/ ' . div($ov_total) . '</span>'; ?></a></dd>
+<?php } ?>		</dl>
 	</div>
 <?php
 
