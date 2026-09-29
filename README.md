@@ -168,6 +168,13 @@ Andromeda). Por exemplo, para um universo `orion` com o mapa da Andromeda:
 O universo fica em http://orion.localhost:8088. Numa instalação nova, basta o passo 1: o universo é criado com
 os outros no primeiro arranque.
 
+## Visão geral
+
+Depois de entrar, o jogo abre na **Visão Geral** (`overview.php`), a página de entrada ao estilo do OGame:
+a colónia num relance, a produção de recursos por hora com o tempo até encher os armazéns, o que está em
+curso (construção, investigação, produção) e os eventos (viagem do herói, expedições e ataques a chegar ou a
+sair). Não muda nenhuma regra do jogo: só mostra o estado que o motor já calcula.
+
 ## Idiomas
 
 O jogo escolhe o idioma pelo browser: português (`pt`), inglês (`en`) ou polaco (`pl`). Para quem o browser

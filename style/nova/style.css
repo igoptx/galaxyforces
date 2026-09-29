@@ -654,6 +654,13 @@ table.list .nowrap { white-space: nowrap; }
 .ops-log { max-height: 220px; overflow: auto; margin: 0 0 12px; padding: 8px; font-size: 11px; text-align: left; white-space: pre-wrap; background: var(--panel-inset); border: 1px solid var(--line); border-radius: 4px; }
 .ops-totals { justify-content: center; }
 
+/* ---------- Visão geral (overview.php) ---------- */
+.ov-head { display: flex; align-items: center; gap: 20px; text-align: left; }
+.ov-bars { display: grid; gap: 4px; margin-top: 10px; }
+.ov-bars .bar { height: 6px; }
+.ov-res th, .ov-res td { text-align: right; }
+.ov-res th.left, .ov-res td.left { text-align: left; }
+
 /* ---------- Ecrãs mais estreitos ---------- */
 
 @media (max-width: 1180px) {

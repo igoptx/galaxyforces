@@ -35,3 +35,4 @@ $Lang['MenuRegulations']='regulamin';
 $Lang['MenuTutorial']='przewodnik';
 $Lang['MenuIRC']='kanał irc';
 $Lang['MenuOps']='operacje';
+$Lang['MenuOverview']='przegląd';
