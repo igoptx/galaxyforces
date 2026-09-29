@@ -1,3 +1,9 @@
+2026-09-29	[ 0.7.1 ]
+
+Look and feel:
+New: The colony page now shows an "In progress" panel with the active building, research and production, plus the queued build and research items with a running time-to-finish for each
+
+
 2026-09-29	[ 0.7.0 ]
 
 OGame-style build and research queues.
