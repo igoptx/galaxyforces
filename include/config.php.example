@@ -19,7 +19,7 @@ $Config['IgnoreUserStyle'] = TRUE;
 $Config['DefaultLanguage'] = 'en';
 #$Config['Language'] = 'en';
 #$Config['LoginTime'] = 20 * 60;
-$Config['AuthPage'] = "control.php";
+$Config['AuthPage'] = "overview.php"; // página de entrada depois do login
 $Config['Refresh'] = 0;	// 15 * 60;
 $Config['Title'] = 'Galaxy Forces Project';
 $Config['Generator'] = 'Galaxy Website Engine';
@@ -158,6 +158,11 @@ $Menu[]=array(
 	'_'=>'MenuAds',
 );
 $Menu[]=array('$'=>'-','*'=>'+'); // break, authenticated
+$Menu[]=array(
+	'$'=>'overview',
+	'*'=>'+',
+	'_'=>'MenuOverview',
+);
 $Menu[]=array(
 	'$'=>'control',
 	'*'=>'+',
