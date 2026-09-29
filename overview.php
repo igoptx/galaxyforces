@@ -29,6 +29,11 @@ if (!@$Colony) {
 // segundos por ciclo -> multiplicador para "por hora"
 $per_hour = $thicklength > 0 ? 3600 / $thicklength : 12;
 
+// mensagens por ler
+$db->query("SELECT COUNT(*) c FROM `{$prefix}messages` WHERE `to`='" . $db->safe($login) . "' AND `read`=0");
+$unread = ($row = $db->fetchrow()) ? (int)$row['c'] : 0;
+if ($unread) echo '<p class="ops-alert warning"><a href="messages.php">' . htmlspecialchars(str_replace('%s', $unread, $Lang['OvUnread'])) . ' &raquo;</a></p>' . "\n";
+
 function ov_eta_full($stock, $capacity, $rate_hour)
 {
 	global $Lang;
@@ -109,7 +114,7 @@ if ($progress) {
 	foreach ($progress as $q) {
 		echo "\t\t<li>" . card_image(array($q['icon']), $q['link'], $q['name'])
 			. '<div class="queue-body"><div class="queue-title"><span class="muted">' . htmlspecialchars($q['label']) . '</span> <span class="result">' . htmlspecialchars($q['name']) . '</span></div>'
-			. '<div class="queue-meta">' . ($q['left'] > 0 ? '<span class="value">' . eta($q['left']) . '</span>' : '<span class="plus">' . $Lang['OvDone'] . '</span>') . '</div></div></li>' . "\n";
+			. '<div class="queue-meta">' . ($q['left'] > 0 ? '<span class="value" data-countdown="' . ($q['left'] * $thicklength) . '">' . eta($q['left']) . '</span>' : '<span class="plus">' . $Lang['OvDone'] . '</span>') . '</div></div></li>' . "\n";
 	}
 	echo "\t</ul>\n";
 }
@@ -140,7 +145,7 @@ tablebegin($Lang['OvEvents']);
 if ($events) {
 	echo "\t<table class=\"list\"><tbody>\n";
 	foreach ($events as $e)
-		echo "\t<tr><td class=\"left " . $e['class'] . '"><b>' . htmlspecialchars($e['label']) . '</b></td><td class="left">' . $e['what'] . '</td><td>' . ($e['left'] > 0 ? eta($e['left']) : $Lang['OvDone']) . "</td></tr>\n";
+		echo "\t<tr><td class=\"left " . $e['class'] . '"><b>' . htmlspecialchars($e['label']) . '</b></td><td class="left">' . $e['what'] . '</td><td>' . ($e['left'] > 0 ? '<span data-countdown="' . ($e['left'] * $thicklength) . '">' . eta($e['left']) . '</span>' : $Lang['OvDone']) . "</td></tr>\n";
 	echo "\t</tbody></table>\n";
 }
 else echo "\t<p class=\"muted\">" . htmlspecialchars($Lang['OvNoEvents']) . "</p>\n";

@@ -49,7 +49,7 @@ elseif (@$Colony && ($Colony['laboratory'] || $Colony['databank'])) {
 
 ?>	<h3><?php echo $Lang['Researching']; ?></h3>
 
-	<font class="result"><?php echo $Technologies[$Research['name']]['name']; ?></font>, <?php echo $Lang['FullETA']; ?>: <font class="value"><?php echo eta($Research['end'] - $stardate); ?></font><br />
+	<font class="result"><?php echo $Technologies[$Research['name']]['name']; ?></font>, <?php echo $Lang['FullETA']; ?>: <font class="value" data-countdown="<?php echo max(0, ($Research['end'] - $stardate) * $thicklength); ?>"><?php echo eta($Research['end'] - $stardate); ?></font><br />
 	<br /><a href="javascript:ask('research.php?action=cancelresearch&id=<?php echo $Research['id']; ?>')" class="delete"><?php echo $Lang['Cancel']; ?> &gt;&gt;</a><br />
 	<br /><a href="colony.php"><?php echo $Lang['GoBack']; ?> &gt;&gt;</a><br />
 

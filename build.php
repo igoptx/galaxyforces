@@ -63,7 +63,7 @@ else {
 	<b><?php echo $Lang['Amount']; ?></b>: <font class="result"><?php echo $Buildings['amount']; ?></font><br />
 	<b><?php echo $Lang['Progress']; ?></b>: <font class="capacity"><?php echo round(num(100 * ($stardate - $Buildings['begin']) / $Buildings['time'])); ?> %</font><br />
 	<br />
-	<?php echo $Lang['FullETA']; ?>: <b><?php echo eta($Buildings['end'] - $stardate); ?><br />
+	<?php echo $Lang['FullETA']; ?>: <b><span data-countdown="<?php echo max(0, ($Buildings['end'] - $stardate) * $thicklength); ?>"><?php echo eta($Buildings['end'] - $stardate); ?></span></b><br />
 	<br />
 	<center><a href="javascript:ask('<?php echo $_SERVER['PHP_SELF']; ?>?action=cancelbuilding')" class="delete"><?php echo $Lang['BuildC']; ?> &gt;&gt;</a></center>
 	<br />

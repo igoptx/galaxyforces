@@ -89,7 +89,7 @@ if (isset($Colony) && $Colony) {
 			<div class="queue-body">
 				<div class="queue-title"><span class="result"><?php echo $ProductionsAvailable[$s['name']]['name']; ?></span> <span class="badge" title="<?php echo $Lang['Amount']; ?>"><?php echo div($s['amount']); ?></span></div>
 				<div class="meter"><i style="width: <?php echo max(0, min(100, $pct)); ?>%"></i></div>
-				<div class="queue-meta"><?php echo $Lang['FullETA']; ?>: <span class="value"><?php echo eta($left); ?></span><?php if ($left > 0) echo " ($pct%)"; ?></div>
+				<div class="queue-meta"><?php echo $Lang['FullETA']; ?>: <span class="value" data-countdown="<?php echo max(0, $left * $thicklength); ?>"><?php echo eta($left); ?></span><?php if ($left > 0) echo " ($pct%)"; ?></div>
 			</div>
 			<a href="javascript:ask('<?php echo $_SERVER['PHP_SELF']; ?>?action=cancelproduction&id=<?php echo $s['id']; ?>')" class="delete"><?php echo $Lang['ProductC']; ?> &gt;&gt;</a>
 		</li>

@@ -33,3 +33,4 @@ $Lang['OvTo']='to';
 $Lang['OvFrom']='from';
 $Lang['OvStardate']='Stardate';
 $Lang['OvNextTick']='Next tick';
+$Lang['OvUnread']='You have %s unread message(s)';

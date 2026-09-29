@@ -33,3 +33,4 @@ $Lang['OvTo']='para';
 $Lang['OvFrom']='de';
 $Lang['OvStardate']='Data estelar';
 $Lang['OvNextTick']='Próximo ciclo';
+$Lang['OvUnread']='Tem %s mensagem(ns) por ler';
