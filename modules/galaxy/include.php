@@ -230,6 +230,91 @@ function readresearch($name='') {
 	else return null;
 }
 
+
+// -------------------------------------------------------------------
+// Fila de construcao / investigacao (estilo OGame) {queue}
+// -------------------------------------------------------------------
+// buildqueue/researchqueue guardam os itens pendentes (FIFO por id)
+// atras do item ativo (buildings/researches). Os recursos sao cobrados
+// ao entrar na fila e guardados na linha para devolucao ao remover.
+// Quando o item ativo termina, o motor arranca o proximo da fila.
+
+if (!defined('QUEUE_MAX')) define('QUEUE_MAX', 5);
+
+function queue_ensure()
+{
+	global $db, $prefix;
+	static $done = false;
+	if ($done || empty($db)) return;
+	$done = true;
+	@mysqli_query($db->link, "CREATE TABLE IF NOT EXISTS `{$prefix}buildqueue` (`id` int(11) NOT NULL auto_increment, `login` varchar(32) NOT NULL default '', `name` varchar(32) NOT NULL default '0', `time` int(11) NOT NULL default '0', `amount` int(11) NOT NULL default '1', `score` int(11) NOT NULL default '0', `credits` bigint(20) NOT NULL default '0', `energy` bigint(20) NOT NULL default '0', `silicon` bigint(20) NOT NULL default '0', `metal` bigint(20) NOT NULL default '0', `uran` bigint(20) NOT NULL default '0', `plutonium` bigint(20) NOT NULL default '0', `deuterium` bigint(20) NOT NULL default '0', `food` bigint(20) NOT NULL default '0', `crystals` bigint(20) NOT NULL default '0', PRIMARY KEY (`id`), KEY `login` (`login`))");
+	@mysqli_query($db->link, "CREATE TABLE IF NOT EXISTS `{$prefix}researchqueue` (`id` int(11) NOT NULL auto_increment, `login` varchar(32) NOT NULL default '', `name` varchar(32) NOT NULL default '', `time` int(11) NOT NULL default '0', `score` int(11) NOT NULL default '0', `credits` bigint(20) NOT NULL default '0', `energy` bigint(20) NOT NULL default '0', `silicon` bigint(20) NOT NULL default '0', `metal` bigint(20) NOT NULL default '0', `uran` bigint(20) NOT NULL default '0', `plutonium` bigint(20) NOT NULL default '0', `deuterium` bigint(20) NOT NULL default '0', `crystals` bigint(20) NOT NULL default '0', PRIMARY KEY (`id`), KEY `login` (`login`))");
+}
+
+function buildqueue_count($name)
+{
+	global $db, $prefix;
+	queue_ensure();
+	$db->query("SELECT COUNT(*) c FROM `{$prefix}buildqueue` WHERE `login`='" . $db->safe($name) . "'");
+	return ($t = $db->fetchrow()) ? (int)$t['c'] : 0;
+}
+
+function researchqueue_count($name)
+{
+	global $db, $prefix;
+	queue_ensure();
+	$db->query("SELECT COUNT(*) c FROM `{$prefix}researchqueue` WHERE `login`='" . $db->safe($name) . "'");
+	return ($t = $db->fetchrow()) ? (int)$t['c'] : 0;
+}
+
+function readbuildqueue($name = '')
+{
+	global $db, $prefix, $login;
+	if (!$name) $name = $login;
+	queue_ensure();
+	$r = array();
+	$db->query("SELECT * FROM `{$prefix}buildqueue` WHERE `login`='" . $db->safe($name) . "' ORDER BY `id` ASC");
+	while ($t = $db->fetchrow()) $r[] = $t;
+	return $r;
+}
+
+function readresearchqueue($name = '')
+{
+	global $db, $prefix, $login;
+	if (!$name) $name = $login;
+	queue_ensure();
+	$r = array();
+	$db->query("SELECT * FROM `{$prefix}researchqueue` WHERE `login`='" . $db->safe($name) . "' ORDER BY `id` ASC");
+	while ($t = $db->fetchrow()) $r[] = $t;
+	return $r;
+}
+
+// arranca o proximo item da fila de construcao (recursos ja cobrados)
+function buildqueue_startnext($name, $begin)
+{
+	global $db, $prefix;
+	$db->query("SELECT * FROM `{$prefix}buildqueue` WHERE `login`='" . $db->safe($name) . "' ORDER BY `id` ASC LIMIT 1");
+	if (!($q = $db->fetchrow())) return '';
+	$db->query("INSERT INTO `{$prefix}buildings` (`login`, `name`, `begin`, `time`, `amount`, `score`) VALUES ('" . $db->safe($name) . "', '" . $db->safe($q['name']) . "', '" . (int)$begin . "', '" . (int)$q['time'] . "', '" . (int)$q['amount'] . "', '" . (int)$q['score'] . "')");
+	$db->query("DELETE FROM `{$prefix}buildqueue` WHERE `id`='" . (int)$q['id'] . "' LIMIT 1");
+	$t = array('login' => $name, 'name' => $q['name'], 'begin' => (int)$begin, 'time' => (int)$q['time'], 'amount' => (int)$q['amount'], 'score' => (int)$q['score']);
+	$t['end'] = $t['begin'] + $t['time'];
+	return $t;
+}
+
+// arranca o proximo item da fila de investigacao (recursos ja cobrados)
+function researchqueue_startnext($name, $begin)
+{
+	global $db, $prefix;
+	$db->query("SELECT * FROM `{$prefix}researchqueue` WHERE `login`='" . $db->safe($name) . "' ORDER BY `id` ASC LIMIT 1");
+	if (!($q = $db->fetchrow())) return '';
+	$db->query("INSERT INTO `{$prefix}researches` (`login`, `name`, `begin`, `time`, `score`) VALUES ('" . $db->safe($name) . "', '" . $db->safe($q['name']) . "', '" . (int)$begin . "', '" . (int)$q['time'] . "', '" . (int)$q['score'] . "')");
+	$db->query("DELETE FROM `{$prefix}researchqueue` WHERE `id`='" . (int)$q['id'] . "' LIMIT 1");
+	$t = array('login' => $name, 'name' => $q['name'], 'begin' => (int)$begin, 'time' => (int)$q['time'], 'score' => (int)$q['score']);
+	$t['end'] = $t['begin'] + $t['time'];
+	return $t;
+}
+
 function readproductions($name='') {
 	global $db, $prefix, $login;
 	$result = array();
@@ -1613,7 +1698,8 @@ function engine($stardate = 0, $name = '', $steps = null)
 				else $Player['score'] += $Buildings['score'];
 				$db->query("UPDATE `{$prefix}colonies` SET `{$Buildings['name']}` = '{$Colony[$Buildings['name']]}' WHERE `owner` = '$name' LIMIT 1");
 				buildingfinish($name);
-				$Buildings = '';
+				$Buildings = buildqueue_startnext($name, $i);
+				if ($Buildings) $Colony['colonistsfree'] -= ceil(num(0.25 * $Colony['colonists']));
 				$Structures = structureslist($Colony, $Planet);
 			}
 			// END ( building ) //
@@ -1625,8 +1711,9 @@ function engine($stardate = 0, $name = '', $steps = null)
 				$db->query("UPDATE {$prefix}colonies SET {$Research['name']}='{$Colony[$Research['name']]}' WHERE id='{$Colony['id']}';");
 				$db->query("DELETE FROM {$prefix}researches WHERE login='$name';");
 				sendmessage($Lang['ResearchS'], $Lang['Research1'].'<b>'.$Lang['technologies'][$Research['name']]['name'] . '</b>' . $Lang['Research2'], '', $name, 'report');
-				$Research = array();
 				$Colony['scientistsfree'] += ceil(num(0.5 * $Colony['scientists']));
+				$Research = researchqueue_startnext($name, $i);
+				if ($Research) $Colony['scientistsfree'] -= ceil(num(0.5 * $Colony['scientists']));
 				$Technologies = technologieslist($Colony);
 			}
 			// END ( research ) //
@@ -2130,7 +2217,7 @@ $planet = $Player['planet'];
 if ($Colony && $Colony['academy']) $soldierstraincost = floor(num(reputationmodifier($Player['reputation']) * 5000 / $Colony['academy']));
 
 switch ($action) {
-	case 'build': case 'destroyunits': case 'product': case 'initiate': case 'repair': case 'shipexchange': case 'disable': case 'enable': case 'canceltravel': case 'travel': case 'cancelbuilding': case 'management': case 'cancelresearch': case 'cancelexpedition': case 'cancelproduction': case 'train': case 'scanobject': case 'explore': 
+	case 'build': case 'destroyunits': case 'product': case 'initiate': case 'repair': case 'shipexchange': case 'disable': case 'enable': case 'canceltravel': case 'travel': case 'cancelbuilding': case 'management': case 'cancelresearch': case 'cancelexpedition': case 'cancelproduction': case 'train': case 'scanobject': case 'explore': case 'dequeuebuild': case 'dequeueresearch': 
 		include("modules/galaxy/actions.php"); eval("action$action();"); break;
 
 	case 'fight':

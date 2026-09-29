@@ -318,6 +318,13 @@ $Lang['ExpL']='<b>Exploration in progress...</b><br /><br />Estimated time to fi
 $Lang['ExplC']='Cancel expedition';
 $Lang['ErrBuild1']="You can't have more than one builds at once!";
 $Lang['ErrBuild2']="You're not allowed to build this structure!";
+$Lang['ErrBuildQueueFull']="The build queue is full.";
+$Lang['ErrResearchQueueFull']="The research queue is full.";
+$Lang['BuildQueue']='Build queue';
+$Lang['ResearchQueue']='Research queue';
+$Lang['Queued']='Queued';
+$Lang['QueueRemove']='Remove';
+$Lang['queue']='queue';
 $Lang['ErrDestroy1']="You don't have so much structures build. Did you really wanted to destroy them all?";
 
 $Lang['Mercenary']='Mercenary';
