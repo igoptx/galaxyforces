@@ -5,8 +5,8 @@
 #   http://andromeda.localhost:8088
 #
 # Para acrescentar um universo: um serviço web-<nome>, uma entrada em
-# GALAXY_UNIVERSES, um server block em docker/nginx/universes.conf, e recriar
-# o volume da base de dados (docker compose down -v).
+# GALAXY_UNIVERSES e um server block em docker/nginx/universes.conf; a base de
+# dados cria-se sem apagar as outras (ver "Acrescentar um universo" no README).
 
 x-web: &web
   build: .
