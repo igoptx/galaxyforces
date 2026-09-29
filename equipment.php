@@ -18,7 +18,7 @@ $auth = true;
 
 require('include/header.php');
 
-$back = getvar('back');
+$back = safe_back(getvar('back'));
 $page = abs(num(getvar('page')));
 $view = getvar('view');
 

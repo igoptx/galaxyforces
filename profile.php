@@ -87,12 +87,13 @@ elseif ($action == 'changepassword') {
 elseif ($action == 'validate') {
 	$email = escapesql(strip_tags(@$_POST['email']));
 	$reemail = escapesql(strip_tags(@$_POST['reemail']));
-	$language = escapesql(strip_tags(@$_POST['language']));
-	$gg = escapesql(strip_tags(@$_POST['gg']));
+	$language = (string)@$_POST['language'];
+	if (!array_key_exists($language, locales())) $language = $User['language'];   // só idiomas que existem
+	$gg = preg_replace('/[^0-9]/', '', (string)@$_POST['gg']);   // número Gadu-Gadu: só dígitos
 	$ggpublic = (@$_POST['ggpublic'] ? 1 : 0);
 	$soundsoff = (@$_POST['soundsoff'] ? 1 : 0);
 	$antispam = (@$_POST['antispam'] ? 1 : 0);
-	$www = escapesql(strip_tags(@$_POST['www']));
+	$www = escapesql(preg_replace('#[^A-Za-z0-9./_~:?=&%\#+-]#', '', preg_replace('#^https?://#i', '', (string)@$_POST['www'])));   // só caracteres de URL (é mostrado em href)
 
 	if ($User['usergroup'] != 'wheel') if (!$email || $email != $reemail) $errors .= $Lang['ErrorEmailMustBeValid'] . '<br />';
 

@@ -1,7 +1,9 @@
 FROM php:8.5-apache
 
 RUN docker-php-ext-install mysqli \
-    && a2enmod rewrite
+    && a2enmod rewrite remoteip
+
+COPY docker/apache/remoteip.conf /etc/apache2/conf-enabled/remoteip.conf
 
 COPY docker/php/galaxy.ini /usr/local/etc/php/conf.d/galaxy.ini
 

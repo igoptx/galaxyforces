@@ -79,12 +79,14 @@ switch($Config['AuthType']) {
 }
 
 $ip = $_SERVER['REMOTE_ADDR'];
-$secret = md5(crypt(date('d'), crypt($ip, '_)')) . $login);
+// token de confirmação das ações destrutivas: HMAC com uma chave do servidor (o
+// crypt() com salt inválido do original devolvia sempre o mesmo valor no PHP 8)
+$secret = hash_hmac('md5', $login . '|' . date('Ymd') . '|' . $ip, 'gf|' . @$Database['password'] . '|' . @$Database['name'] . '|' . @$Database['user']);
 $unique = $_SERVER['SERVER_NAME']."\n".$_SERVER['HTTP_USER_AGENT']."\n".$_SERVER['REMOTE_ADDR'];
 $seed = '';
 $logged = false;
 
-if (@$db && ($login = $db->safe($login)) && (($Config['AuthType'] == 'http' && $password) || ($action == 'login' && $password || ($salt && $action != 'logout')))) {
+if (@$db && ($login = $db->safe($login)) && (($Config['AuthType'] == 'http' && $password) || ($action == 'login' && $password || $salt))) {
 	$db->query("SELECT password,seed,usergroup,language,style,ip,lastip,locked,banned FROM {$prefix}users WHERE login='$login' AND active=1;");
 	if ($t = $db->fetchrow()) {
 		if ($locked = $t['locked'] > $timestamp) $logged = false;
@@ -116,8 +118,8 @@ if (@$db && ($login = $db->safe($login)) && (($Config['AuthType'] == 'http' && $
 					break;
 				case 'cookie':
 					$time = empty($Config['LoginTime']) ? 0 : time() + $Config['LoginTime'];
-					setcookie('login', $login, $time);
-					setcookie('salt', $salt, $time);
+					set_session_cookie('login', $login, $time);
+					set_session_cookie('salt', $salt, $time);
 					break;
 				case 'session':
 					$_SESSION['login'] = $login;
@@ -129,13 +131,17 @@ if (@$db && ($login = $db->safe($login)) && (($Config['AuthType'] == 'http' && $
 	}
 }
 
-if ($action == 'logout' && $login && @$db) $db->query("UPDATE {$prefix}users SET seed='',online='' WHERE login='$login';");
+// logout só com a sessão validada (antes bastava um cookie login=... forjado)
+if ($action == 'logout' && $logged && @$db) {
+	$db->query("UPDATE {$prefix}users SET seed='',online='' WHERE login='$login';");
+	$logged = false;
+}
 
 if (!$logged) {
 	switch($Config['AuthType']) {
 		case 'cookie':
-			setcookie('login', '', time() - 86400);
-			setcookie('salt', '', time() - 86400);
+			set_session_cookie('login', '', time() - 86400);
+			set_session_cookie('salt', '', time() - 86400);
 			break;
 		case 'session':
 			$_SESSION['login'] = '';
