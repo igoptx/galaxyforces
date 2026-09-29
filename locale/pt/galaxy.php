@@ -408,6 +408,7 @@ $Lang['n/a']='n/d';
 
 $Lang['GalaxyBank']='Banco da Galáxia';
 $Lang['No units']='<font class="h3">Não há unidades disponíveis!</font><br /><br />Tem de produzir algumas unidades. Lembre-se: convém ter algumas <a href="description.php?subject=factory">fábricas</a> se quiser iniciar qualquer tipo de produção... :)';
+$Lang['NoProductions']='<font class="h3">Não há nada para produzir!</font><br /><br />Construa uma <a href="build.php">fábrica</a> (e investigue tecnologias de unidades) para começar a produzir.';
 $Lang['BasicBuilding']='Edifício básico';
 $Lang['AdvancedBuilding']='Edifício avançado';
 $Lang['Reclt1']='Recultivação do planeta';

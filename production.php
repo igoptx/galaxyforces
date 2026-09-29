@@ -146,6 +146,7 @@ if (isset($Colony) && $Colony) {
 			}
 			echo "\t</div>\n";
 		}
+		if (!$count) echo "\t<p class=\"muted\">" . $Lang['NoProductions'] . "</p>\n";
 		if ($count) tableend($count . $Lang[' unit(s) available']);
 		else tableend($Lang['Production']);
 	}
