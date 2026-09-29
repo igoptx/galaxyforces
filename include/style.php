@@ -182,6 +182,39 @@ function style_box_foot($status="")
 ';
 }
 
+// ---------------------------------------------------------------------------
+// Cartões (construção, investigação, colónia)
+// ---------------------------------------------------------------------------
+// Markup independente do tema: cada tema estiliza .cards, .card, .costs...
+
+// Primeira imagem que existe da lista; sem nenhuma, um marcador com as iniciais.
+function card_image($candidates, $href = '', $label = '')
+{
+	global $ROOT;
+	$img = '';
+	foreach ((array)$candidates as $c) if ($c && file_exists(@$ROOT . $c)) { $img = $c; break; }
+	$inner = $img
+		? '<img src="' . $img . '" alt="' . htmlspecialchars(strip_tags($label)) . '" />'
+		: '<span class="card-noimg">' . htmlspecialchars(mb_strtoupper(mb_substr(strip_tags($label), 0, 2))) . '</span>';
+	return '<' . ($href ? 'a href="' . $href . '"' : 'span') . ' class="card-img">' . $inner . '</' . ($href ? 'a' : 'span') . '>';
+}
+
+// Custos como chips com o ícone de cada recurso.
+function card_costs($costs, $credits_class = 'result')
+{
+	global $Lang;
+	$names = array('credits' => 'Credits', 'energy' => 'Energy', 'silicon' => 'Silicon', 'metal' => 'Metal', 'uran' => 'Uran',
+		'plutonium' => 'Plutonium', 'deuterium' => 'Deuterium', 'food' => 'Food', 'crystals' => 'Crystals');
+	$out = '';
+	foreach ($names as $key => $lang) {
+		if (empty($costs[$key])) continue;
+		$label = isset($Lang[$lang]) ? $Lang[$lang] : $lang;
+		$out .= '<li class="cost cost-' . $key . '" title="' . htmlspecialchars($label) . '"><img src="images/' . $key . '.jpg" alt="" width="16" height="16" />'
+			. '<span' . ($key == 'credits' ? ' class="' . $credits_class . '"' : '') . '>' . div($costs[$key]) . '</span></li>';
+	}
+	return $out ? '<ul class="costs">' . $out . '</ul>' : '';
+}
+
 function style_module_section($elements, $id="", $section="box")
 {
 	global $Style, $Lang;

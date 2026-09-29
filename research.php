@@ -67,67 +67,30 @@ elseif (@$Colony && ($Colony['laboratory'] || $Colony['databank'])) {
 	}
 	else {
 		tablebegin($Lang['Research']);
-?>
-	<br />
-	<table width="100%" cellspacing="0" cellpadding="0" border="0" align="center">
-	<tr id="header">
-	<td width="12">&nbsp;</td>
-	<td width="72">&nbsp;</td>
-	<td width="12">&nbsp;</td>
-	<td width="100" align="left"><?php echo $Lang['Technology']; ?>:</td>
-	<td>&nbsp; &nbsp;</td>
-	<td align="center"><?php echo $Lang['Cost']; ?>:</td>
-	<td>&nbsp; &nbsp;</td>
-	<td align="center"><?php echo $Lang['Level']; ?>:</td>
-	<td>&nbsp; &nbsp;</td>
-	<td align="center">ETA:</td>
-	<td>&nbsp; &nbsp;</td>
-	<td>&nbsp; &nbsp;</td>
-	<td width="12">&nbsp;</td>
-	</tr>
-<?php
-	$i = 0;
 
+		echo "\t<div class=\"cards\">\n";
 		foreach ($Technologies as $t) {
-			$id = ($i % 2) ? ' class="div"' : '';
+			$folder = $t['completed'] ? 'completed' : 'icons';
+?>		<article class="card<?php echo $t['completed'] ? ' card-done' : ''; ?>">
+			<?php echo card_image(array("gallery/technology/$folder/{$t['id']}.jpg", "gallery/technology/icons/{$t['id']}.jpg", "gallery/technology/{$t['id']}.jpg"), '', $t['name']); ?>
 
-?>	<tr height="24"<?php echo $id; ?>>
-	<td></td>
-	<td class="pw"><?php tableimg('images/pw.gif', 72, 72, "gallery/technology/".($t['completed'] ? 'completed' : 'icons')."/{$t['id']}.jpg", 64, 64 /* , "description.php?type=technology&back=research.php&subject=${t['id']}" */ ); ?></td>
-	<td></td>
-	<td>
-		<font class="<?php echo $t['completed'] ? 'work' : 'result'; ?>"><?php echo $t['name']; ?></font>
-		<br />
-		<?php echo $t['description']; ?>
-	</td>
-	<td></td>
-	<td align="center">
-<?php
-	if (!$t['completed']) {
-		if (@$t['credits']) echo '<b>[!]</b>&nbsp;'.div($t['credits']).'<br />';
-		if (@$t['energy']) echo '<b>[E]</b>&nbsp;'.div($t['energy']).'<br />';
-		if (@$t['silicon']) echo '<b>[S]</b>&nbsp;'.div($t['silicon']).'<br />';
-		if (@$t['metal']) echo '<b>[M]</b>&nbsp;'.div($t['metal']).'<br />';
-		if (@$t['uran']) echo '<b>[U]</b>&nbsp;'.div($t['uran']).'<br />';
-		if (@$t['crystals']) echo '<b>[C]</b>&nbsp;'.div($t['crystals']).'<br />';
-	}
+			<div class="card-body">
+				<h4 class="card-title"><span class="<?php echo $t['completed'] ? 'work' : 'result'; ?>"><?php echo $t['name']; ?></span>
+<?php if (@$t['level']) { ?>					<span class="badge" title="<?php echo $Lang['Level']; ?>"><?php echo $t['level']; ?></span>
+<?php } ?>				</h4>
+				<p class="card-desc"><?php echo $t['description']; ?></p>
+<?php if ($t['completed']) { ?>				<div class="card-actions"><span class="work state"><?php echo $Lang['completed']; ?></span></div>
+<?php } else { ?>				<?php echo card_costs($t); ?>
 
-?>	</td>
-	<td></td>
-	<td align="center" class="capacity"><?php echo @$t['level']; ?></td>
-	<td></td>
-	<td align="center"><?php echo $t['completed'] ? '&nbsp;' : '[&nbsp;<font class="plus">' . eta(1 + round(num((25 / $Colony['science']) * $t['work'] / log(num($Colony['scienceforce']))))) . '</font>&nbsp;]'; ?></td>
-	<td></td>
-	<td align="center"><?php echo $t['completed'] ? '<font class="work">' . $Lang['completed'] . '</font>' : '<a href="' . $_SERVER['PHP_SELF'] . '?action=initiate&name=' . $t['id'] . '">' . $Lang['initiate'] . '&nbsp;&gt;&gt;</a>'; ?></td>
-	<td></td>
-	</tr>
+				<div class="card-actions">
+					<span class="eta" title="ETA"><?php echo eta(1 + round(num((25 / $Colony['science']) * $t['work'] / log(num($Colony['scienceforce']))))); ?></span>
+					<a class="button" href="<?php echo $_SERVER['PHP_SELF']; ?>?action=initiate&amp;name=<?php echo $t['id']; ?>"><?php echo $Lang['initiate']; ?></a>
+				</div>
+<?php } ?>			</div>
+		</article>
 <?php
-			$i++;
 		}
-
-?>	</table>
-	<br />
-<?php
+		echo "\t</div>\n";
 		tableend($Lang['Research']);
 	}
 }

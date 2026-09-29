@@ -1169,3 +1169,27 @@ div.module-bug div table.sheet
 {
 	margin-top: 10px;
 }
+
+/* Cartões (construção, investigação, colónia) — versão simples para o tema original */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; text-align: left; }
+.card { display: flex; gap: 8px; padding: 6px; border: 1px solid #334466; }
+.card-img { flex: 0 0 64px; width: 64px; height: 64px; overflow: hidden; }
+.card-img img { width: 64px; height: 64px; }
+.card-noimg { font-size: 18pt; color: #334466; }
+.card-body { flex: 1; }
+.card-title { margin: 0 0 4px; font-size: 9pt; }
+.badge { float: right; color: #ffcc99; }
+.card-desc, .card-meta { margin: 2px 0; }
+.costs { margin: 2px 0; padding: 0; list-style: none; }
+.cost { display: inline-block; margin-right: 6px; }
+.cost img { width: 12px; height: 12px; }
+.card-actions form { display: inline; margin: 0; }
+.colony { display: flex; gap: 12px; text-align: left; }
+.colony-info { flex: 1; }
+.facts { display: grid; grid-template-columns: max-content 1fr max-content 1fr; gap: 2px 12px; margin: 0; }
+.facts dt { font-weight: bold; }
+.facts dd { margin: 0; }
+.meter { height: 4px; background: #223344; }
+.meter i { display: block; height: 4px; background: #aaccff; }
+.meter.over i { background: #ff8bb9; }
+.res-amount { margin: 2px 0; font-size: 11pt; }
