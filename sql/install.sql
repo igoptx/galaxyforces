@@ -963,4 +963,4 @@ CREATE TABLE `galaxy_users` (
 -- Dumping data for table `galaxy_config`
 --
 
-INSERT INTO `galaxy_config` (`config_key`, `config_value`) VALUES ('Version', '0.7.0') ON DUPLICATE KEY UPDATE `config_value`='0.7.0';
+INSERT INTO `galaxy_config` (`config_key`, `config_value`) VALUES ('Version', '0.7.1') ON DUPLICATE KEY UPDATE `config_value`='0.7.1';
