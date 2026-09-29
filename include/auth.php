@@ -91,9 +91,8 @@ if (@$db && ($login = $db->safe($login)) && (($Config['AuthType'] == 'http' && $
 	if ($t = $db->fetchrow()) {
 		if ($locked = $t['locked'] > $timestamp) $logged = false;
 		elseif ($action == 'login' || $Config['AuthType'] == 'http') {
-			if (md5($password) == $t['password']) {
-				$hex="0123456789abcdef";
-				for ($i = 1; $i <= 16; $i++) $seed .= $hex[rand(0, 15)];
+			if (is_string($t['password']) && hash_equals($t['password'], md5($password))) {
+				$seed = bin2hex(random_bytes(8));   // seed de sessão imprevisível (era rand())
 				$salt = sha1($login.$unique.$seed);
 				$logged = true;
 				if ($ip != $t['ip']) { $t['lastip'] = $t['ip']; $t['ip'] = $ip; }
@@ -102,7 +101,9 @@ if (@$db && ($login = $db->safe($login)) && (($Config['AuthType'] == 'http' && $
 			}
 			elseif ($action == 'login' && function_exists('audit')) audit('auth', 'login_failed', $login, 'wrong password', '');
 		}
-		elseif ($salt == sha1($login.$unique.$t['seed'])) $logged = true;
+		// nunca autenticar com seed vazio: aí sha1($login.$unique.'') é calculável a
+		// partir do pedido do próprio atacante (bypass de sessão). hash_equals: tempo constante.
+		elseif ($t['seed'] !== '' && is_string($salt) && hash_equals(sha1($login.$unique.$t['seed']), $salt)) $logged = true;
 		else $logged = false;
 
 		unset($t['password']);
