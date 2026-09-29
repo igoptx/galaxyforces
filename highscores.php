@@ -20,7 +20,7 @@ $auth = true;
 require("include/header.php");
 require("include/functions.php");
 
-$category = getvar('category');
+$category = preg_replace('/[^a-z0-9_]/i', '', (string)getvar('category'));   // ecoado nos links
 $page = abs(num(getvar('page')));
 
 $pagecount = 100;

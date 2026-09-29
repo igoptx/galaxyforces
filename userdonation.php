@@ -20,7 +20,7 @@ $auth = true;
 require('include/header.php');
 
 $name = getvar('name');
-if (!($back = getvar('back'))) $back = 'clan.php';
+$back = safe_back(getvar('back'), 'clan.php');
 
 $pagename = $Lang['UserDonation'];
 

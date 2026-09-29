@@ -158,7 +158,7 @@ function actionacademy() {
 			$Colony['colonists'] -= $amount;
 			$Colony['colonistsfree'] -= $amount;
 			$Colony['soldiers'] += $amount;
-			$db->query("UPDATE {$prefix}users SET `credits`='{$Player['credits']}' WHERE `login`='{$Player['login']};");
+			$db->query("UPDATE {$prefix}users SET `credits`='{$Player['credits']}' WHERE `login`='{$Player['login']}';");   // faltava a aspa: a academia nunca cobrava
 			$db->query("UPDATE {$prefix}colonies SET `colonists`='{$Colony['colonists']}', `soldiers`='{$Colony['soldiers']}' WHERE `id`='{$Colony['id']}';");
 			$result = $amount;
 		}

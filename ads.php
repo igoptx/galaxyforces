@@ -22,7 +22,7 @@ $js[] = 'e107';
 
 require('include/header.php');
 
-$ad = getvar('ad');
+$ad = (int)getvar('ad');   // id numérico (era SQL injection)
 $view = getvar('view');
 $login = strtolower($login);
 
@@ -36,6 +36,10 @@ $pagename = $Lang['Ads'];
 
 if ($action == 'add') {
 	list($lang, $type, $title, $message, $time, $status, $notify) = array(getvar('lang'), getvar('type'), str_sqlsafe(htmlspecialchars(strip_tags(getvar('title')))), str_sqlsafe(htmlspecialchars(str_replace("\n", '[br]', (strip_tags(getvar('message')))))), getvar('time'), getvar('status'), getvar('notify'));
+	$lang = preg_replace('/[^a-z]/', '', (string)$lang);
+	$type = preg_replace('/[^a-z]/', '', (string)$type);
+	$status = (int)$status;
+	$notify = (int)$notify;
 	if (!$title || !$message || ($Player['usergroup'] != 'admin' && !$time)) $errors = $Lang['NoInput'].'<br />';
 	else {
 		if (function_exists('censorship') && !censorship($message)) $errors = $Lang['BackOff'].'<br />';
@@ -44,13 +48,12 @@ if ($action == 'add') {
 		$time = 6 * ceil(num($time / 6)); if ($time < 6) $time = 6; else if ($time > 72) $time = 72;
 		$expires = $time * 3600 + time();
 		$class = $Player['usergroup'] ? $Player['usergroup'] : 'user';
-echo "INSERT INTO `{$prefix}ads` (`expires`,`time`,`lang`,`class`,`author`,`title`,`type`,`content`,`status`,`notify`) VALUES ('".$expires."','".time()."','".$lang."','".$class."','".$Player['login']."','".$title."','".$type."','".$message."','$status','$notify');";		
 		if ($db->query("INSERT INTO `{$prefix}ads` (`expires`,`time`,`lang`,`class`,`author`,`title`,`type`,`content`,`status`,`notify`) VALUES ('".$expires."','".time()."','".$lang."','".$class."','".$Player['login']."','".$title."','".$type."','".$message."','$status','$notify');")) $result .= $Lang['AdAdded'].'<br />';
 	else $errors = $db->error().'<br />';
 	}
 }
 else if ($action == 'reply') {
-	$ad = getvar('ad');
+	$ad = (int)getvar('ad');
 	$message = str_sqlsafe(htmlspecialchars(str_replace("\n", '[br]', (strip_tags(getvar('message'))))));
 	if (!$message) $errors = $Lang['NoInput'].'<br />';
 	else if ($db->query("SELECT id,status,notify,author,title FROM `{$prefix}ads` WHERE id='$ad' AND type!='reply' LIMIT 1;") && (!$t = $db->fetchrow())) $errors = $Lang['AdNotExists'].'<br />';
@@ -64,8 +67,12 @@ else if ($action == 'reply') {
 	} else $errors = 'Whoops! <br />';
 }
 else if ($action == 'edit') {
-	$ad = getvar('ad');
+	$ad = (int)getvar('ad');
 	list($lang, $type, $title, $message, $time, $status, $notify) = array(getvar('lang'), getvar('type'), str_sqlsafe(htmlspecialchars(strip_tags(getvar('title')))), str_sqlsafe(htmlspecialchars(str_replace("\n", '[br]', (strip_tags(getvar('message')))))), getvar('time'), getvar('status'), getvar('notify'));
+	$lang = preg_replace('/[^a-z]/', '', (string)$lang);
+	$type = preg_replace('/[^a-z]/', '', (string)$type);
+	$status = (int)$status;
+	$notify = (int)$notify;
 	if ($db->query("SELECT type,title FROM `{$prefix}ads` WHERE id='$ad' LIMIT 1;") && ($t = $db->fetchrow())) {
 		if (((!$message || !$title) && $t['type'] != 'reply') || (!$message)) $errors .= $Lang['ErrorNoContent'].'<br />';
 		else {
@@ -94,11 +101,11 @@ else if ($action == 'edit') {
 	} else $errors = $Lang['AdNotExists'].'<br />';
 }
 else if ($action == 'remove') {
-	$ad = getvar('ad');
+	$ad = (int)getvar('ad');
 	if ($db->query("SELECT `type`,`title`,`author` FROM `{$prefix}ads` WHERE id='$ad' LIMIT 1;") && $t = $db->fetchrow()) {
 		if ($Player['usergroup'] == 'admin' || $Player['usergroup'] == 'mod' || $Player['usergroup'] == 'global_mod') $clausule = '';
 		else $clausule = " AND `author`='".$login."'";
-		if ($db->query("DELETE FROM `{$prefix}ads` WHERE id='$ad' OR (type='reply' AND title='$ad') ".$clausule.";")) {
+		if ($db->query("DELETE FROM `{$prefix}ads` WHERE (id='$ad' OR (type='reply' AND title='$ad'))".$clausule.";")) {
 			if ($t['type'] == 'reply') {
 				$ad = $t['title'];
 				$db->query("UPDATE `{$prefix}ads` SET replies=replies-1 WHERE id='$ad';");
@@ -283,7 +290,7 @@ else if ($view == 'add' || $view == 'edit' || $view == 'reply') {
 	}
 
 	if ($view == 'edit') {
-		$ad = getvar('ad');
+		$ad = (int)getvar('ad');
 		$db->query("SELECT `expires`,`lang`,`title`,`content`,`type`,`status`,`notify` FROM `{$prefix}ads` WHERE id='$ad' LIMIT 1;");
 		if ($row = $db->fetchrow()) {
 			$expires = $row['expires'];

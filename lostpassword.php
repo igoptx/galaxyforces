@@ -21,8 +21,9 @@ $exists = TRUE;
 $activated = TRUE;
 
 if ($action == 'recover') {
-	$regid = getvar('regid');
-	if ($regid) {
+	// só os caracteres do código gerado (era SQL injection sem login)
+	$regid = preg_replace('/[^A-Za-z0-9.\/]/', '', (string)getvar('regid'));
+	if (strlen($regid) >= 10) {
 		$db->query("SELECT `login`,`email` FROM `{$prefix}users` WHERE `regid`='$regid';");
 		if ($t = $db->fetchrow()) {
 			$login = $t['login'];
@@ -41,7 +42,7 @@ if ($action == 'recover') {
 			$password = Rand(111, 999) . Rand(111, 999);
 			$backpassword = $password;
 			$password = md5($password);
-			$db->query("UPDATE `{$prefix}users` SET `password`='$password' WHERE `regid`='$regid' LIMIT 1;");
+			$db->query("UPDATE `{$prefix}users` SET `password`='$password', `regid`='' WHERE `regid`='$regid' LIMIT 1;");   // o código só serve uma vez
 			if ($email) {
 				$msg = $Lang['EmailDontReply'] . $Lang['EmailForgotten3'] . $Lang['EmailRegister21'] . "$login\n\n" . $Lang['EmailRegister22'] . "$backpassword\n\n" . $Lang['EmailForgotten4'];
 				sendmail($email, $Lang['EmailForgotten2Subject'], $msg);
@@ -110,8 +111,7 @@ elseif ($login = escapesql(getvar('login'))) {
 		}
 		else {
 			$email = $tab['email'];
-			$regid = crypt($login, Rand(1111, 9999));
-			$regid = Rand(11, 99) . substr($regid, strlen($regid) - 8, 8) . Rand(11, 99);
+			$regid = bin2hex(random_bytes(6));   // 12 caracteres aleatórios (o crypt() original tinha ~700 mil valores)
 			$db->query("UPDATE `{$prefix}users` SET `regid` = '$regid' WHERE `login` = '$login' LIMIT 1");
 			$msg = $Lang['EmailDontReply'].LF.LF.$Lang['EmailForgotten1']."\thttp://{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?action=recover&regid=$regid\n\n".$Lang['Login'].": $login\n".$Lang['EmailForgotten2']."$regid\n\n".$Lang['EmailRegister4'];
 			if (sendmail($email, $Lang['EmailForgotten1Subject'], $msg)) {
@@ -177,7 +177,7 @@ if (! $exists) {
 }
 ?>	<tr>
 	<td><?php echo $Lang['Login']; ?>:</td>
-	<td><input type="text" maxlength="16" name="login"<?php echo ($login ? " value=\"$login\"" : ''); ?> /></td>
+	<td><input type="text" maxlength="16" name="login"<?php echo ($login ? ' value="' . htmlspecialchars(stripslashes($login), ENT_QUOTES) . '"' : ''); ?> /></td>
 	</tr>
 	<tr>
 	<td><img src="images/0.gif" width="1" height="8" hspace="0" vspace="0" border="0" /></td>

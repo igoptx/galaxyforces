@@ -51,7 +51,7 @@ if ($action == 'levelup') {
 		$result .= "<br /><b>{$Lang['Vitality']}</b>$a$hpgain$b<b>{$Lang['Regeneration']}</b>$a$mpgain$b";
 
 		$db->query("INSERT INTO {$prefix}chat (`timestamp`,`author`,`message`) VALUES ('$timestamp','<font color=\"yellow\">$login</font>','<font class=\"capacity\"><i>level up</i></font>...');");
-		$db->query("UPDATE `{$prefix}users` SET `exp`='{$Player['exp']}',`level`='{$Player['level']}',`score`='{$Player['score']}',`sp`='{$Player['sp']}',`strength`=`strength`+$strength,`agility`=`agility`+$agility,`hpmax`=`hpmax`+$hpmax,`mpmax`=`mpmax`+$mpmax,`hpgain`=`hpgain`+$hpgain,`mpgain`=`mpgain`+$mpgain WHERE `id`='{$Player['id']}';");
+		$db->query("UPDATE `{$prefix}users` SET `exp`='{$Player['exp']}',`level`='{$Player['level']}',`score`='{$Player['score']}',`sp`='{$Player['sp']}',`strength`=`strength`+$strength,`agility`=`agility`+$agility,`hpmax`=`hpmax`+$hpmax,`mpmax`=`mpmax`+$mpmax,`hpgain`=`hpgain`+$hpgain,`mpgain`=`mpgain`+$mpgain WHERE `id`='{$Player['id']}' AND `level`='" . ($Player['level'] - 1) . "';");
 
 		$Player = readplayer($login);
 	}
@@ -63,7 +63,10 @@ if ($action == 'levelup') {
 // ===========================================================================
 
 elseif ($action == 'distribute') {
-	if ($name && ($value = abs(num($value)))) {
+	// só atributos conhecidos: o nome ia para `$name` na query (injeção com backticks, ex.: usergroup)
+	$stats = array('strength', 'agility', 'psi', 'force', 'knowledge', 'alcoholism', 'pocketstealing', 'intellect', 'hacking', 'hpmax', 'mpmax', 'hpgain', 'mpgain');
+	if (in_array($name, $stats, true) && ($value = (int)abs(num($value)))) {
+		$sp = $Player['sp'];
 		for ($i = 0; $Player['sp'] && ($i < $value); $i++) {
 			switch ($name) {
 				case 'strength': case 'agility': @$$name += round(num(100 * Rand(5, num(10 + $Player['level'])) / 50)) / 100; break;
@@ -74,7 +77,7 @@ elseif ($action == 'distribute') {
 			$Player['sp']--;
 		}
 
-		$db->query("UPDATE `{$prefix}users` SET `$name`=`$name`+'{${$name}}',`sp`='{$Player['sp']}' WHERE `id`='{$Player['id']}';");
+		$db->query("UPDATE `{$prefix}users` SET `$name`=`$name`+'" . num(${$name}) . "',`sp`='{$Player['sp']}' WHERE `id`='{$Player['id']}' AND `sp`='$sp';");
 		$Player = readplayer($login);
 	}
 

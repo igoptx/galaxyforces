@@ -21,9 +21,9 @@ require('include/header.php');
 require('modules/galaxy/descriptions.php');
 
 $id = abs(num(getvar('id')));
-$page = getvar('page');
-$subject = getvar('subject');
-$type = getvar('type');
+$page = (int)getvar('page');   // ecoado num link (XSS refletido)
+$subject = preg_replace('/[^a-z0-9_]/i', '', (string)getvar('subject'));
+$type = preg_replace('/[^a-z0-9_]/i', '', (string)getvar('type'));
 
 if ($page) $back .= "?page=$page";
 

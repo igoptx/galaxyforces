@@ -9,11 +9,8 @@ function actionchangeclanavatar()
 	global $login, $db, $prefix, $Group, $Player;
 
 	if ($Group && $Player['privileged']) {
-		$url = getvar('url');
-		if ($url && strpos('-' . $url, 'http://') != 1) $url = 'http://' . $url;
-		if (strpos($url, ";' \"") !== false) $url = '';
-		$ext = substr(strrchr($url, '.'), 1);
-		if (($ext == 'jpg') || ($ext == 'gif') || ($ext == 'png') || ($ext == 'jpeg') || (! $url)) {
+		$url = valid_image_url(getvar('url'));
+		if ($url !== '' || getvar('url') == '') {
 			$db->query("UPDATE `{$prefix}groups` SET `avatar` = '$url' WHERE `id` = '{$Group['id']}' LIMIT 1;");
 			$Group['avatar'] = $url;
 		}
@@ -201,9 +198,10 @@ function actionrecultivation()
 function actionfoundclan() {
 	global $db, $prefix, $login, $name, $Player, $Group, $errors, $result, $Lang, $places;
 
-	if (checkplace('clanhall') && ! $Player['clan'] && (($tax = abs(num(getvar('tax')))) > 0) && $name) {
-		$description = strip_tags(escapesql(@$_POST['description']));
-		$www = strip_tags(escapesql(@$_POST['www']));
+	if (checkplace('clanhall') && ! $Player['clan'] && (($tax = abs(num(getvar('tax')))) > 0) && $name && preg_match('/^[\\p{L}\\p{N} _.-]{2,32}$/u', stripslashes($name))) {
+		// escapados para HTML: eram mostrados em atributos (XSS guardado)
+		$description = escapesql(htmlspecialchars(strip_tags((string)@$_POST['description']), ENT_QUOTES));
+		$www = escapesql(preg_replace('#[^A-Za-z0-9./_~:?=&%\#+-]#', '', preg_replace('#^https?://#i', '', (string)@$_POST['www'])));
 		$ratio = $places['clanhall']['parameters'];
 		if ($ratio < 1) $ratio = 1;
 		$credits = 1000000 * $ratio;

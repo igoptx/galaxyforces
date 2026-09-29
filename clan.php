@@ -22,7 +22,7 @@ require('include/header.php');
 locale('clan');
 
 $view = getvar('view');
-$back = getvar('back');
+$back = safe_back(getvar('back'));
 $checkall = getvar('checkall');
 $category = getvar('category');
 $page = (int)getvar('page');
@@ -64,7 +64,7 @@ if ($action == 'clanadmin') {
 				$db->query("INSERT INTO {$prefix}clanmessages (`type`,`time`,`clan`,`from`,`to`) VALUES ('statuschange','$stardate','{$Group['name']}','$login','');");
 			}
 			else {
-				echo($sql." WHERE name='".$Group['name']."';");
+				echo($sql." WHERE name='".$db->safe($Group['name'])."';");
 				echo '<br />'; echo $db->safe("' `;");
 				$errors .= $Lang['ErrorQueryFailed'].'!<br />';
 				}
@@ -74,13 +74,14 @@ if ($action == 'clanadmin') {
 elseif ($action == 'changeclanname') {
 	if ($Player['login'] != $Group['owner']) $errors .= $Lang['ErrorAccessDenied'].'<br />';
 	elseif (!checkplace('clanhall')) $errors .= $Lang['ErrorHallRequired'].'!<br />';
-	elseif ($name = trim(strip_tags(postvar('name')))) {
+	elseif (($name = trim(strip_tags(postvar('name')))) && !preg_match('/^[\\p{L}\\p{N} _.-]{2,32}$/u', $name)) $errors .= $Lang['ErrorCCF'].'<br />';   // só letras, números, espaço, _ . - (o nome é reutilizado noutras queries)
+	elseif ($name) {
 		$db->query("SELECT * FROM {$prefix}groups WHERE name='".$db->safe($name)."';");
 		if ($db->numrows()) $errors .= $Lang['ErrorClanExists'].'!<br />';
 		else {
-			$db->query("UPDATE {$prefix}groups SET name='".$db->safe($name)."' WHERE name='".$Group['name']."';");
-			$db->query("UPDATE {$prefix}users SET clan='".$db->safe($name)."' WHERE clan='".$Group['name']."';");
-			$db->query("UPDATE {$prefix}clanmessages SET clan='".$db->safe($name)."' WHERE clan='".$Group['name']."';");
+			$db->query("UPDATE {$prefix}groups SET name='".$db->safe($name)."' WHERE name='".$db->safe($Group['name'])."';");
+			$db->query("UPDATE {$prefix}users SET clan='".$db->safe($name)."' WHERE clan='".$db->safe($Group['name'])."';");
+			$db->query("UPDATE {$prefix}clanmessages SET clan='".$db->safe($name)."' WHERE clan='".$db->safe($Group['name'])."';");
 
 			$Player['clan'] = $Group['name'] = $name;
 			$db->query("INSERT INTO {$prefix}clanmessages (`type`,`time`,`clan`,`from`,`to`) VALUES ('namechange','$stardate','{$Group['name']}','$login','');");

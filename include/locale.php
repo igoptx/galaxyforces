@@ -61,6 +61,8 @@ function locale($name, $language='')
 	global $Config, $Lang, $ROOT;
 	$Prev = $Lang;
 	if (!$language) $language = $Config['Language'];
+	// only language codes that exist in locale/ (avoids include with ../)
+	if (!preg_match('/^[a-z]{2}$/', (string)$language) || !is_dir("{$ROOT}locale/$language")) $language = $Config['DefaultLanguage'];
 	// Carrega primeiro o inglês e depois o idioma pedido por cima: uma chave que
 	// falte na tradução aparece em inglês em vez de ficar vazia.
 	if ($language != 'en') @include("{$ROOT}locale/en/$name.php");
@@ -83,6 +85,7 @@ function discover_language($accept="")
 		if (@$x[1]) $alt[]=$x[0];
 	}
 	foreach (array_unique(array_merge($tab, $alt)) as $lc)
+		if (preg_match('/^[a-z]{2}(-[a-z]{2})?$/i', $lc))
 		foreach ($search as $dir) if ($dir!='' && @is_dir("$dir/$lc"))
 			return $lc;
 	return $Config['DefaultLanguage'];

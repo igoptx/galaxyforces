@@ -73,7 +73,7 @@ function actionfight($global) {
 
 	if ($Player['mp'] < ($mp = 0.8 + $Player['level'] * 0.2)) $errors .= $Lang['ErrorYouNeedRest'] . '<br />';
 	elseif ($Player['hp'] < 1) $errors .= $Lang['ErrorYouNeedHealing'] . '<br />';
-	elseif (($global || checkplace('arena')) && ($name = getvar('name')) && $name != $Player['login']) {
+	elseif (($global || checkplace('arena')) && ($name = escapesql(strip_tags((string)getvar('name')))) && strcasecmp($name, $Player['login']) != 0) {
 		$db->query("SELECT `id` FROM `{$prefix}users` WHERE `login`='$name';");
 		if (! $db->numrows()) $errors .= $Lang['ErrorLoginNotExists'] . '<br />';
 		else {
@@ -88,7 +88,9 @@ function actionfight($global) {
 			if ($attacker['clan'] && ($attacker['clan'] == $defender['clan'])) $errors .= $Lang['ErrorAlly'] . '<br />';
 		}
 		if (! $errors) {
-			$agility = $attacker['agility'] > $defender['agility'] ? $attacker['agility'] / $defender['agility'] : -($defender['agility'] / $attacker['agility']);
+			// max(0.01, ...): agilidade 0 (possível com bebidas) dava divisão por zero
+			$aa = max(0.01, $attacker['agility']); $da = max(0.01, $defender['agility']);
+			$agility = $aa > $da ? $aa / $da : -($da / $aa);
 			if ($agility > 10) $agility = 10;
 			elseif ($agility < -10) $agility = -10;
 
@@ -129,8 +131,8 @@ function actionfight($global) {
 
 			$fight .= '<br />';
 
-			$levelmodifier = $defender['level'] / $attacker['level']; if ($levelmodifier < 0.1) $levelmodifier = 0.1; elseif ($levelmodifier > 3) $r = 3;
-			$hpmodifier = $defender['hpstore'] / $defender['hpmax'];
+			$levelmodifier = $defender['level'] / $attacker['level']; if ($levelmodifier < 0.1) $levelmodifier = 0.1; elseif ($levelmodifier > 3) $levelmodifier = 3;
+			$hpmodifier = $defender['hpstore'] / max(1, $defender['hpmax']);
 
 			if ($attacker['hp'] > $defender['hp']) {
 				$exp = round(num($Player['level'] * $hpmodifier * $levelmodifier * (log(num(1 + $count)) / 50) * $Player['exp'])) / (50 + $Player['level']);
@@ -145,7 +147,7 @@ function actionfight($global) {
 				$defender['lastkilledby'] = $attacker['login'];
 			}
 			else {
-				$exp = round(num($Player['level'] * $hpmodifier * $levelmodifier * (log(num(1 + $count)) / 50) * $Player['exp'])) / (100 - $Player['level']);
+				$exp = round(num($Player['level'] * $hpmodifier * $levelmodifier * (log(num(1 + $count)) / 50) * $Player['exp'])) / max(1, 100 - $Player['level']);
 				$fight .= '<b>' . $Lang['FightLoose'] . '</b><br /><br />';
 				if ($exp > $attacker['exp']) $exp = $attacker['exp'];
 				$fight .= $Lang['LostExperience'] . ': <font class="minus">' . div($exp) . '</font><br />';

@@ -172,6 +172,47 @@ function num($v)
 	return $f == (int)$f ? (int)$f : $f;
 }
 
+// Valor de "back" (página para onde voltar): só caminhos locais do jogo, sem
+// esquema, sem "//" e sem aspas. Evita XSS refletido e redirecionamentos abertos.
+function safe_back($back, $default = '')
+{
+	$back = (string)$back;
+	if ($back === '' || strpos($back, '//') !== false || !preg_match('#^[A-Za-z0-9_./-]+\.php(\?[A-Za-z0-9_=&%.+-]*)?$#', $back)) return $default;
+	return $back;
+}
+
+// Pedido vindo de outro site (Origin ou Referer de outro host)? Nesse caso as
+// ações não correm: é a defesa contra CSRF para os links ?action=... do jogo.
+function request_is_cross_site()
+{
+	$src = !empty($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : (!empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
+	if ($src === '') return false;
+	if ($src === 'null') return true;
+	$host = strtolower((string)parse_url($src, PHP_URL_HOST));
+	$port = parse_url($src, PHP_URL_PORT);
+	$mine = strtolower((string)@$_SERVER['HTTP_HOST']);
+	return $mine !== ($port ? "$host:$port" : $host) && $mine !== $host;
+}
+
+// Cookies da sessão: HttpOnly e SameSite=Lax (o browser não os envia em
+// imagens ou formulários vindos de outros sites).
+function set_session_cookie($name, $value, $expires = 0)
+{
+	return setcookie($name, (string)$value, array('expires' => $expires, 'path' => '/', 'httponly' => true, 'samesite' => 'Lax'));
+}
+
+// URL de imagem aceite para avatares e [img]: absoluto http(s), com extensão de
+// imagem e sem query, aspas ou espaços. Devolve '' se não servir. Sem isto, uma
+// aspa no URL dava SQL injection (usergroup='wheel') e XSS nos atributos, e um
+// [img]admin.php?action=... numa mensagem fazia o admin executar ações (CSRF).
+function valid_image_url($url)
+{
+	$url = trim((string)$url);
+	if ($url === '') return '';
+	if (!preg_match('#^https?://#i', $url)) $url = 'http://' . $url;
+	return preg_match('#^https?://[A-Za-z0-9.-]+(:[0-9]{1,5})?/[A-Za-z0-9._~/%+-]*\.(png|jpe?g|gif|webp)$#i', $url) ? $url : '';
+}
+
 function getvar($name)
 {
 	global $_POST, $_COOKIE, $_GET, $_SESSION;
@@ -321,8 +362,13 @@ function error($message, $prefix = "\t") {
 // Globals
 // -------------------------------------------------------------------
 
+if (request_is_cross_site() && (getvar('action') !== null || $_SERVER['REQUEST_METHOD'] == 'POST')) {
+	unset($_GET['action']);
+	$_POST = array();
+}
+
 $action = getvar('action');
-$back = getvar('back');
+$back = safe_back(getvar('back'));
 
 if (!isset($view)) $view = getvar('view');
 if (!isset($page)) $page = abs(num(getvar('page')));
@@ -330,7 +376,7 @@ if (!isset($page)) $page = abs(num(getvar('page')));
 $TIMESTAMP = $timestamp = date('YmdHis');
 $RID = $rid = substr(md5(Rand(11111, 99999).time()), 16);
 
-setcookie('RID', $RID, time()+3600);
+set_session_cookie('RID', $RID, time()+3600);
 
 // -------------------------------------------------------------------
 // External configuration from database

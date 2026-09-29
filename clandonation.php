@@ -6,7 +6,7 @@ $auth = true;
 require('include/header.php');
 
 $name = getvar('name');
-if (! ($back = getvar('back'))) $back = 'control.php';
+$back = safe_back(getvar('back'), 'control.php');
 
 $pagename = $Lang['ClanDonation'];
 

@@ -21,8 +21,8 @@ require('include/header.php');
 
 locale('colony');
 
-$galaxy = getvar('galaxy');
-$object = getvar('object');
+$galaxy = escapesql(strip_tags((string)getvar('galaxy')));
+$object = escapesql(strip_tags((string)getvar('object')));
 $page = abs(num(getvar('page')));
 
 $pagecount = 100;

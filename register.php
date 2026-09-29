@@ -54,7 +54,7 @@ if ($action == 'register') {
 
 	if (!$agree) $errors .= $Lang['ErrorAgreement'] . '<br />';
 	if (!$login) $errors .= $Lang['ErrorEmptyLogin'] . '!<br />';
-	elseif (preg_match("/[<'&,;>]/", $login) || (@$wynik[0]) || ($login == 'admin') || ($login == 'system') || ($login == 'root') || ($login == 'administrator') || (strrpos($login, ' ') > strlen($login) - 2) || (strpos($login, ' ') == ' ')) $errors .= $Lang['ErrorLoginInvalid'] .'<br />';
+	elseif (preg_match("/[<'&,;>\\\\\"`]/", $login) || (@$wynik[0]) || ($login == 'admin') || ($login == 'system') || ($login == 'root') || ($login == 'administrator') || (strrpos($login, ' ') > strlen($login) - 2) || (strpos($login, ' ') == ' ')) $errors .= $Lang['ErrorLoginInvalid'] .'<br />';
 	if (strlen($password) < 6) $errors .= $Lang['ErrorPasswordTooShort'] . ' (' . $Lang['mustcontainatleast'] . ' 6 ' . $Lang['chars'] . ')' . '<br />';
 	if ($password != $reenter) $errors .= $Lang['ErrorPasswordAndReenter'] . '<br />';
 //	if (! $name) $errors .= $Lang['ErrorEmptyName'] . '!<br />';
@@ -69,8 +69,7 @@ if ($action == 'register') {
 		else {
 			$backpassword = $password;
 			$password = md5($password);
-			$regid = crypt($login, Rand(1111, 9999));
-			$regid = Rand(11, 99) . substr($regid, strlen($regid) - 8, 8) . Rand(11, 99);
+			$regid = bin2hex(random_bytes(6));   // 12 caracteres aleatórios
 
 			if ($Config['Registration'] == 'auto') $sql = "INSERT INTO `{$prefix}users` (`login`,`password`,`email`,`gg`,`www`,`language`,`active`,`registered`) VALUES ('$login','$password','$email','$gg','$www','$language',1,'$today');";
 			else $sql = "INSERT INTO `{$prefix}users` (`login`,`password`,`email`,`gg`,`www`,`language`,`regid`,`registered`) VALUES ('$login','$password','$email','$gg','$www','$language','$regid','$today');"; 
@@ -124,8 +123,8 @@ if ($action == 'register') {
 // ===========================================================================
 
 elseif ($action == 'activate') {
-	$regid = getvar('regid');
-	if ($regid) {
+	$regid = preg_replace('/[^A-Za-z0-9.\/]/', '', (string)getvar('regid'));   // era SQL injection sem login
+	if (strlen($regid) >= 10) {
 		$db->query("SELECT `login`,`email` FROM `{$prefix}users` WHERE `regid`='$regid' LIMIT 1;");
 		if ($t = $db->fetchrow()) {
 			$login = $t['login'];

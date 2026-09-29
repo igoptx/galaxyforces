@@ -23,10 +23,10 @@ function actiongiveitems()
 	if (($item = @$Equipment[$id = getvar('id')]) && !$Equipment[$id]['active'] && $name) {
 		if ($db->query("SELECT planet FROM {$prefix}users WHERE login='$name';") && $row = $db->fetchrow()) $planet = $row['planet']; else $planet = '';
 		if ($item['count'] && $amount > $item['count']) $amount = $item['count']; elseif (!$amount) $amount = 1;
-		if ($amount && $Player['planet'] == $planet) {
-			if ($item['count']) $item['count'] = $amount;
+		// primeiro tira ao jogador e só depois dá o que foi tirado (em paralelo duplicava)
+		if ($amount && $Player['planet'] == $planet && ($given = delequipment($id, $amount))) {
+			if ($item['count']) $item['count'] = $given;
 			addequipment($item, $name);
-			delequipment($id, $amount);
 		}
 	}
 }
@@ -72,7 +72,7 @@ function actionsellitem() {
 		$price = round(num($Equipment[$id]['price'] * $ratio / $mod));
 		if ($amount = delequipment($id, $amount)) {
 			$Player['credits'] += $price * $amount;
-			$db->query("UPDATE {$prefix}users SET credits='{$Player['credits']}' WHERE id='{$Player['id']}';");
+			$db->query("UPDATE {$prefix}users SET credits=credits+" . (int)($price * $amount) . " WHERE id='{$Player['id']}';");
 		}
 	}
 }

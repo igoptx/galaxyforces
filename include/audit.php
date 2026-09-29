@@ -38,8 +38,8 @@ function audit($category, $action, $target = '', $details = '', $actor = null)
 	if (empty($db)) return false;
 
 	if ($actor === null) $actor = isset($login) ? (string)$login : '';
+	// com mod_remoteip (docker/apache/remoteip.conf) o REMOTE_ADDR já é o IP do jogador
 	$ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'cli';
-	if (!empty($_SERVER['HTTP_X_REAL_IP'])) $ip = $_SERVER['HTTP_X_REAL_IP'];
 
 	$fields = array(
 		'actor' => mb_substr((string)$actor, 0, 32),

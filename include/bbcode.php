@@ -59,10 +59,7 @@ $bb_with[] = '<div style="text-align: right">$1</div>';
 $bb_replace[] = '/\[justify](.*?)\[\/justify]/si';
 $bb_with[] = '<div style="text-align: justify">$1</div>';
 
-$bb_replace[] = '/\[img](.*?)\[\/img]/si';
-$bb_with[] = '<img src="$1" />';
-$bb_replace[] = '/\[img=(.*?)](.*?)\[\/img]/si';
-$bb_with[] = '<img src="$1" alt="$2" />';
+// [img] é tratado em bbcode() com valid_image_url()
 
 if (@$Config['BBParseLinks']) {
 	$bb_replace[] = '/\[link](.*?)\[\/link]/si';
@@ -76,7 +73,16 @@ if (!defined('__BBCODE__')) {
 function bbcode($text)
 {
 	global $bb_replace, $bb_with;
-	return preg_replace($bb_replace, $bb_with, $text);
+	// imagens só com URL absoluto de imagem (sem query): um [img]admin.php?action=...
+	// fazia quem lesse a mensagem executar ações, e aspas no URL davam XSS
+	$text = preg_replace_callback('/\[img(?:=(.*?))?](.*?)\[\/img]/si', function ($m) {
+		$src = valid_image_url($m[1] !== '' ? $m[1] : $m[2]);
+		if ($src === '') return htmlspecialchars($m[0], ENT_QUOTES);
+		return '<img src="' . $src . '"' . ($m[1] !== '' ? ' alt="' . htmlspecialchars($m[2], ENT_QUOTES) . '"' : '') . ' />';
+	}, $text);
+	$text = preg_replace($bb_replace, $bb_with, $text);
+	// [link]: só http(s)
+	return preg_replace('#<a href="(?!https?://)[^"]*"#i', '<a href="#"', $text);
 }
 
 define('__BBCODE_PHP__', 1);
