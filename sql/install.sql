@@ -116,6 +116,32 @@ CREATE TABLE `galaxy_buildings` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `galaxy_buildqueue`
+--
+
+CREATE TABLE `galaxy_buildqueue` (
+  `id` int(11) NOT NULL auto_increment,
+  `login` varchar(32) NOT NULL default '',
+  `name` varchar(32) NOT NULL default '0',
+  `time` int(11) NOT NULL default '0',
+  `amount` int(11) NOT NULL default '1',
+  `score` int(11) NOT NULL default '0',
+  `credits` bigint(20) NOT NULL default '0',
+  `energy` bigint(20) NOT NULL default '0',
+  `silicon` bigint(20) NOT NULL default '0',
+  `metal` bigint(20) NOT NULL default '0',
+  `uran` bigint(20) NOT NULL default '0',
+  `plutonium` bigint(20) NOT NULL default '0',
+  `deuterium` bigint(20) NOT NULL default '0',
+  `food` bigint(20) NOT NULL default '0',
+  `crystals` bigint(20) NOT NULL default '0',
+  PRIMARY KEY  (`id`),
+  KEY `login` (`login`)
+) COMMENT='galaxy';
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `galaxy_chat`
 --
 
@@ -615,6 +641,30 @@ CREATE TABLE `galaxy_researches` (
   `time` int(11) NOT NULL default '0',
   `score` int(11) NOT NULL default '0',
   PRIMARY KEY  (`id`)
+) COMMENT='galaxy';
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `galaxy_researchqueue`
+--
+
+CREATE TABLE `galaxy_researchqueue` (
+  `id` int(11) NOT NULL auto_increment,
+  `login` varchar(32) NOT NULL default '',
+  `name` varchar(32) NOT NULL default '',
+  `time` int(11) NOT NULL default '0',
+  `score` int(11) NOT NULL default '0',
+  `credits` bigint(20) NOT NULL default '0',
+  `energy` bigint(20) NOT NULL default '0',
+  `silicon` bigint(20) NOT NULL default '0',
+  `metal` bigint(20) NOT NULL default '0',
+  `uran` bigint(20) NOT NULL default '0',
+  `plutonium` bigint(20) NOT NULL default '0',
+  `deuterium` bigint(20) NOT NULL default '0',
+  `crystals` bigint(20) NOT NULL default '0',
+  PRIMARY KEY  (`id`),
+  KEY `login` (`login`)
 ) COMMENT='galaxy';
 
 -- --------------------------------------------------------

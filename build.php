@@ -51,104 +51,65 @@ elseif ($result) {
 else {
 	echo "\t<script>\n\t<!--\n\tfunction ask(\$url)\n\t{\n\t\tif (confirm('{$Lang['AreYouSure?']}')) location.href = \$url;\n\t}\n\t//-->\n\t</script>\n";
 
-	if ($Buildings) {
-		tablebegin($pagename, 500);
-		subbegin();
+	// estado atual (reflete a ação que o motor acabou de processar)
+	$Buildings = readbuildings($login);
+	$buildqueue = readbuildqueue($login);
 
-		tableimg('images/bw.gif', 168, 168, "gallery/buildings/{$Buildings['name']}.jpg", 160, 160, '', 'right');
+	// -----------------------------------------------------------------------
+	// Em construção agora + fila (estilo OGame)
+	// -----------------------------------------------------------------------
+	if ($Buildings || $buildqueue) {
+		tablebegin($Lang['Building']);
+		echo "\t<ul class=\"queue\">\n";
 
-		echo "\t<center><font class=\"h3\">{$Lang['Building']}</font></center>\n";
-?>	<br />
-	<b><?php echo $Lang['Name']; ?></b>: <font class="plus"><?php echo $Builds[$Buildings['name']]['name']; ?></font><br />
-	<b><?php echo $Lang['Amount']; ?></b>: <font class="result"><?php echo $Buildings['amount']; ?></font><br />
-	<b><?php echo $Lang['Progress']; ?></b>: <font class="capacity"><?php echo round(num(100 * ($stardate - $Buildings['begin']) / $Buildings['time'])); ?> %</font><br />
-	<br />
-	<?php echo $Lang['FullETA']; ?>: <b><span data-countdown="<?php echo max(0, ($Buildings['end'] - $stardate) * $thicklength); ?>"><?php echo eta($Buildings['end'] - $stardate); ?></span></b><br />
-	<br />
-	<center><a href="javascript:ask('<?php echo $_SERVER['PHP_SELF']; ?>?action=cancelbuilding')" class="delete"><?php echo $Lang['BuildC']; ?> &gt;&gt;</a></center>
-	<br />
-<?php
-		sound('building');
-
-		subend();
-		tableend($Lang['Build']);
-	}
-	elseif ($action == 'build') {
-		if ($errors) {
-			tablebegin('<font color="red" class="error">' . $Lang['Error'] . '!</font>', '400');
-
-?>	<br />
-	<b><?php echo $Lang['ErrorCantBuild']; ?></b><br />
-	<br />
-	<font color="red" class="error"><?php echo $errors; ?></font>
-	<br />
-	<a href="javascript:history.back(1)"><?php echo $Lang['GoBack']; ?> &gt;&gt;</a><br />
-	<br />
-<?php
-		 	tableend($Lang['Build']);
-			sound('error');
+		// item ativo
+		if ($Buildings) {
+			$bname = isset($Builds[$Buildings['name']]) ? $Builds[$Buildings['name']]['name'] : strcap($Buildings['name']);
+			$left = $Buildings['end'] - $stardate;
+			$pct = $Buildings['time'] > 0 ? round(num(100 * ($stardate - $Buildings['begin']) / $Buildings['time'])) : 100;
+			echo "\t\t<li>" . card_image(array("gallery/buildings/{$Buildings['name']}.jpg", "gallery/buildings/icons/{$Buildings['name']}.jpg"), 'build.php', $bname)
+				. '<div class="queue-body"><div class="queue-title"><span class="result">' . htmlspecialchars($bname) . '</span> <span class="badge">x' . (int)$Buildings['amount'] . '</span></div>'
+				. '<div class="queue-meta"><span class="value" data-countdown="' . max(0, $left * $thicklength) . '">' . eta($left) . '</span> <span class="muted">(' . $pct . '%)</span> '
+				. '<a class="delete" href="javascript:ask(\'' . $_SERVER['PHP_SELF'] . '?action=cancelbuilding&amp;rid=' . $rid . '\')">' . $Lang['BuildC'] . '</a></div></div></li>' . "\n";
+			sound('building');
 		}
-		else {
-			tablebegin($Lang['Build'], 500);
-?>		<br />
-		<font class="h3"><?php echo $Lang['BuildS']; ?></font><br />
-		<br />
-		<table align="center" cellspacing="0" cellpadding="0" border="0">
-<?php
- 			if ($Cost['credits']) {
-?>		<tr>
-		<td><?php echo $Lang['Credits']; ?>:</td>
-		<td>&nbsp; &nbsp;</td>
-		<td><b><?php echo div($Cost['credits']); ?></b></td>
-		</tr>
-<?php
-			}
- 			if ($Cost['energy']) echo "\t<tr><td>{$Lang['Energy']}:</td><td></td><td><b>".div($Cost['energy'])."</b></td></tr>\n";
- 			if ($Cost['silicon']) echo "\t<tr><td>{$Lang['Silicon']}:</td><td></td><td><b>".div($Cost['silicon'])."</b></td></tr>\n";
- 			if ($Cost['metal']) echo "\t<tr><td>{$Lang['Metal']}:</td><td></td><td><b>".div($Cost['metal'])."</b></td></tr>\n";
- 			if ($Cost['uran']) {
-?>		<tr>
-		<td><?php echo $Lang['Uran']; ?>:</td>
-		<td>&nbsp; &nbsp;</td>
-		<td><b><?php echo div($Cost['uran']); ?></b></td>
-		</tr>
-<?php
-			}
- 			if ($Cost['crystals']) {
-?>		<tr>
-		<td><?php echo $Lang['Crystals']; ?>:</td>
-		<td>&nbsp; &nbsp;</td>
-		<td><b><?php echo div($Cost['crystals']); ?></b></td>
-		</tr>
-<?php
-			}
-?>		</table>
-		<br />
-		<a href="<?php echo $_SERVER['PHP_SELF']; ?>?rid=<?php echo $rid; ?>"><?php echo $Lang['GoBack']; ?> &gt;&gt;</a><br />
-		<br />
-<?php
-			tableend($Lang['Build']);
-			sound('buildingstarted');
+
+		// itens em fila, com ETA acumulado
+		$cum = $Buildings ? ($Buildings['end'] - $stardate) : 0;
+		if ($cum < 0) $cum = 0;
+		foreach ($buildqueue as $n => $q) {
+			$cum += (int)$q['time'];
+			$qname = isset($Builds[$q['name']]) ? $Builds[$q['name']]['name'] : strcap($q['name']);
+			echo "\t\t<li>" . card_image(array("gallery/buildings/{$q['name']}.jpg", "gallery/buildings/icons/{$q['name']}.jpg"), '', $qname)
+				. '<div class="queue-body"><div class="queue-title"><span class="muted">' . ($n + 1) . '.</span> <span class="result">' . htmlspecialchars($qname) . '</span> <span class="badge">x' . (int)$q['amount'] . '</span></div>'
+				. '<div class="queue-meta"><span class="muted">' . $Lang['Queued'] . ':</span> <span class="value" data-countdown="' . max(0, $cum * $thicklength) . '">' . eta($cum) . '</span> '
+				. '<a class="delete" href="' . $_SERVER['PHP_SELF'] . '?action=dequeuebuild&amp;id=' . (int)$q['id'] . '&amp;rid=' . $rid . '">' . $Lang['QueueRemove'] . '</a></div></div></li>' . "\n";
 		}
+
+		echo "\t</ul>\n";
+		tableend($Lang['BuildQueue'] . ': ' . count((array)$buildqueue) . '/' . QUEUE_MAX);
 	}
-	else {
-		tablebegin($Lang['Build']);
 
-		// um grupo de cartões por tipo de estrutura
-		$type = null;
-		echo "\t<div class=\"cards\">\n";
-		foreach ($Builds as $s) {
-			if ($type !== null && $s['type'] != $type) {
-				echo "\t</div>\n";
-				tablebreak();
-				echo "\t<div class=\"cards\">\n";
-			}
-			$type = $s['type'];
+	// -----------------------------------------------------------------------
+	// Estruturas disponíveis (permite pôr na fila mesmo a construir)
+	// -----------------------------------------------------------------------
+	tablebegin($Lang['Build']);
 
-			$href = "description.php?subject={$s['id']}&back={$_SERVER['PHP_SELF']}";
-			$costs = $s;
-			if (isset($s['cost'])) $costs['credits'] = $s['credits'] + $s['cost'];
-			$credits_class = isset($s['cost']) ? 'work' : 'result';
+	$btn = $Buildings ? $Lang['queue'] : $Lang['build'];
+	$type = null;
+	echo "\t<div class=\"cards\">\n";
+	foreach ($Builds as $s) {
+		if ($type !== null && $s['type'] != $type) {
+			echo "\t</div>\n";
+			tablebreak();
+			echo "\t<div class=\"cards\">\n";
+		}
+		$type = $s['type'];
+
+		$href = "description.php?subject={$s['id']}&back={$_SERVER['PHP_SELF']}";
+		$costs = $s;
+		if (isset($s['cost'])) $costs['credits'] = $s['credits'] + $s['cost'];
+		$credits_class = isset($s['cost']) ? 'work' : 'result';
 ?>		<article class="card">
 			<?php echo card_image(array("gallery/buildings/{$s['id']}.jpg", "gallery/buildings/icons/{$s['id']}.jpg"), $href, $s['name']); ?>
 
@@ -164,19 +125,19 @@ else {
 					<form action="<?php echo $_SERVER['PHP_SELF']; ?>?rid=<?php echo $rid; ?>" method="POST">
 						<input type="hidden" name="action" value="build" />
 						<input type="hidden" name="name" value="<?php echo $s['id']; ?>" />
-						<?php if (! isset($s['level'])) { ?><input class="amount" size="4" maxlength="8" name="amount" value="1" /><?php } ?><input type="submit" value="<?php echo $Lang['build']; ?>" />
+						<?php if (! isset($s['level'])) { ?><input class="amount" size="4" maxlength="8" name="amount" value="1" /><?php } ?><input type="submit" value="<?php echo $btn; ?>" />
 					</form>
 				</div>
 <?php } ?>			</div>
 		</article>
 <?php
-		}
-		echo "\t</div>\n";
-		tableend(count((array)($Builds)) . $Lang[' structure(s) available']);
-
-		if ($action == 'cancelbuilding') sound('processcancelled');
-		else sound('selectstructure');
 	}
+	echo "\t</div>\n";
+	tableend(count((array)($Builds)) . $Lang[' structure(s) available']);
+
+	if ($action == 'cancelbuilding') sound('processcancelled');
+	elseif ($action == 'build') sound('buildingstarted');
+	else sound('selectstructure');
 }
 
 require('include/footer.php');

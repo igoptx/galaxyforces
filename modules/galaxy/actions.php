@@ -33,36 +33,34 @@ function actionbuild()
 	if (!$amount) $amount = 1;
 	if (@$Colony['infrastructure'] && $name && $amount) {
 		$errors = '';
-		if ($Buildings) $errors .= $Lang['ErrBuild1'] . '<br />';
-		else {
-			$b = null;
-			foreach ($Builds as $a) {
-				if ($a['id'] == $name) {
-					$b = $a;
-					if (isset($b['level'])) $amount = 1;
-					if (isset($b['credits'])) $b['credits'] *= $amount; else $b['credits'] = 0;
-					if (isset($b['cost'])) $b['credits'] += $b['cost'] * $amount;
-					@$b['energy'] *= $amount;
-					@$b['silicon'] *= $amount;
-					@$b['metal'] *= $amount;
-					@$b['uran'] *= $amount;
-					@$b['plutonium'] *= $amount;
-					@$b['deuterium'] *= $amount;
-					@$b['food'] *= $amount;
-					@$b['crystals'] *= $amount;
-					$b['score'] *= $amount;
-					$b['time'] = round(num((50 / $Colony['infrastructure']) * $amount * $b['work'] / log(num($Colony['workforce']))));
-					break;
-				}
+		$queueing = (bool)$Buildings;   // ja ha construcao ativa: vai para a fila
+		$b = null;
+		foreach ($Builds as $a) {
+			if ($a['id'] == $name) {
+				$b = $a;
+				if (isset($b['level'])) $amount = 1;
+				if (isset($b['credits'])) $b['credits'] *= $amount; else $b['credits'] = 0;
+				if (isset($b['cost'])) $b['credits'] += $b['cost'] * $amount;
+				@$b['energy'] *= $amount;
+				@$b['silicon'] *= $amount;
+				@$b['metal'] *= $amount;
+				@$b['uran'] *= $amount;
+				@$b['plutonium'] *= $amount;
+				@$b['deuterium'] *= $amount;
+				@$b['food'] *= $amount;
+				@$b['crystals'] *= $amount;
+				$b['score'] *= $amount;
+				$b['time'] = round(num((50 / $Colony['infrastructure']) * $amount * $b['work'] / log(num($Colony['workforce']))));
+				break;
 			}
-			if (!$b) $errors .= $Lang['ErrBuild2'] . '<br />';
-			elseif ($Player['credits'] < $b['credits']) $errors .= $Lang['ErrorNotEnoughCredits'] . '<br />';
-			elseif ($b['energy'] && $Colony['energy'] < $b['energy'] || $b['silicon'] && $Colony['silicon'] < $b['silicon'] || $b['metal'] && $Colony['metal'] < $b['metal'] || $b['uran'] && $Colony['uran'] < $b['uran'] || $b['plutonium'] && $Colony['plutonium'] < $b['plutonium'] || $b['deuterium'] && $Colony['deuterium'] < $b['deuterium'] || $b['food'] && $Colony['food'] < $b['food'] || $b['crystals'] && $Colony['crystals'] < $b['crystals']) $errors .= $Lang['ErrorNotEnoughResources'].'<br />';
-			elseif ($Colony['workforce'] < 1) $errors .= $Lang['ErrorNotEnoughWorkforce'] . '<br />';
-			elseif ($Colony['base'] && $Colony['colonistsfree'] < ceil(num(0.25 * $Colony['colonists']))) $errors .= $Lang['ErrorNotEnoughColonists'] . '<br />';
 		}
+		if (!$b) $errors .= $Lang['ErrBuild2'] . '<br />';
+		elseif ($queueing && buildqueue_count($login) >= QUEUE_MAX) $errors .= $Lang['ErrBuildQueueFull'] . '<br />';
+		elseif ($Player['credits'] < $b['credits']) $errors .= $Lang['ErrorNotEnoughCredits'] . '<br />';
+		elseif ($b['energy'] && $Colony['energy'] < $b['energy'] || $b['silicon'] && $Colony['silicon'] < $b['silicon'] || $b['metal'] && $Colony['metal'] < $b['metal'] || $b['uran'] && $Colony['uran'] < $b['uran'] || $b['plutonium'] && $Colony['plutonium'] < $b['plutonium'] || $b['deuterium'] && $Colony['deuterium'] < $b['deuterium'] || $b['food'] && $Colony['food'] < $b['food'] || $b['crystals'] && $Colony['crystals'] < $b['crystals']) $errors .= $Lang['ErrorNotEnoughResources'].'<br />';
+		elseif ($Colony['workforce'] < 1) $errors .= $Lang['ErrorNotEnoughWorkforce'] . '<br />';
+		elseif (!$queueing && $Colony['base'] && $Colony['colonistsfree'] < ceil(num(0.25 * $Colony['colonists']))) $errors .= $Lang['ErrorNotEnoughColonists'] . '<br />';
 		if (!$errors) {
-			$db->query("INSERT INTO `{$prefix}buildings` (`login`, `name`, `begin`, `time`, `amount`, `score`) VALUES ('$login', '$name', '$stardate', '{$b['time']}', '$amount', '{$b['score']}')");
 			$Player['credits'] -= $b['credits'];
 			$Colony['energy'] -= $b['energy'];
 			$Colony['silicon'] -= $b['silicon'];
@@ -71,7 +69,14 @@ function actionbuild()
 			$Colony['plutonium'] -= $b['plutonium'];
 			$Colony['deuterium'] -= $b['deuterium'];
 			$Colony['crystals'] -= $b['crystals'];
-			$Colony['colonistsfree'] -= ceil(num(0.25 * $Colony['colonists']));
+			if ($queueing) {
+				queue_ensure();
+				$db->query("INSERT INTO `{$prefix}buildqueue` (`login`, `name`, `time`, `amount`, `score`, `credits`, `energy`, `silicon`, `metal`, `uran`, `plutonium`, `deuterium`, `food`, `crystals`) VALUES ('$login', '$name', '{$b['time']}', '$amount', '{$b['score']}', '" . (int)$b['credits'] . "', '" . (int)@$b['energy'] . "', '" . (int)@$b['silicon'] . "', '" . (int)@$b['metal'] . "', '" . (int)@$b['uran'] . "', '" . (int)@$b['plutonium'] . "', '" . (int)@$b['deuterium'] . "', '0', '" . (int)@$b['crystals'] . "')");
+			}
+			else {
+				$db->query("INSERT INTO `{$prefix}buildings` (`login`, `name`, `begin`, `time`, `amount`, `score`) VALUES ('$login', '$name', '$stardate', '{$b['time']}', '$amount', '{$b['score']}')");
+				$Colony['colonistsfree'] -= ceil(num(0.25 * $Colony['colonists']));
+			}
 			updateplayer($Player);
 			updatecolony($Colony);
 			$Cost = $b;
@@ -162,9 +167,10 @@ function actionmanagement()
 
 function actioncancelresearch()
 {
-	global $login, $db, $prefix, $Research;
+	global $login, $db, $prefix, $stardate, $Research;
 	if ($id = (int)getvar('id')) $db->query("DELETE FROM {$prefix}researches WHERE `id`='$id' AND `login`='$login';");
 	$Research = readresearch();
+	if (!$Research) $Research = researchqueue_startnext($login, $stardate);
 }
 
 // -------------------------------------------------------------------
@@ -183,11 +189,59 @@ function actioncancelproduction() {
 
 function actioncancelbuilding()
 {
-	global $login, $Buildings;
+	global $login, $stardate, $Buildings;
 
 	if ($Buildings) {
 		buildingfinish($login);
-		$Buildings = array();
+		$Buildings = buildqueue_startnext($login, $stardate);
+	}
+}
+
+// remove um item da fila de construcao e devolve os recursos guardados
+function actiondequeuebuild()
+{
+	global $login, $db, $prefix, $Player, $Colony;
+	$id = (int)getvar('id');
+	if (!$id) return;
+	$db->query("SELECT * FROM `{$prefix}buildqueue` WHERE `id`='$id' AND `login`='" . $db->safe($login) . "' LIMIT 1");
+	if ($q = $db->fetchrow()) {
+		$db->query("DELETE FROM `{$prefix}buildqueue` WHERE `id`='$id' AND `login`='" . $db->safe($login) . "' LIMIT 1");
+		if ($db->affected_rows() > 0) {
+			$Player['credits'] += (int)$q['credits'];
+			$Colony['energy'] += (int)$q['energy'];
+			$Colony['silicon'] += (int)$q['silicon'];
+			$Colony['metal'] += (int)$q['metal'];
+			$Colony['uran'] += (int)$q['uran'];
+			$Colony['plutonium'] += (int)$q['plutonium'];
+			$Colony['deuterium'] += (int)$q['deuterium'];
+			$Colony['crystals'] += (int)$q['crystals'];
+			updateplayer($Player);
+			updatecolony($Colony);
+		}
+	}
+}
+
+// remove um item da fila de investigacao e devolve os recursos guardados
+function actiondequeueresearch()
+{
+	global $login, $db, $prefix, $Player, $Colony;
+	$id = (int)getvar('id');
+	if (!$id) return;
+	$db->query("SELECT * FROM `{$prefix}researchqueue` WHERE `id`='$id' AND `login`='" . $db->safe($login) . "' LIMIT 1");
+	if ($q = $db->fetchrow()) {
+		$db->query("DELETE FROM `{$prefix}researchqueue` WHERE `id`='$id' AND `login`='" . $db->safe($login) . "' LIMIT 1");
+		if ($db->affected_rows() > 0) {
+			$Player['credits'] += (int)$q['credits'];
+			$Colony['energy'] += (int)$q['energy'];
+			$Colony['silicon'] += (int)$q['silicon'];
+			$Colony['metal'] += (int)$q['metal'];
+			$Colony['uran'] += (int)$q['uran'];
+			$Colony['plutonium'] += (int)$q['plutonium'];
+			$Colony['deuterium'] += (int)$q['deuterium'];
+			$Colony['crystals'] += (int)$q['crystals'];
+			updateplayer($Player);
+			updatecolony($Colony);
+		}
 	}
 }
 
@@ -435,16 +489,17 @@ function actionshipexchange() {
 
 function actioninitiate() {
 	global $login, $action, $db, $prefix, $Lang, $errors, $stardate, $name, $Player, $Colony, $Technologies, $Research;
-	if (@$Colony['science'] && $Technologies && $name && (!$Research) && isset($Technologies[$name]) && !$Technologies[$name]['completed']) {
+	if (@$Colony['science'] && $Technologies && $name && isset($Technologies[$name]) && !$Technologies[$name]['completed']) {
+		$queueing = (bool)$Research;
 		$t = $Technologies[$name];
-		if ($Player['credits'] < $t['credits']) $errors .= $Lang['ErrorNotEnoughCredits'].'<br />';
+		if ($queueing && researchqueue_count($login) >= QUEUE_MAX) $errors .= $Lang['ErrResearchQueueFull'] . '<br />';
+		elseif ($Player['credits'] < $t['credits']) $errors .= $Lang['ErrorNotEnoughCredits'].'<br />';
 		elseif (($t['energy'] && $Colony['energy'] < $t['energy']) || ($t['silicon'] && $Colony['silicon'] < $t['silicon']) || ($t['metal'] && $Colony['metal'] < $t['metal']) || ($t['uran'] && $Colony['uran'] < $t['uran']) || ($t['plutonium'] && $Colony['plutonium'] < $t['plutonium']) || ($t['deuterium'] && $Colony['deuterium'] < $t['deuterium']) || ($t['crystals'] && $Colony['crystals'] < $t['crystals'])) $errors .= $Lang['ErrorNotEnoughResources'].'<br />';
 		elseif ($Colony['scienceforce'] < 1) $errors .= $Lang['ErrorNotEnoughScienceforce'] . '<br />';
-		elseif ($Colony['scientistsfree'] < ceil(num(0.5 * $Colony['scientists']))) $errors .= $Lang['ErrorNotEnoughScientists'] . '<br />';
+		elseif (!$queueing && $Colony['scientistsfree'] < ceil(num(0.5 * $Colony['scientists']))) $errors .= $Lang['ErrorNotEnoughScientists'] . '<br />';
 		if (!$errors) {
 			$score = $t['score'];
 			$time = 1 + round(num((25 / $Colony['science']) * $t['work'] / log(num($Colony['scienceforce']))));
-			$Research = array('name' => $name, 'end' =>$stardate + $time);
 			$Player['credits'] -= $t['credits'];
 			$Colony['energy'] -= $t['energy'];
 			$Colony['silicon'] -= $t['silicon'];
@@ -453,10 +508,17 @@ function actioninitiate() {
 			$Colony['plutonium'] -= $t['plutonium'];
 			$Colony['deuterium'] -= $t['deuterium'];
 			$Colony['crystals'] -= $t['crystals'];
-			$Colony['scientistsfree'] -= ceil(num(0.5 * $Colony['scientists']));
+			if ($queueing) {
+				queue_ensure();
+				$db->query("INSERT INTO `{$prefix}researchqueue` (`login`, `name`, `time`, `score`, `credits`, `energy`, `silicon`, `metal`, `uran`, `plutonium`, `deuterium`, `crystals`) VALUES ('$login', '$name', '$time', '$score', '" . (int)$t['credits'] . "', '" . (int)@$t['energy'] . "', '" . (int)@$t['silicon'] . "', '" . (int)@$t['metal'] . "', '" . (int)@$t['uran'] . "', '" . (int)@$t['plutonium'] . "', '" . (int)@$t['deuterium'] . "', '" . (int)@$t['crystals'] . "')");
+			}
+			else {
+				$Research = array('name' => $name, 'end' => $stardate + $time);
+				$Colony['scientistsfree'] -= ceil(num(0.5 * $Colony['scientists']));
+				$db->query("INSERT INTO {$prefix}researches (`login`,`name`,`begin`,`time`,`score`) VALUES ('$login','$name','$stardate','$time','$score');");
+			}
 			updateplayer($Player);
 			updatecolony($Colony);
-			$db->query("INSERT INTO {$prefix}researches (`login`,`name`,`begin`,`time`,`score`) VALUES ('$login','$name','$stardate','$time','$score');");
 		}
 	}
 }

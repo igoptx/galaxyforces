@@ -116,6 +116,22 @@ if (@$Research) $progress[] = array('icon' => "gallery/technology/icons/{$Resear
 if ($Productions) foreach ($Productions as $pr) $progress[] = array('icon' => "gallery/units/icons/{$pr['name']}.jpg", 'label' => $Lang['OvProduction'],
 	'name' => $ProductionsAvailable[$pr['name']]['name'] . ' x' . div($pr['amount']), 'left' => $pr['end'] - $sd, 'link' => 'production.php');
 
+// itens em fila (estilo OGame), com ETA acumulado a seguir ao item ativo
+if (function_exists('readbuildqueue')) {
+	$bcum = $Buildings ? max(0, $Buildings['end'] - $sd) : 0;
+	foreach (readbuildqueue($login) as $q) {
+		$bcum += (int)$q['time'];
+		$progress[] = array('icon' => "gallery/buildings/icons/{$q['name']}.jpg", 'label' => $Lang['OvBuilding'] . ' · ' . $Lang['Queued'],
+			'name' => (isset($Builds[$q['name']]) ? $Builds[$q['name']]['name'] : strcap($q['name'])) . ' x' . (int)$q['amount'], 'left' => $bcum, 'link' => 'build.php');
+	}
+	$rcum = @$Research ? max(0, $Research['end'] - $sd) : 0;
+	foreach (readresearchqueue($login) as $q) {
+		$rcum += (int)$q['time'];
+		$progress[] = array('icon' => "gallery/technology/icons/{$q['name']}.jpg", 'label' => $Lang['OvResearch'] . ' · ' . $Lang['Queued'],
+			'name' => (isset($Technologies[$q['name']]) ? $Technologies[$q['name']]['name'] : strcap($q['name'])), 'left' => $rcum, 'link' => 'research.php');
+	}
+}
+
 tablebegin($Lang['OvInProgress']);
 if ($progress) {
 	echo "\t<ul class=\"queue\">\n";

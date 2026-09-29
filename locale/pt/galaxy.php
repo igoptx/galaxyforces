@@ -318,6 +318,13 @@ $Lang['ExpL']='<b>Exploração em curso...</b><br /><br />Tempo estimado para te
 $Lang['ExplC']='Cancelar expedição';
 $Lang['ErrBuild1']="Não pode ter mais do que uma construção em simultâneo!";
 $Lang['ErrBuild2']="Não tem permissão para construir esta estrutura!";
+$Lang['ErrBuildQueueFull']="A fila de construção está cheia.";
+$Lang['ErrResearchQueueFull']="A fila de investigação está cheia.";
+$Lang['BuildQueue']='Fila de construção';
+$Lang['ResearchQueue']='Fila de investigação';
+$Lang['Queued']='Em fila';
+$Lang['QueueRemove']='Remover';
+$Lang['queue']='pôr na fila';
 $Lang['ErrDestroy1']="Não tem tantas estruturas construídas. Queria mesmo destruí-las todas?";
 
 $Lang['Mercenary']='Mercenários';
