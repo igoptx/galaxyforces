@@ -213,7 +213,7 @@ elseif ($view == 'admin') {
 		}
 
 		echo '<tr><td><b>'.$Lang['Description'].'</b>:</td><td>&nbsp;</td><td>';
-		if ($Player['login'] == $Group['owner']) echo '<input type="text" size="25" maxlength="160" name="description" value="'.$Group['description'].'" />';
+		if ($Player['login'] == $Group['owner']) echo '<input type="text" size="25" maxlength="160" name="description" value="'.htmlspecialchars($Group['description'], ENT_QUOTES).'" />';
 		else echo $Group['description'];
 		echo '</td></tr>';
 

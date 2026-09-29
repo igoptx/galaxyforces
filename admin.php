@@ -93,7 +93,8 @@ elseif ($action) {
 	audit('admin', $action, (string)$name, 'admin.php');
 	// os grupos só eram verificados no menu: um moderador podia apagar contas ou
 	// tornar-se wheel. Moderadores: chat e bans; tudo o resto é só para wheel.
-	if (!in_array($action, array('chatdelete', 'ban', 'unlock', 'lock')) && @$User['usergroup'] != 'wheel') {
+	if ((!in_array($action, array('chatdelete', 'ban', 'unlock', 'lock')) && @$User['usergroup'] != 'wheel')
+		|| (in_array($action, array('ban', 'unlock', 'lock')) && !in_array(@$User['usergroup'], array('wheel', 'moderators')))) {
 		$errors .= $Lang['ErrorAccessDenied'].'<br />';
 		$action = '';
 	}
@@ -162,6 +163,7 @@ elseif ($action) {
 		case 'changegroup':
 			if ($User['usergroup'] != 'wheel') $errors .= $Lang['ErrorAccessDenied'].'<br />';
 			elseif (!$name) $errors .= $Lang['ErrorEmptyLogin'].'<br />';
+			elseif (!in_array($group, array('', 'wheel', 'moderators', 'jailchief', 'forum'), true)) $errors .= $Lang['ErrorAccessDenied'].'<br />';
 			else {
 				$db->query("UPDATE {$prefix}users SET usergroup='$group' WHERE login='$name';");
 				echolog("$login: changed group for \"$name\" to \"$group\"");
@@ -490,7 +492,7 @@ elseif (($view == 'changegroup') && ($User['usergroup'] == 'wheel')) {
 	}
 
 	if ($name) {
-		echo "\t".'<form action="admin.php" method="POST"><input type="hidden" name="action" value="changegroup" /><input type="hidden" name="name" value="'.$name."\" />\n";
+		echo "\t".'<form action="admin.php" method="POST"><input type="hidden" name="action" value="changegroup" /><input type="hidden" name="name" value="'.htmlspecialchars($name, ENT_QUOTES)."\" />\n";
 		echo "\t<table align=\"center\">\n";
 		echo "\t<tr><td><b>{$Lang['Login']}</b>:</td><td>&nbsp;</td><td><a href=\"whois.php?name=$name\">$name</a></td></tr>\n";
 		echo "\t<tr><td><b>{$Lang['Rank']}</b>:</td><td>&nbsp;</td><td><font class=\"result\">".$Lang['Groups[]'][$t['usergroup']]."</font></td></tr>\n";
@@ -526,7 +528,7 @@ elseif (($view == 'teleport') && ($User['usergroup'] == 'wheel')) {
 	}
 
 	if ($name) {
-		echo "\t".'<form action="admin.php" method="POST"><input type="hidden" name="action" value="teleport" /><input type="hidden" name="name" value="'.$name."\" />\n";
+		echo "\t".'<form action="admin.php" method="POST"><input type="hidden" name="action" value="teleport" /><input type="hidden" name="name" value="'.htmlspecialchars($name, ENT_QUOTES)."\" />\n";
 		echo "\t<table align=\"center\">\n";
 		echo "\t<tr><td><b>{$Lang['Login']}</b>:</td><td>&nbsp;</td><td><a href=\"whois.php?name=$name\">$name</a></td></tr>\n";
 
@@ -574,7 +576,7 @@ elseif (($view == 'changepassword') && ($User['usergroup'] == 'wheel')) {
 	}
 
 	if ($name) {
-		echo "\t".'<form action="admin.php" method="POST"><input type="hidden" name="action" value="changepassword" /><input type="hidden" name="name" value="'.$name."\" />\n";
+		echo "\t".'<form action="admin.php" method="POST"><input type="hidden" name="action" value="changepassword" /><input type="hidden" name="name" value="'.htmlspecialchars($name, ENT_QUOTES)."\" />\n";
 		echo "\t<table align=\"center\">\n";
 		echo "\t<tr><td><b>{$Lang['Login']}</b>:</td><td>&nbsp;</td><td><a href=\"whois.php?name=$name\">$name</a></td></tr>\n";
 		echo "\t<tr><td colspan=\"3\">&nbsp;</td></tr>\n";
@@ -613,7 +615,7 @@ elseif ($view == 'ban' || $view == 'lock') {
 
 		list($h, $i, $s, $m, $d, $y) = explode(' ', date("H i s m d Y", $time));
 
-		echo "\t".'<form action="admin.php" method="POST"><input type="hidden" name="action" value="'.$view.'" /><input type="hidden" name="name" value="'.$name."\" />\n";
+		echo "\t".'<form action="admin.php" method="POST"><input type="hidden" name="action" value="'.$view.'" /><input type="hidden" name="name" value="'.htmlspecialchars($name, ENT_QUOTES)."\" />\n";
 		echo "\t<table align=\"center\">\n";
 		echo "\t<tr><td><b>{$Lang['Login']}</b>:</td><td>&nbsp;</td><td><a href=\"whois.php?name=$name\">$name</a></td></tr>\n";
 		echo "\t<tr><td><b>{$Lang['Date']}</b>:</td><td>&nbsp;</td><td><input type=\"text\" value=\"$y\" name=\"y\" size=\"4\" />&nbsp;&nbsp;<input type=\"text\" value=\"$m\" name=\"m\" size=\"2\" />&nbsp;&nbsp;<input type=\"text\" value=\"$d\" name=\"d\" size=\"2\" />&nbsp;&nbsp;</td></tr>\n";
@@ -699,7 +701,7 @@ elseif ($view == 'markets') {
 
 		list($h, $i, $s, $m, $d, $y) = explode(' ', date("H i s m d Y", $time));
 
-		echo "\t".'<form action="admin.php" method="POST"><input type="hidden" name="action" value="'.$view.'" /><input type="hidden" name="name" value="'.$name."\" />\n";
+		echo "\t".'<form action="admin.php" method="POST"><input type="hidden" name="action" value="'.$view.'" /><input type="hidden" name="name" value="'.htmlspecialchars($name, ENT_QUOTES)."\" />\n";
 		echo "\t<table align=\"center\">\n";
 		echo "\t<tr><td><b>${Lang['Login']}</b>:</td><td>&nbsp;</td><td><a href=\"whois.php?name=$name\">$name</a></td></tr>\n";
 		echo "\t<tr><td><b>${Lang['Date']}</b>:</td><td>&nbsp;</td><td><input type=\"text\" value=\"$y\" name=\"y\" size=\"4\" />&nbsp;&nbsp;<input type=\"text\" value=\"$m\" name=\"m\" size=\"2\" />&nbsp;&nbsp;<input type=\"text\" value=\"$d\" name=\"d\" size=\"2\" />&nbsp;&nbsp;</td></tr>\n";
